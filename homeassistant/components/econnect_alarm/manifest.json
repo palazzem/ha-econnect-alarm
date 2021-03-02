@@ -1,0 +1,16 @@
+{
+  "domain": "econnect_alarm",
+  "name": "E-connect Alarm",
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/econnect_alarm",
+  "requirements": [
+    "econnect-python==0.3.1"
+  ],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@palazzem"
+  ]
+}
