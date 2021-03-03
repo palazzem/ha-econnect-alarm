@@ -6,12 +6,12 @@
         "error": {
             "cannot_connect": "Failed to connect",
             "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
+            "unknown": "Unexpected error: check your logs"
         },
         "step": {
             "user": {
                 "data": {
-                    "host": "Host",
+                    "vendor": "Vendor name (optional)",
                     "password": "Password",
                     "username": "Username"
                 }

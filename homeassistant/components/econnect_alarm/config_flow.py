@@ -1,69 +1,34 @@
 """Config flow for E-connect Alarm integration."""
 import logging
 
+from elmo.api.client import ElmoClient
+from requests.exceptions import ConnectionError, HTTPError
 import voluptuous as vol
 
 from homeassistant import config_entries, core, exceptions
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
-from .const import DOMAIN  # pylint:disable=unused-import
+from .const import BASE_URL, CONF_VENDOR, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-# TODO adjust the data schema to the data that you need
-STEP_USER_DATA_SCHEMA = vol.Schema({"host": str, "username": str, "password": str})
+STEP_USER_DATA_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_USERNAME): str,
+        vol.Required(CONF_PASSWORD): str,
+        vol.Optional(CONF_VENDOR, default=""): str,
+    }
+)
 
 
-class PlaceholderHub:
-    """Placeholder class to make tests pass.
-
-    TODO Remove this placeholder class and replace with things from your PyPI package.
-    """
-
-    def __init__(self, host):
-        """Initialize."""
-        self.host = host
-
-    async def authenticate(self, username, password) -> bool:
-        """Test if we can authenticate with the host."""
-        return True
-
-
-async def validate_input(hass: core.HomeAssistant, data):
-    """Validate the user input allows us to connect.
-
-    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
-    """
-    # TODO validate the data can be used to set up a connection.
-
-    # If your PyPI package is not built with async, pass your methods
-    # to the executor:
-    # await hass.async_add_executor_job(
-    #     your_validate_func, data["username"], data["password"]
-    # )
-
-    hub = PlaceholderHub(data["host"])
-
-    if not await hub.authenticate(data["username"], data["password"]):
-        raise InvalidAuth
-
-    # If you cannot connect:
-    # throw CannotConnect
-    # If the authentication is wrong:
-    # InvalidAuth
-
-    # Return info that you want to store in the config entry.
-    return {"title": "Name of the device"}
-
-
-class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for E-connect Alarm."""
 
     VERSION = 1
-    # TODO pick one of the available connection classes in homeassistant/config_entries.py
-    CONNECTION_CLASS = config_entries.CONN_CLASS_UNKNOWN
+    CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
     async def async_step_user(self, user_input=None):
-        """Handle the initial step."""
+        """Handle the initial configuration."""
         if user_input is None:
             return self.async_show_form(
                 step_id="user", data_schema=STEP_USER_DATA_SCHEMA
@@ -94,3 +59,31 @@ class CannotConnect(exceptions.HomeAssistantError):
 
 class InvalidAuth(exceptions.HomeAssistantError):
     """Error to indicate there is invalid auth."""
+
+
+async def validate_input(hass: core.HomeAssistant, data):
+    """Validate the user input allows us to connect.
+
+    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
+    """
+    # Initialize the client with an API endpoint and a vendor and
+    # authenticate your connection to retrieve the access token
+    # TODO: Simplify the API to accept no vendor
+    client = ElmoClient(BASE_URL, data["vendor"])
+
+    # TODO: Use a custom exception in ElmoClient instead of requests.exceptions
+    try:
+        await hass.async_add_executor_job(
+            client.auth, data["username"], data["password"]
+        )
+    except HTTPError:
+        # Wrong credentials
+        # TODO: use the custom exception instead of redefining a new exception
+        raise InvalidAuth
+    except ConnectionError:
+        # Unable to connect
+        # TODO: use the custom exception instead of redefining a new exception
+        raise CannotConnect
+
+    # Return info that you want to store in the config entry
+    return {"title": "E-connect Alarm"}
