@@ -2,7 +2,7 @@
 import logging
 
 from elmo.api.client import ElmoClient
-from elmo.api.exceptions import CredentialError
+from elmo.api.exceptions import CodeError, CredentialError
 from requests.exceptions import ConnectionError
 import voluptuous as vol
 
@@ -93,18 +93,18 @@ async def validate_input(hass: core.HomeAssistant, data):
 
         # ALARM_CODE is optional, but using it allows e-connect integration
         # to be used with automations.
-        if data[CONF_ALARM_CODE]:
-            _LOGGER.warning("Storing secret code!")
+        if data.get(CONF_ALARM_CODE):
             await hass.async_add_executor_job(
-                _validate_alarm_code, client, data[CONF_ALARM_CODE]
+                _validate_alarm_code, client, data.get(CONF_ALARM_CODE)
             )
     except CredentialError:
-        # Wrong credentials
-        # TODO: use the custom exception instead of redefining a new exception
-        raise InvalidAuth
+        # Invalid credentials
+        raise InvalidAuth("Username or password are not correct")
+    except CodeError:
+        # Invalid alarm code
+        raise InvalidAuth("Alarm code is not correct")
     except ConnectionError:
         # Unable to connect
-        # TODO: use the custom exception instead of redefining a new exception
         raise CannotConnect
 
     # Return info that you want to store in the config entry

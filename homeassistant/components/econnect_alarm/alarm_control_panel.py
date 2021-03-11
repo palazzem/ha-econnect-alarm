@@ -59,14 +59,14 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
 
     async def async_alarm_disarm(self, code=None):
         """Send disarm command."""
-        code = code or self._entry.data[CONF_ALARM_CODE]
+        code = code or self._config.data.get(CONF_ALARM_CODE)
         self._device.state = STATE_ALARM_DISARMING
         self.async_write_ha_state()
         await self.hass.async_add_executor_job(self._device.disarm, code)
 
     async def async_alarm_arm_home(self, code=None):
         """Send arm home command."""
-        code = code or self._entry.data[CONF_ALARM_CODE]
+        code = code or self._config.data.get(CONF_ALARM_CODE)
         self._device.state = STATE_ALARM_ARMING
         self.async_write_ha_state()
         await self.hass.async_add_executor_job(self._device.arm, code, [4])
