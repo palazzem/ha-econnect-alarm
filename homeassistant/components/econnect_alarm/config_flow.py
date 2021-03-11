@@ -94,6 +94,7 @@ async def validate_input(hass: core.HomeAssistant, data):
         # ALARM_CODE is optional, but using it allows e-connect integration
         # to be used with automations.
         if data[CONF_ALARM_CODE]:
+            _LOGGER.warning("Storing secret code!")
             await hass.async_add_executor_job(
                 _validate_alarm_code, client, data[CONF_ALARM_CODE]
             )

@@ -4,7 +4,8 @@
     "step": {
       "user": {
         "data": {
-          "vendor": "Vendor name (optional)",
+          "domain": "Domain name (optional)",
+          "alarm_code": "Code used in the panel (optional)",
           "username": "[%key:common::config_flow::data::username%]",
           "password": "[%key:common::config_flow::data::password%]"
         }
