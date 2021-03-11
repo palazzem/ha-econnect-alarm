@@ -11,7 +11,7 @@ from elmo.devices import AlarmDevice
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
     BASE_URL,
@@ -54,6 +54,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         """
         try:
             # TODO: detect what happens if the update fails; check the unhappy path
+            # TODO: use homeassistant.helpers.update_coordinator.UpdateFailed to
+            # detect when an update fails.
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
             async with async_timeout.timeout(POLLING_TIMEOUT):
@@ -70,9 +72,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                 device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD]
             )
             _LOGGER.warning("Token is invalid or expired, re-authentication executed.")
-        except Exception as err:
-            _LOGGER.warning(err)
-            raise UpdateFailed(f"API update failed | {err}")
 
     coordinator = DataUpdateCoordinator(
         hass,
