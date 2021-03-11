@@ -9,7 +9,14 @@ import voluptuous as vol
 from homeassistant import config_entries, core, exceptions
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
-from .const import BASE_URL, CONF_DOMAIN, DOMAIN
+from .const import (
+    BASE_URL,
+    CONF_AREAS_ARM_HOME,
+    CONF_AREAS_ARM_NIGHT,
+    CONF_DOMAIN,
+    DOMAIN,
+)
+from .helpers import parse_areas_config
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,6 +25,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_USERNAME): str,
         vol.Required(CONF_PASSWORD): str,
+        vol.Optional(CONF_AREAS_ARM_HOME): str,
+        vol.Optional(CONF_AREAS_ARM_NIGHT): str,
         vol.Optional(CONF_DOMAIN, default=""): str,
     }
 )
@@ -44,6 +53,8 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors["base"] = "cannot_connect"
         except InvalidAuth:
             errors["base"] = "invalid_auth"
+        except InvalidAreas:
+            errors["base"] = "invalid_areas"
         except Exception:  # pylint: disable=broad-except
             _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"
@@ -63,6 +74,10 @@ class InvalidAuth(exceptions.HomeAssistantError):
     """Error to indicate there is invalid auth."""
 
 
+class InvalidAreas(exceptions.HomeAssistantError):
+    """Error to indicate given areas are invalid."""
+
+
 def _validate_credentials(client, username, password):
     """Validate username/password to gain access to the service."""
     return client.auth(username, password)
@@ -79,11 +94,19 @@ async def validate_input(hass: core.HomeAssistant, data):
 
     # TODO: Use a custom exception in ElmoClient instead of requests.exceptions
     try:
+        # Check if areas are parsable
+        if data.get(CONF_AREAS_ARM_HOME):
+            parse_areas_config(data[CONF_AREAS_ARM_HOME], raises=True)
+        if data.get(CONF_AREAS_ARM_NIGHT):
+            parse_areas_config(data[CONF_AREAS_ARM_NIGHT], raises=True)
+    except (ValueError, AttributeError):
+        raise InvalidAreas
+
+    try:
         # Check Credentials
         await hass.async_add_executor_job(
             _validate_credentials, client, data[CONF_USERNAME], data[CONF_PASSWORD]
         )
-
     except CredentialError:
         # Invalid credentials
         raise InvalidAuth

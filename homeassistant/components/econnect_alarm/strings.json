@@ -6,7 +6,9 @@
         "data": {
           "domain": "Domain name (optional)",
           "username": "[%key:common::config_flow::data::username%]",
-          "password": "[%key:common::config_flow::data::password%]"
+          "password": "[%key:common::config_flow::data::password%]",
+          "areas_arm_home": "Armed areas while at home (e.g 3,4 - optional)",
+          "areas_arm_night": "Armed areas at night (e.g. 3,4 - optional)"
         },
         "description": "Insert your username and password to gain access.",
         "title": "Configure your e-connect system"
@@ -15,6 +17,7 @@
     "error": {
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
       "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "invalid_areas": "Digited areas (home or night) are invalid",
       "unknown": "[%key:common::config_flow::error::unknown%]"
     },
     "abort": {

@@ -6,14 +6,17 @@
         "error": {
             "cannot_connect": "Failed to connect",
             "invalid_auth": "Invalid authentication",
+            "invalid_areas": "Digited areas (home or night) are invalid",
             "unknown": "Unexpected error: check your logs"
         },
         "step": {
             "user": {
                 "data": {
                     "domain": "Domain name (optional)",
+                    "username": "Username",
                     "password": "Password",
-                    "username": "Username"
+                    "areas_arm_home": "Armed areas while at home (e.g. 3,4 - optional)",
+                    "areas_arm_night": "Armed areas at night (e.g. 3,4 - optional)"
                 },
                 "description": "Insert your username and password to gain access.",
                 "title": "Configure your e-connect system"
