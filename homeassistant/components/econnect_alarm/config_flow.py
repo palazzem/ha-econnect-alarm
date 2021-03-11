@@ -2,14 +2,14 @@
 import logging
 
 from elmo.api.client import ElmoClient
-from elmo.api.exceptions import CodeError, CredentialError
+from elmo.api.exceptions import CredentialError
 from requests.exceptions import ConnectionError
 import voluptuous as vol
 
 from homeassistant import config_entries, core, exceptions
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
-from .const import BASE_URL, CONF_ALARM_CODE, CONF_DOMAIN, DOMAIN
+from .const import BASE_URL, CONF_DOMAIN, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,7 +18,6 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_USERNAME): str,
         vol.Required(CONF_PASSWORD): str,
-        vol.Optional(CONF_ALARM_CODE): str,
         vol.Optional(CONF_DOMAIN, default=""): str,
     }
 )
@@ -69,12 +68,6 @@ def _validate_credentials(client, username, password):
     return client.auth(username, password)
 
 
-def _validate_alarm_code(client, code):
-    """Validate that the code is correct to gain exclusive lock."""
-    with client.lock(code):
-        pass
-
-
 async def validate_input(hass: core.HomeAssistant, data):
     """Validate the user input allows us to connect.
 
@@ -91,18 +84,9 @@ async def validate_input(hass: core.HomeAssistant, data):
             _validate_credentials, client, data[CONF_USERNAME], data[CONF_PASSWORD]
         )
 
-        # ALARM_CODE is optional, but using it allows e-connect integration
-        # to be used with automations.
-        if data.get(CONF_ALARM_CODE):
-            await hass.async_add_executor_job(
-                _validate_alarm_code, client, data.get(CONF_ALARM_CODE)
-            )
     except CredentialError:
         # Invalid credentials
-        raise InvalidAuth("Username or password are not correct")
-    except CodeError:
-        # Invalid alarm code
-        raise InvalidAuth("Alarm code is not correct")
+        raise InvalidAuth
     except ConnectionError:
         # Unable to connect
         raise CannotConnect

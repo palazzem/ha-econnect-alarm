@@ -15,7 +15,7 @@ from homeassistant.const import STATE_ALARM_ARMING, STATE_ALARM_DISARMING
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_ALARM_CODE, DOMAIN, KEY_COORDINATOR, KEY_DEVICE
+from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -59,14 +59,14 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
 
     async def async_alarm_disarm(self, code=None):
         """Send disarm command."""
-        code = code or self._config.data.get(CONF_ALARM_CODE)
+        _LOGGER.warning("Disarming!")
         self._device.state = STATE_ALARM_DISARMING
         self.async_write_ha_state()
         await self.hass.async_add_executor_job(self._device.disarm, code)
 
     async def async_alarm_arm_home(self, code=None):
         """Send arm home command."""
-        code = code or self._config.data.get(CONF_ALARM_CODE)
+        _LOGGER.warning("Arming!")
         self._device.state = STATE_ALARM_ARMING
         self.async_write_ha_state()
         await self.hass.async_add_executor_job(self._device.arm, code, [4])

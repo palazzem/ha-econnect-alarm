@@ -1,6 +1,5 @@
 """Constants for the E-connect Alarm integration."""
 BASE_URL = "https://connect.elmospa.com"
-CONF_ALARM_CODE = "alarm_code"
 CONF_DOMAIN = "domain"
 DOMAIN = "econnect_alarm"
 KEY_DEVICE = "device"

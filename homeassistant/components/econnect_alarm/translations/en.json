@@ -12,10 +12,11 @@
             "user": {
                 "data": {
                     "domain": "Domain name (optional)",
-                    "alarm_code": "Code used in the panel (optional)",
                     "password": "Password",
                     "username": "Username"
-                }
+                },
+                "description": "Insert your username and password to gain access.",
+                "title": "Configure your e-connect system"
             }
         }
     },

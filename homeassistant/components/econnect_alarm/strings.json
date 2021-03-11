@@ -5,10 +5,11 @@
       "user": {
         "data": {
           "domain": "Domain name (optional)",
-          "alarm_code": "Code used in the panel (optional)",
           "username": "[%key:common::config_flow::data::username%]",
           "password": "[%key:common::config_flow::data::password%]"
-        }
+        },
+        "description": "Insert your username and password to gain access.",
+        "title": "Configure your e-connect system"
       }
     },
     "error": {
