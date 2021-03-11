@@ -24,18 +24,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     """Platform setup with the forwarded config entry."""
     device = hass.data[DOMAIN][entry.entry_id][KEY_DEVICE]
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
-    async_add_devices([EconnectAlarm("Alarm Panel", device, coordinator, entry)])
+    async_add_devices(
+        [EconnectAlarm("Alarm Panel", device, coordinator, entry.entry_id)]
+    )
 
 
 class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     """E-connect alarm entity."""
 
-    def __init__(self, name, device, coordinator, config):
+    def __init__(self, name, device, coordinator, entry_id):
         """Construct."""
         super().__init__(coordinator)
         self._name = name
         self._device = device
-        self._config = config
+        self._entry_id = entry_id
+
+    @property
+    def unique_id(self):
+        """Return the unique identifier."""
+        return self._entry_id
 
     @property
     def name(self):
