@@ -9,15 +9,17 @@ import voluptuous as vol
 from homeassistant import config_entries, core, exceptions
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
-from .const import BASE_URL, CONF_VENDOR, DOMAIN
+from .const import BASE_URL, CONF_ALARM_CODE, CONF_DOMAIN, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
+
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_USERNAME): str,
         vol.Required(CONF_PASSWORD): str,
-        vol.Optional(CONF_VENDOR, default=""): str,
+        vol.Optional(CONF_ALARM_CODE): str,
+        vol.Optional(CONF_DOMAIN, default=""): str,
     }
 )
 
@@ -62,6 +64,17 @@ class InvalidAuth(exceptions.HomeAssistantError):
     """Error to indicate there is invalid auth."""
 
 
+def _validate_credentials(client, username, password):
+    """Validate username/password to gain access to the service."""
+    return client.auth(username, password)
+
+
+def _validate_alarm_code(client, code):
+    """Validate that the code is correct to gain exclusive lock."""
+    with client.lock(code):
+        pass
+
+
 async def validate_input(hass: core.HomeAssistant, data):
     """Validate the user input allows us to connect.
 
@@ -69,14 +82,21 @@ async def validate_input(hass: core.HomeAssistant, data):
     """
     # Initialize the client with an API endpoint and a vendor and
     # authenticate your connection to retrieve the access token
-    # TODO: Simplify the API to accept no vendor
-    client = ElmoClient(BASE_URL, data["vendor"])
+    client = ElmoClient(BASE_URL, domain=data[CONF_DOMAIN])
 
     # TODO: Use a custom exception in ElmoClient instead of requests.exceptions
     try:
+        # Check Credentials
         await hass.async_add_executor_job(
-            client.auth, data["username"], data["password"]
+            _validate_credentials, client, data[CONF_USERNAME], data[CONF_PASSWORD]
         )
+
+        # ALARM_CODE is optional, but using it allows e-connect integration
+        # to be used with automations.
+        if data[CONF_ALARM_CODE]:
+            await hass.async_add_executor_job(
+                _validate_alarm_code, client, data[CONF_ALARM_CODE]
+            )
     except CredentialError:
         # Wrong credentials
         # TODO: use the custom exception instead of redefining a new exception

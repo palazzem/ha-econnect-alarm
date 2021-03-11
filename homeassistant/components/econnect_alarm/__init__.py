@@ -9,11 +9,13 @@ from elmo.api.exceptions import InvalidToken
 from elmo.devices import AlarmDevice
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
     BASE_URL,
+    CONF_DOMAIN,
     DOMAIN,
     KEY_COORDINATOR,
     KEY_DEVICE,
@@ -38,10 +40,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     # Calling `device.connect` authenticates the device via an access token
     # and asks for the first update, hence why in `async_setup_entry` there is no need
     # to call `coordinator.async_refresh()`.
-    client = ElmoClient(BASE_URL, entry.data["vendor"])
+    client = ElmoClient(BASE_URL, entry.data[CONF_DOMAIN])
     device = AlarmDevice(connection=client)
     await hass.async_add_executor_job(
-        device.connect, entry.data["username"], entry.data["password"]
+        device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD]
     )
 
     async def async_update_data():
@@ -67,7 +69,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                     await hass.async_add_executor_job(device.update)
         except InvalidToken:
             await hass.async_add_executor_job(
-                device.connect, entry.data["username"], entry.data["password"]
+                device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD]
             )
             _LOGGER.warning("Token is invalid or expired, re-authentication executed.")
         except Exception as err:
