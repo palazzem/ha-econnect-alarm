@@ -55,8 +55,8 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors["base"] = "invalid_auth"
         except InvalidAreas:
             errors["base"] = "invalid_areas"
-        except Exception:  # pylint: disable=broad-except
-            _LOGGER.exception("Unexpected exception")
+        except Exception as err:  # pylint: disable=broad-except
+            _LOGGER.exception("Unexpected exception", err)
             errors["base"] = "unknown"
         else:
             return self.async_create_entry(title=info["title"], data=user_input)
