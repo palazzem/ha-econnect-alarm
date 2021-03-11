@@ -2,7 +2,8 @@
 import logging
 
 from elmo.api.client import ElmoClient
-from requests.exceptions import ConnectionError, HTTPError
+from elmo.api.exceptions import CredentialError
+from requests.exceptions import ConnectionError
 import voluptuous as vol
 
 from homeassistant import config_entries, core, exceptions
@@ -76,7 +77,7 @@ async def validate_input(hass: core.HomeAssistant, data):
         await hass.async_add_executor_job(
             client.auth, data["username"], data["password"]
         )
-    except HTTPError:
+    except CredentialError:
         # Wrong credentials
         # TODO: use the custom exception instead of redefining a new exception
         raise InvalidAuth
