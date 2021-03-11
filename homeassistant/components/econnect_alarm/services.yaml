@@ -1,0 +1,79 @@
+# Describes the format for available alarm control panel services
+
+alarm_disarm:
+  name: Disarm
+  description: Send the alarm the command for disarm.
+  target:
+  fields:
+    code:
+      name: Code
+      required: true
+      description: A code to trigger the alarm control panel with.
+      example: "1234"
+      selector:
+        text:
+
+alarm_arm_custom_bypass:
+  name: Arm with custom bypass
+  description: Send arm custom bypass command.
+  target:
+  fields:
+    code:
+      name: Code
+      required: true
+      description: A code to trigger the alarm control panel with.
+      example: "1234"
+      selector:
+        text:
+
+alarm_arm_home:
+  name: Arm home
+  description: Send the alarm the command for arm home.
+  target:
+  fields:
+    code:
+      name: Code
+      required: true
+      description: A code to trigger the alarm control panel with.
+      example: "1234"
+      selector:
+        text:
+
+alarm_arm_away:
+  name: Arm away
+  description: Send the alarm the command for arm away.
+  target:
+  fields:
+    code:
+      name: Code
+      required: true
+      description: A code to trigger the alarm control panel with.
+      example: "1234"
+      selector:
+        text:
+
+alarm_arm_night:
+  name: Arm night
+  description: Send the alarm the command for arm night.
+  target:
+  fields:
+    code:
+      name: Code
+      required: true
+      description: A code to trigger the alarm control panel with.
+      example: "1234"
+      selector:
+        text:
+
+alarm_trigger:
+  name: Trigger
+  description: Send the alarm the command for trigger.
+  target:
+  fields:
+    code:
+      name: Code
+      required: true
+      description: A code to trigger the alarm control panel with.
+      example: "1234"
+      selector:
+        text:
