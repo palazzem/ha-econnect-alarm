@@ -33,8 +33,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
     unique_id = entry.entry_id
     # Optional arming areas
-    areas_home = parse_areas_config(entry.data.get(CONF_AREAS_ARM_HOME))
-    areas_night = parse_areas_config(entry.data.get(CONF_AREAS_ARM_NIGHT))
+    areas_home = parse_areas_config(entry.options.get(CONF_AREAS_ARM_HOME))
+    areas_night = parse_areas_config(entry.options.get(CONF_AREAS_ARM_NIGHT))
     async_add_devices(
         [
             EconnectAlarm(
@@ -109,7 +109,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
         """Send arm home command."""
         if not self._areas_home:
             _LOGGER.warning(
-                "Triggering ARM HOME without configuration. Reinstall the integration to reconfigure."
+                "Triggering ARM HOME without configuration. Use integration Options to configure it."
             )
             return
 
@@ -121,7 +121,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
         """Send arm night command."""
         if not self._areas_night:
             _LOGGER.warning(
-                "Triggering ARM NIGHT without configuration. Reinstall the integration to reconfigure."
+                "Triggering ARM NIGHT without configuration. Use integration Options to configure it."
             )
             return
 

@@ -6,6 +6,7 @@ CONF_AREAS_ARM_NIGHT = "areas_arm_night"
 DOMAIN = "econnect_alarm"
 KEY_DEVICE = "device"
 KEY_COORDINATOR = "coordinator"
+KEY_UNSUBSCRIBER = "options_unsubscriber"
 # Fast scanning is fine because long-polling is used
 # and lasts 15 seconds
 SCAN_INTERVAL = 5

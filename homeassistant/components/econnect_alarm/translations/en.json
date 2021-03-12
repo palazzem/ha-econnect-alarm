@@ -14,12 +14,26 @@
                 "data": {
                     "domain": "Domain name (optional)",
                     "username": "Username",
-                    "password": "Password",
-                    "areas_arm_home": "Armed areas while at home (e.g. 3,4 - optional)",
-                    "areas_arm_night": "Armed areas at night (e.g. 3,4 - optional)"
+                    "password": "Password"
                 },
-                "description": "Insert your username and password to gain access.",
+                "description": "Insert your username and password to gain access. You can configure the system selecting \"Options\" after installing the integration.",
                 "title": "Configure your e-connect system"
+            }
+        }
+    },
+    "options": {
+        "error": {
+            "invalid_areas": "Digited areas (home or night) are invalid",
+            "unknown": "Unexpected error: check your logs"
+        },
+        "step": {
+            "init": {
+              "data": {
+                "areas_arm_home": "Armed areas while at home (e.g 3,4 - optional)",
+                "areas_arm_night": "Armed areas at night (e.g. 3,4 - optional)"
+              },
+              "description": "Define areas that are armed when you use Arm Away or Arm Night modes.",
+              "title": "Configure your e-connect system"
             }
         }
     },

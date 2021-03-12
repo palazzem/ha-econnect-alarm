@@ -19,6 +19,7 @@ from .const import (
     DOMAIN,
     KEY_COORDINATOR,
     KEY_DEVICE,
+    KEY_UNSUBSCRIBER,
     POLLING_TIMEOUT,
     SCAN_INTERVAL,
 )
@@ -89,6 +90,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         KEY_COORDINATOR: coordinator,
     }
 
+    # Register a listener when option changes
+    unsub = entry.add_update_listener(options_update_listener)
+    hass.data[DOMAIN][entry.entry_id][KEY_UNSUBSCRIBER] = unsub
+
     for component in PLATFORMS:
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(entry, component)
@@ -108,6 +113,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
         )
     )
     if unload_ok:
+        # Call the options unsubscriber and remove the configuration
+        hass.data[DOMAIN][entry.entry_id][KEY_UNSUBSCRIBER]()
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
+
+
+async def options_update_listener(hass: HomeAssistant, config_entry: ConfigEntry):
+    """Handle options update."""
+    await hass.config_entries.async_reload(config_entry.entry_id)
