@@ -22,6 +22,7 @@ from .const import (
     KEY_COORDINATOR,
     KEY_DEVICE,
 )
+from .decorators import set_device_state
 from .helpers import parse_areas_config
 
 _LOGGER = logging.getLogger(__name__)
@@ -93,18 +94,17 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
         """Return the list of supported features."""
         return SUPPORT_ALARM_ARM_HOME | SUPPORT_ALARM_ARM_AWAY | SUPPORT_ALARM_ARM_NIGHT
 
+    @set_device_state(STATE_ALARM_DISARMING)
     async def async_alarm_disarm(self, code=None):
         """Send disarm command."""
-        self._device.state = STATE_ALARM_DISARMING
-        self.async_write_ha_state()
         await self.hass.async_add_executor_job(self._device.disarm, code)
 
+    @set_device_state(STATE_ALARM_ARMING)
     async def async_alarm_arm_away(self, code=None):
         """Send arm away command."""
-        self._device.state = STATE_ALARM_ARMING
-        self.async_write_ha_state()
         await self.hass.async_add_executor_job(self._device.arm, code)
 
+    @set_device_state(STATE_ALARM_ARMING)
     async def async_alarm_arm_home(self, code=None):
         """Send arm home command."""
         if not self._areas_home:
@@ -113,10 +113,9 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
             )
             return
 
-        self._device.state = STATE_ALARM_ARMING
-        self.async_write_ha_state()
         await self.hass.async_add_executor_job(self._device.arm, code, self._areas_home)
 
+    @set_device_state(STATE_ALARM_ARMING)
     async def async_alarm_arm_night(self, code=None):
         """Send arm night command."""
         if not self._areas_night:
@@ -125,8 +124,6 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
             )
             return
 
-        self._device.state = STATE_ALARM_ARMING
-        self.async_write_ha_state()
         await self.hass.async_add_executor_job(
             self._device.arm, code, self._areas_night
         )
