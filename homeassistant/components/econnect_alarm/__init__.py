@@ -71,7 +71,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             await hass.async_add_executor_job(
                 device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD]
             )
-            _LOGGER.warning("Token is invalid or expired, re-authentication executed.")
+            _LOGGER.info("Token was invalid or expired, re-authentication executed.")
 
     coordinator = DataUpdateCoordinator(
         hass,
