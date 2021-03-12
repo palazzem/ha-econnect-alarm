@@ -9,4 +9,4 @@ KEY_COORDINATOR = "coordinator"
 # Fast scanning is fine because long-polling is used
 # and lasts 15 seconds
 SCAN_INTERVAL = 5
-POLLING_TIMEOUT = 16
+POLLING_TIMEOUT = 20
