@@ -25,7 +25,7 @@ async def test_form_fields(hass):
 
 @patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
 @patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
-@patch("homeassistant.components.econnect_alarm.config_flow.ElmoClient")
+@patch("homeassistant.components.econnect_alarm.helpers.ElmoClient")
 async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup, hass):
     """Test a properly submitted form initializes an ElmoClient."""
     form = await hass.config_entries.flow.async_init(
@@ -83,7 +83,7 @@ async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
 @patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
 @patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
 @patch(
-    "homeassistant.components.econnect_alarm.config_flow.ElmoClient.auth",
+    "homeassistant.components.econnect_alarm.helpers.ElmoClient.auth",
     side_effect=CredentialError,
 )
 async def test_form_submit_wrong_credential(
@@ -111,7 +111,7 @@ async def test_form_submit_wrong_credential(
 @patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
 @patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
 @patch(
-    "homeassistant.components.econnect_alarm.config_flow.ElmoClient.auth",
+    "homeassistant.components.econnect_alarm.helpers.ElmoClient.auth",
     side_effect=ConnectionError,
 )
 async def test_form_submit_connection_error(
@@ -139,7 +139,7 @@ async def test_form_submit_connection_error(
 @patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
 @patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
 @patch(
-    "homeassistant.components.econnect_alarm.config_flow.ElmoClient.auth",
+    "homeassistant.components.econnect_alarm.helpers.ElmoClient.auth",
     side_effect=HTTPError,
 )
 async def test_form_submit_server_errors(

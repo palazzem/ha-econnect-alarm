@@ -1,23 +1,15 @@
 """Config flow for E-connect Alarm integration."""
 import logging
 
-from elmo.api.client import ElmoClient
-from elmo.api.exceptions import CredentialError
-from requests.exceptions import ConnectionError
 import voluptuous as vol
 
-from homeassistant import config_entries, core, exceptions
+from homeassistant import config_entries
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import callback
 
-from .const import (
-    BASE_URL,
-    CONF_AREAS_ARM_HOME,
-    CONF_AREAS_ARM_NIGHT,
-    CONF_DOMAIN,
-    DOMAIN,
-)
-from .helpers import parse_areas_config
+from .const import CONF_AREAS_ARM_HOME, CONF_AREAS_ARM_NIGHT, CONF_DOMAIN, DOMAIN
+from .exceptions import CannotConnect, InvalidAreas, InvalidAuth
+from .helpers import validate_areas, validate_credentials
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -46,7 +38,7 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except InvalidAuth:
                 errors["base"] = "invalid_auth"
             except Exception as err:  # pylint: disable=broad-except
-                _LOGGER.error(f"Unexpected exception {err}")
+                _LOGGER.error("Unexpected exception %s", err)
                 errors["base"] = "unknown"
             else:
                 return self.async_create_entry(title="E-connect Alarm", data=user_input)
@@ -96,7 +88,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             except InvalidAreas:
                 errors["base"] = "invalid_areas"
             except Exception as err:  # pylint: disable=broad-except
-                _LOGGER.error(f"Unexpected exception {err}")
+                _LOGGER.error("Unexpected exception %s", err)
                 errors["base"] = "unknown"
             else:
                 return self.async_create_entry(title="E-connect Alarm", data=user_input)
@@ -125,47 +117,3 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             ),
             errors=errors,
         )
-
-
-class CannotConnect(exceptions.HomeAssistantError):
-    """Error to indicate we cannot connect."""
-
-
-class InvalidAuth(exceptions.HomeAssistantError):
-    """Error to indicate there is invalid auth."""
-
-
-class InvalidAreas(exceptions.HomeAssistantError):
-    """Error to indicate given areas are invalid."""
-
-
-async def validate_credentials(hass: core.HomeAssistant, data):
-    """Validate the user input allows us to connect.
-
-    Initialize the client with an API endpoint and a vendor and authenticate
-    your connection to retrieve the access token.
-    """
-
-    try:
-        # Check Credentials
-        client = ElmoClient(BASE_URL, domain=data.get(CONF_DOMAIN))
-        return await hass.async_add_executor_job(
-            client.auth, data[CONF_USERNAME], data[CONF_PASSWORD]
-        )
-    except CredentialError:
-        raise InvalidAuth
-    except ConnectionError:
-        raise CannotConnect
-
-
-async def validate_areas(hass: core.HomeAssistant, data):
-    """Validate if user input is a valid list of areas."""
-
-    try:
-        # Check if areas are parsable
-        if data.get(CONF_AREAS_ARM_HOME):
-            parse_areas_config(data[CONF_AREAS_ARM_HOME], raises=True)
-        if data.get(CONF_AREAS_ARM_NIGHT):
-            parse_areas_config(data[CONF_AREAS_ARM_NIGHT], raises=True)
-    except (ValueError, AttributeError):
-        raise InvalidAreas
