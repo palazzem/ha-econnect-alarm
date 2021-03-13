@@ -46,7 +46,7 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except InvalidAuth:
                 errors["base"] = "invalid_auth"
             except Exception as err:  # pylint: disable=broad-except
-                _LOGGER.exception("Unexpected exception", err)
+                _LOGGER.error(f"Unexpected exception {err}")
                 errors["base"] = "unknown"
             else:
                 return self.async_create_entry(title="E-connect Alarm", data=user_input)
@@ -96,7 +96,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             except InvalidAreas:
                 errors["base"] = "invalid_areas"
             except Exception as err:  # pylint: disable=broad-except
-                _LOGGER.exception("Unexpected exception", err)
+                _LOGGER.error(f"Unexpected exception {err}")
                 errors["base"] = "unknown"
             else:
                 return self.async_create_entry(title="E-connect Alarm", data=user_input)

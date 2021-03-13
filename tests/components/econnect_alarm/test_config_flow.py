@@ -1,7 +1,9 @@
 """Test the E-connect Alarm config flow."""
 from unittest.mock import patch
 
+from elmo.api.exceptions import CredentialError
 import pytest
+from requests.exceptions import ConnectionError
 from voluptuous.error import MultipleInvalid
 
 from homeassistant import config_entries
@@ -76,3 +78,59 @@ async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
     errors.append(str(excinfo.value.errors[1]))
     assert "required key not provided @ data['username']" in errors
     assert "required key not provided @ data['password']" in errors
+
+
+@patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
+@patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
+@patch(
+    "homeassistant.components.econnect_alarm.config_flow.ElmoClient.auth",
+    side_effect=CredentialError,
+)
+async def test_form_submit_wrong_credential(
+    mock_client, mock_setup_entry, mock_setup, hass
+):
+    """Test the right error is raised for CredentialError exception."""
+    form = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+
+    result = await hass.config_entries.flow.async_configure(
+        form["flow_id"],
+        {
+            "username": "test-username",
+            "password": "test-password",
+            "domain": "test-domain",
+        },
+    )
+    await hass.async_block_till_done()
+
+    assert result["type"] == "form"
+    assert result["errors"]["base"] == "invalid_auth"
+
+
+@patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
+@patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
+@patch(
+    "homeassistant.components.econnect_alarm.config_flow.ElmoClient.auth",
+    side_effect=ConnectionError,
+)
+async def test_form_submit_connection_error(
+    mock_client, mock_setup_entry, mock_setup, hass
+):
+    """Test the right error is raised for connection errors."""
+    form = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+
+    result = await hass.config_entries.flow.async_configure(
+        form["flow_id"],
+        {
+            "username": "test-username",
+            "password": "test-password",
+            "domain": "test-domain",
+        },
+    )
+    await hass.async_block_till_done()
+
+    assert result["type"] == "form"
+    assert result["errors"]["base"] == "cannot_connect"
