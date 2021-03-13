@@ -41,13 +41,10 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 # Validate submitted configuration
                 await validate_credentials(self.hass, user_input)
-                await validate_areas(self.hass, user_input)
             except CannotConnect:
                 errors["base"] = "cannot_connect"
             except InvalidAuth:
                 errors["base"] = "invalid_auth"
-            except InvalidAreas:
-                errors["base"] = "invalid_areas"
             except Exception as err:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception", err)
                 errors["base"] = "unknown"
