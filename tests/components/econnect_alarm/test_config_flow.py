@@ -4,6 +4,7 @@ from unittest.mock import patch
 from elmo.api.exceptions import CredentialError
 import pytest
 from requests.exceptions import ConnectionError, HTTPError
+from requests.models import Response
 from voluptuous.error import MultipleInvalid
 
 from homeassistant import config_entries
@@ -138,27 +139,63 @@ async def test_form_submit_connection_error(
 
 @patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
 @patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
-@patch(
-    "homeassistant.components.econnect_alarm.helpers.ElmoClient.auth",
-    side_effect=HTTPError,
-)
-async def test_form_submit_server_errors(
-    mock_client, mock_setup_entry, mock_setup, hass
-):
-    """Test the right error is raised for any API Error."""
+async def test_form_client_errors(mock_setup_entry, mock_setup, hass):
+    """Test the right error is raised for 4xx API errors."""
     form = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
 
-    result = await hass.config_entries.flow.async_configure(
-        form["flow_id"],
-        {
-            "username": "test-username",
-            "password": "test-password",
-            "domain": "test-domain",
-        },
-    )
-    await hass.async_block_till_done()
+    # Check all 4xx errors
+    r = Response()
+    for code in range(400, 500):
+        r.status_code = code
+        err = HTTPError(response=r)
 
-    assert result["type"] == "form"
-    assert result["errors"]["base"] == "unknown"
+        with patch(
+            "homeassistant.components.econnect_alarm.helpers.ElmoClient.auth",
+            side_effect=err,
+        ):
+            result = await hass.config_entries.flow.async_configure(
+                form["flow_id"],
+                {
+                    "username": "test-username",
+                    "password": "test-password",
+                    "domain": "test-domain",
+                },
+            )
+            await hass.async_block_till_done()
+
+            assert result["type"] == "form"
+            assert result["errors"]["base"] == "client_error"
+
+
+@patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
+@patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
+async def test_form_server_errors(mock_setup_entry, mock_setup, hass):
+    """Test the right error is raised for 5xx API errors."""
+    form = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+
+    # Check all 5xx errors
+    r = Response()
+    for code in range(500, 600):
+        r.status_code = code
+        err = HTTPError(response=r)
+
+        with patch(
+            "homeassistant.components.econnect_alarm.helpers.ElmoClient.auth",
+            side_effect=err,
+        ):
+            result = await hass.config_entries.flow.async_configure(
+                form["flow_id"],
+                {
+                    "username": "test-username",
+                    "password": "test-password",
+                    "domain": "test-domain",
+                },
+            )
+            await hass.async_block_till_done()
+
+            assert result["type"] == "form"
+            assert result["errors"]["base"] == "server_error"

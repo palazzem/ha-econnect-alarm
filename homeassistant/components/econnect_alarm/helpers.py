@@ -1,13 +1,11 @@
 """Helper methods to reuse common logic across econnect_alarm module."""
 from elmo.api.client import ElmoClient
-from elmo.api.exceptions import CredentialError
-from requests.exceptions import ConnectionError
 
 from homeassistant import core
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
 from .const import BASE_URL, CONF_AREAS_ARM_HOME, CONF_AREAS_ARM_NIGHT, CONF_DOMAIN
-from .exceptions import CannotConnect, InvalidAreas, InvalidAuth
+from .exceptions import InvalidAreas
 
 
 def parse_areas_config(config, raises=False):
@@ -51,17 +49,12 @@ async def validate_credentials(hass: core.HomeAssistant, data):
         `True` if given `data` includes valid credential checked with
         e-connect backend.
     """
-    try:
-        # Check Credentials
-        client = ElmoClient(BASE_URL, domain=data.get(CONF_DOMAIN))
-        await hass.async_add_executor_job(
-            client.auth, data[CONF_USERNAME], data[CONF_PASSWORD]
-        )
-        return True
-    except CredentialError:
-        raise InvalidAuth
-    except ConnectionError:
-        raise CannotConnect
+    # Check Credentials
+    client = ElmoClient(BASE_URL, domain=data.get(CONF_DOMAIN))
+    await hass.async_add_executor_job(
+        client.auth, data[CONF_USERNAME], data[CONF_PASSWORD]
+    )
+    return True
 
 
 async def validate_areas(hass: core.HomeAssistant, data):

@@ -1,6 +1,8 @@
 """Config flow for E-connect Alarm integration."""
 import logging
 
+from elmo.api.exceptions import CredentialError
+from requests.exceptions import ConnectionError, HTTPError
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -8,7 +10,7 @@ from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import callback
 
 from .const import CONF_AREAS_ARM_HOME, CONF_AREAS_ARM_NIGHT, CONF_DOMAIN, DOMAIN
-from .exceptions import CannotConnect, InvalidAreas, InvalidAuth
+from .exceptions import InvalidAreas
 from .helpers import validate_areas, validate_credentials
 
 _LOGGER = logging.getLogger(__name__)
@@ -33,10 +35,18 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 # Validate submitted configuration
                 await validate_credentials(self.hass, user_input)
-            except CannotConnect:
+            except ConnectionError:
                 errors["base"] = "cannot_connect"
-            except InvalidAuth:
+            except CredentialError:
                 errors["base"] = "invalid_auth"
+            except HTTPError as err:
+                if 400 <= err.response.status_code <= 499:
+                    errors["base"] = "client_error"
+                elif 500 <= err.response.status_code <= 599:
+                    errors["base"] = "server_error"
+                else:
+                    _LOGGER.error("Unexpected exception %s", err)
+                    errors["base"] = "unknown"
             except Exception as err:  # pylint: disable=broad-except
                 _LOGGER.error("Unexpected exception %s", err)
                 errors["base"] = "unknown"
