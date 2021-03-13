@@ -1,12 +1,15 @@
 """Test the E-connect Alarm config flow."""
 from unittest.mock import patch
 
+import pytest
+from voluptuous.error import MultipleInvalid
+
 from homeassistant import config_entries
 from homeassistant.components.econnect_alarm.const import DOMAIN
 
 
 async def test_form_fields(hass):
-    """Test we get the form with the fields we expect."""
+    """Test the form is properly generated with fields we expect."""
     form = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
@@ -22,7 +25,7 @@ async def test_form_fields(hass):
 @patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
 @patch("homeassistant.components.econnect_alarm.config_flow.ElmoClient")
 async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup, hass):
-    """Test a valid form is properly submitted."""
+    """Test a properly submitted form initializes an ElmoClient."""
     form = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
@@ -53,3 +56,23 @@ async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup,
     client = mock_client()
     assert client.auth.call_count == 1
     assert ("test-username", "test-password") == client.auth.call_args.args
+
+
+@patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
+@patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
+async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
+    """Test the form has the expected required fields."""
+    form = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+
+    with pytest.raises(MultipleInvalid) as excinfo:
+        await hass.config_entries.flow.async_configure(form["flow_id"], {})
+    await hass.async_block_till_done()
+
+    assert len(excinfo.value.errors) == 2
+    errors = []
+    errors.append(str(excinfo.value.errors[0]))
+    errors.append(str(excinfo.value.errors[1]))
+    assert "required key not provided @ data['username']" in errors
+    assert "required key not provided @ data['password']" in errors
