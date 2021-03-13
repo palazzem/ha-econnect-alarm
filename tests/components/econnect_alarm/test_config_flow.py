@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from elmo.api.exceptions import CredentialError
 import pytest
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, HTTPError
 from voluptuous.error import MultipleInvalid
 
 from homeassistant import config_entries
@@ -134,3 +134,31 @@ async def test_form_submit_connection_error(
 
     assert result["type"] == "form"
     assert result["errors"]["base"] == "cannot_connect"
+
+
+@patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
+@patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
+@patch(
+    "homeassistant.components.econnect_alarm.config_flow.ElmoClient.auth",
+    side_effect=HTTPError,
+)
+async def test_form_submit_server_errors(
+    mock_client, mock_setup_entry, mock_setup, hass
+):
+    """Test the right error is raised for any API Error."""
+    form = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+
+    result = await hass.config_entries.flow.async_configure(
+        form["flow_id"],
+        {
+            "username": "test-username",
+            "password": "test-password",
+            "domain": "test-domain",
+        },
+    )
+    await hass.async_block_till_done()
+
+    assert result["type"] == "form"
+    assert result["errors"]["base"] == "unknown"
