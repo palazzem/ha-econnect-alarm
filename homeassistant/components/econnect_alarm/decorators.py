@@ -2,7 +2,7 @@
 import functools
 import logging
 
-from elmo.api.exceptions import LockError
+from elmo.api.exceptions import CodeError, LockError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,9 +25,14 @@ def set_device_state(new_state):
             try:
                 return await func(*args, **kwargs)
             except LockError:
+                _LOGGER.warning(
+                    "Impossible to obtain the lock. Be sure you inserted the code, or that nobody is using the panel."
+                )
+            except CodeError:
+                _LOGGER.warning("Inserted code is not correct. Retry.")
+            finally:
                 self._device.state = previous_state
                 self.async_write_ha_state()
-                _LOGGER.warning("Inserted code is not correct. Retry.")
 
         return func_wrapper
 
