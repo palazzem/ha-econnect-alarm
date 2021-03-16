@@ -66,8 +66,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                 # an upper bound regardless of the underlying implementation.
                 status = await hass.async_add_executor_job(device.has_updates)
                 if status["has_changes"]:
-                    # No need to return: machine state is in `device.state`
-                    await hass.async_add_executor_job(device.update)
+                    # State machine is in `device.state`
+                    return await hass.async_add_executor_job(device.update)
         except InvalidToken:
             await hass.async_add_executor_job(
                 device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD]

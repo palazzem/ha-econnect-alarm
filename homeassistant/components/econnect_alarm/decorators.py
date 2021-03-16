@@ -30,9 +30,9 @@ def set_device_state(new_state):
                 )
             except CodeError:
                 _LOGGER.warning("Inserted code is not correct. Retry.")
-            finally:
-                self._device.state = previous_state
-                self.async_write_ha_state()
+            # Reverting the state in case of any error
+            self._device.state = previous_state
+            self.async_write_ha_state()
 
         return func_wrapper
 
