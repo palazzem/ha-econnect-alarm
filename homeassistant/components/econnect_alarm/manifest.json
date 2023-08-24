@@ -5,7 +5,7 @@
   "iot_class": "cloud_polling",
   "documentation": "https://www.home-assistant.io/integrations/econnect_alarm",
   "requirements": [
-    "econnect-python==0.4.0.dev2"
+    "econnect-python==0.4.0"
   ],
   "dependencies": [],
   "codeowners": [
