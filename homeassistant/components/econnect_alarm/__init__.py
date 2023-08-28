@@ -47,6 +47,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD]
     )
 
+    # Execute device update in a thread pool
+    await hass.async_add_executor_job(device.update)
+
     async def async_update_data():
         """Fetch data from API endpoint.
 
