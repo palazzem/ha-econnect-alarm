@@ -30,7 +30,7 @@ async def async_setup_entry(
     # TODO: use a public API (change in econnect-python)
     # TODO: check why I can't use directly the device (maybe it's not loaded at this time)
     sensors = []
-    inventory = device._connection._get_descriptions()
+    inventory = await hass.async_add_executor_job(device._connection._get_descriptions)
     for sector_id, name in inventory[query.SECTORS].items():
         unique_id = f"{entry.entry_id}_{query.SECTORS}_{sector_id}"
         sensors.append(
