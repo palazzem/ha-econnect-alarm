@@ -1,0 +1,38 @@
+name: 'Testing'
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  econnect:
+    runs-on: ubuntu-20.04
+    env:
+      TOX_SKIP_ENV: lint
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Upgrade pip and install required tools
+        run: |
+          pip install --upgrade pip
+          pip install tox
+
+      - name: Test with tox environments
+        run: tox
