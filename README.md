@@ -1,5 +1,9 @@
 # Home Assistant e-Connect Integration (Elmo)
 
+[![Linting](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/linting.yaml/badge.svg)](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/linting.yaml)
+[![Testing](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/testing.yaml/badge.svg)](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/testing.yaml)
+[![Coverage Status](https://coveralls.io/repos/github/palazzem/ha-econnect-alarm/badge.svg?branch=main)](https://coveralls.io/github/palazzem/ha-econnect-alarm?branch=main)
+
 This project is a [Home Assistant](https://www.home-assistant.io/) integration for your Elmo Alarm connected to
 [e-Connect cloud](https://e-connect.elmospa.com/it/).
 
