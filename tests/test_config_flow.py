@@ -8,7 +8,7 @@ from requests.models import Response
 from voluptuous.error import MultipleInvalid
 
 from homeassistant import config_entries
-from homeassistant.components.econnect_alarm.const import DOMAIN
+from custom_components.econnect_alarm.const import DOMAIN
 
 
 async def test_form_fields(hass):
@@ -24,9 +24,9 @@ async def test_form_fields(hass):
     assert form["data_schema"].schema["domain"] == str
 
 
-@patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
-@patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
-@patch("homeassistant.components.econnect_alarm.helpers.ElmoClient")
+@patch("custom_components.econnect_alarm.async_setup", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.econnect_alarm.helpers.ElmoClient")
 async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup, hass):
     """Test a properly submitted form initializes an ElmoClient."""
     form = await hass.config_entries.flow.async_init(
@@ -61,8 +61,8 @@ async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup,
     assert ("test-username", "test-password") == client.auth.call_args.args
 
 
-@patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
-@patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
 async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
     """Test the form has the expected required fields."""
     form = await hass.config_entries.flow.async_init(
@@ -81,10 +81,10 @@ async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
     assert "required key not provided @ data['password']" in errors
 
 
-@patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
-@patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
 @patch(
-    "homeassistant.components.econnect_alarm.helpers.ElmoClient.auth",
+    "custom_components.econnect_alarm.helpers.ElmoClient.auth",
     side_effect=CredentialError,
 )
 async def test_form_submit_wrong_credential(
@@ -109,10 +109,10 @@ async def test_form_submit_wrong_credential(
     assert result["errors"]["base"] == "invalid_auth"
 
 
-@patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
-@patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
 @patch(
-    "homeassistant.components.econnect_alarm.helpers.ElmoClient.auth",
+    "custom_components.econnect_alarm.helpers.ElmoClient.auth",
     side_effect=ConnectionError,
 )
 async def test_form_submit_connection_error(
@@ -137,8 +137,8 @@ async def test_form_submit_connection_error(
     assert result["errors"]["base"] == "cannot_connect"
 
 
-@patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
-@patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
 async def test_form_client_errors(mock_setup_entry, mock_setup, hass):
     """Test the right error is raised for 4xx API errors."""
     form = await hass.config_entries.flow.async_init(
@@ -152,7 +152,7 @@ async def test_form_client_errors(mock_setup_entry, mock_setup, hass):
         err = HTTPError(response=r)
 
         with patch(
-            "homeassistant.components.econnect_alarm.helpers.ElmoClient.auth",
+            "custom_components.econnect_alarm.helpers.ElmoClient.auth",
             side_effect=err,
         ):
             result = await hass.config_entries.flow.async_configure(
@@ -169,8 +169,8 @@ async def test_form_client_errors(mock_setup_entry, mock_setup, hass):
             assert result["errors"]["base"] == "client_error"
 
 
-@patch("homeassistant.components.econnect_alarm.async_setup", return_value=True)
-@patch("homeassistant.components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
 async def test_form_server_errors(mock_setup_entry, mock_setup, hass):
     """Test the right error is raised for 5xx API errors."""
     form = await hass.config_entries.flow.async_init(
@@ -184,7 +184,7 @@ async def test_form_server_errors(mock_setup_entry, mock_setup, hass):
         err = HTTPError(response=r)
 
         with patch(
-            "homeassistant.components.econnect_alarm.helpers.ElmoClient.auth",
+            "custom_components.econnect_alarm.helpers.ElmoClient.auth",
             side_effect=err,
         ):
             result = await hass.config_entries.flow.async_configure(
