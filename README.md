@@ -130,7 +130,7 @@ at least one test to verify the intended behavior.
 
 To run tests locally, execute the test suite using `pytest` with the following command:
 ```bash
-pytest tests/ --cov elmo -s -v
+pytest tests/ --cov custom_components -v
 ```
 
 For a comprehensive test that mirrors the Continuous Integration (CI) environment across all supported Python
