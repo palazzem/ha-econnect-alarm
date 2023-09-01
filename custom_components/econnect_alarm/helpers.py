@@ -1,6 +1,5 @@
 """Helper methods to reuse common logic across econnect_alarm module."""
 from elmo.api.client import ElmoClient
-
 from homeassistant import core
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
@@ -51,9 +50,7 @@ async def validate_credentials(hass: core.HomeAssistant, data):
     """
     # Check Credentials
     client = ElmoClient(BASE_URL, domain=data.get(CONF_DOMAIN))
-    await hass.async_add_executor_job(
-        client.auth, data[CONF_USERNAME], data[CONF_PASSWORD]
-    )
+    await hass.async_add_executor_job(client.auth, data[CONF_USERNAME], data[CONF_PASSWORD])
     return True
 
 

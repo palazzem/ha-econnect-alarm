@@ -1,13 +1,12 @@
 """Config flow for E-connect Alarm integration."""
 import logging
 
-from elmo.api.exceptions import CredentialError
-from requests.exceptions import ConnectionError, HTTPError
 import voluptuous as vol
-
+from elmo.api.exceptions import CredentialError
 from homeassistant import config_entries
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import callback
+from requests.exceptions import ConnectionError, HTTPError
 
 from .const import CONF_AREAS_ARM_HOME, CONF_AREAS_ARM_NIGHT, CONF_DOMAIN, DOMAIN
 from .exceptions import InvalidAreas
@@ -16,7 +15,7 @@ from .helpers import validate_areas, validate_credentials
 _LOGGER = logging.getLogger(__name__)
 
 
-class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore
     """Handle a config flow for E-connect Alarm."""
 
     VERSION = 1
@@ -105,12 +104,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         # Populate with latest changes or previous settings
         user_input = user_input or {}
-        suggest_arm_home = user_input.get(
-            CONF_AREAS_ARM_HOME
-        ) or self.config_entry.options.get(CONF_AREAS_ARM_HOME)
-        suggest_arm_night = user_input.get(
-            CONF_AREAS_ARM_NIGHT
-        ) or self.config_entry.options.get(CONF_AREAS_ARM_NIGHT)
+        suggest_arm_home = user_input.get(CONF_AREAS_ARM_HOME) or self.config_entry.options.get(CONF_AREAS_ARM_HOME)
+        suggest_arm_night = user_input.get(CONF_AREAS_ARM_NIGHT) or self.config_entry.options.get(CONF_AREAS_ARM_NIGHT)
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(

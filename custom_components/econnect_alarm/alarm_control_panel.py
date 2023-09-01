@@ -53,9 +53,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
 class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     """E-connect alarm entity."""
 
-    def __init__(
-        self, name, device, coordinator, unique_id, areas_home=None, areas_night=None
-    ):
+    def __init__(self, name, device, coordinator, unique_id, areas_home=None, areas_night=None):
         """Construct."""
         super().__init__(coordinator)
         self._name = name
@@ -108,9 +106,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     async def async_alarm_arm_home(self, code=None):
         """Send arm home command."""
         if not self._areas_home:
-            _LOGGER.warning(
-                "Triggering ARM HOME without configuration. Use integration Options to configure it."
-            )
+            _LOGGER.warning("Triggering ARM HOME without configuration. Use integration Options to configure it.")
             return
 
         await self.hass.async_add_executor_job(self._device.arm, code, self._areas_home)
@@ -119,11 +115,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     async def async_alarm_arm_night(self, code=None):
         """Send arm night command."""
         if not self._areas_night:
-            _LOGGER.warning(
-                "Triggering ARM NIGHT without configuration. Use integration Options to configure it."
-            )
+            _LOGGER.warning("Triggering ARM NIGHT without configuration. Use integration Options to configure it.")
             return
 
-        await self.hass.async_add_executor_job(
-            self._device.arm, code, self._areas_night
-        )
+        await self.hass.async_add_executor_job(self._device.arm, code, self._areas_night)

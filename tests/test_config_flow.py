@@ -1,21 +1,19 @@
 """Test the E-connect Alarm config flow."""
 from unittest.mock import patch
 
-from elmo.api.exceptions import CredentialError
 import pytest
+from elmo.api.exceptions import CredentialError
+from homeassistant import config_entries
 from requests.exceptions import ConnectionError, HTTPError
 from requests.models import Response
 from voluptuous.error import MultipleInvalid
 
-from homeassistant import config_entries
 from custom_components.econnect_alarm.const import DOMAIN
 
 
 async def test_form_fields(hass):
     """Test the form is properly generated with fields we expect."""
-    form = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_USER}
-    )
+    form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
     assert form["type"] == "form"
     assert form["step_id"] == "user"
     assert form["errors"] == {}
@@ -29,9 +27,7 @@ async def test_form_fields(hass):
 @patch("custom_components.econnect_alarm.helpers.ElmoClient")
 async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup, hass):
     """Test a properly submitted form initializes an ElmoClient."""
-    form = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_USER}
-    )
+    form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
 
     result = await hass.config_entries.flow.async_configure(
         form["flow_id"],
@@ -65,9 +61,7 @@ async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup,
 @patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
 async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
     """Test the form has the expected required fields."""
-    form = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_USER}
-    )
+    form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
 
     with pytest.raises(MultipleInvalid) as excinfo:
         await hass.config_entries.flow.async_configure(form["flow_id"], {})
@@ -87,13 +81,9 @@ async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
     "custom_components.econnect_alarm.helpers.ElmoClient.auth",
     side_effect=CredentialError,
 )
-async def test_form_submit_wrong_credential(
-    mock_client, mock_setup_entry, mock_setup, hass
-):
+async def test_form_submit_wrong_credential(mock_client, mock_setup_entry, mock_setup, hass):
     """Test the right error is raised for CredentialError exception."""
-    form = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_USER}
-    )
+    form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
 
     result = await hass.config_entries.flow.async_configure(
         form["flow_id"],
@@ -115,13 +105,9 @@ async def test_form_submit_wrong_credential(
     "custom_components.econnect_alarm.helpers.ElmoClient.auth",
     side_effect=ConnectionError,
 )
-async def test_form_submit_connection_error(
-    mock_client, mock_setup_entry, mock_setup, hass
-):
+async def test_form_submit_connection_error(mock_client, mock_setup_entry, mock_setup, hass):
     """Test the right error is raised for connection errors."""
-    form = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_USER}
-    )
+    form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
 
     result = await hass.config_entries.flow.async_configure(
         form["flow_id"],
@@ -141,9 +127,7 @@ async def test_form_submit_connection_error(
 @patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
 async def test_form_client_errors(mock_setup_entry, mock_setup, hass):
     """Test the right error is raised for 4xx API errors."""
-    form = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_USER}
-    )
+    form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
 
     # Check all 4xx errors
     r = Response()
@@ -173,9 +157,7 @@ async def test_form_client_errors(mock_setup_entry, mock_setup, hass):
 @patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
 async def test_form_server_errors(mock_setup_entry, mock_setup, hass):
     """Test the right error is raised for 5xx API errors."""
-    form = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": config_entries.SOURCE_USER}
-    )
+    form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
 
     # Check all 5xx errors
     r = Response()
