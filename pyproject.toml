@@ -1,0 +1,78 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "econnect-alarm"
+dynamic = ["version"]
+description = "Home Assistant integration that provides a full-fledged Alarm Panel to control your Elmo alarm system."
+readme = "README.md"
+requires-python = ">=3.8"
+license = "Apache-2.0"
+keywords = [
+  "python",
+  "home-automation",
+  "home-assistant",
+  "alarm-system",
+  "econnect",
+  "elmo",
+]
+authors = [
+  { name = "Emanuele Palazzetti", email = "emanuele.palazzetti@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "homeassistant",
+  "econnect-python==0.5.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy",
+  "pre-commit",
+  # Test
+  "pytest",
+  "pytest-cov",
+  "pytest-mock",
+  "tox",
+  # Home Assistant fixtures
+  "freezegun",
+  "pytest-asyncio",
+  "pytest-socket",
+  "requests-mock",
+  "syrupy",
+]
+
+lint = [
+  "black",
+  "flake8",
+]
+
+all = [
+  "econnect-alarm[dev]",
+  "econnect-alarm[lint]",
+]
+
+[project.urls]
+Documentation = "https://github.com/palazzem/ha-econnect-alarm#readme"
+Issues = "https://github.com/palazzem/ha-econnect-alarm/issues"
+Source = "https://github.com/palazzem/ha-econnect-alarm"
+
+[tool.hatch.version]
+path = "custom_components/econnect_alarm/manifest.json"
+pattern = '"version":\s"(?P<version>[^"]+)"'
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
