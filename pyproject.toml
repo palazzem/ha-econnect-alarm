@@ -44,6 +44,12 @@ dev = [
   "pytest-cov",
   "pytest-mock",
   "tox",
+  # Home Assistant fixtures
+  "freezegun",
+  "pytest-asyncio",
+  "pytest-socket",
+  "requests-mock",
+  "syrupy",
 ]
 
 lint = [
@@ -69,4 +75,5 @@ pattern = '"version":\s"(?P<version>[^"]+)"'
 allow-direct-references = true
 
 [tool.pytest.ini_options]
+asyncio_mode = "auto"
 pythonpath = "src"
