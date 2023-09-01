@@ -3,7 +3,6 @@ import logging
 
 from elmo import query
 from elmo.devices import AlarmDevice
-
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -33,19 +32,11 @@ async def async_setup_entry(
     inventory = await hass.async_add_executor_job(device._connection._get_descriptions)
     for sector_id, name in inventory[query.SECTORS].items():
         unique_id = f"{entry.entry_id}_{query.SECTORS}_{sector_id}"
-        sensors.append(
-            EconnectDoorWindowSensor(
-                coordinator, device, unique_id, sector_id, query.SECTORS, name
-            )
-        )
+        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sector_id, query.SECTORS, name))
 
     for sensor_id, name in inventory[query.INPUTS].items():
         unique_id = f"{entry.entry_id}_{query.INPUTS}_{sensor_id}"
-        sensors.append(
-            EconnectDoorWindowSensor(
-                coordinator, device, unique_id, sensor_id, query.INPUTS, name
-            )
-        )
+        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sensor_id, query.INPUTS, name))
 
     async_add_entities(sensors)
 

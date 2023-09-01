@@ -1,13 +1,12 @@
 """The E-connect Alarm integration."""
 import asyncio
-from datetime import timedelta
 import logging
+from datetime import timedelta
 
 import async_timeout
 from elmo.api.client import ElmoClient
 from elmo.api.exceptions import InvalidToken
 from elmo.devices import AlarmDevice
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
@@ -43,9 +42,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     # to call `coordinator.async_refresh()`.
     client = ElmoClient(BASE_URL, entry.data[CONF_DOMAIN])
     device = AlarmDevice(connection=client)
-    await hass.async_add_executor_job(
-        device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD]
-    )
+    await hass.async_add_executor_job(device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
 
     # Execute device update in a thread pool
     await hass.async_add_executor_job(device.update)
@@ -72,9 +69,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                     # State machine is in `device.state`
                     return await hass.async_add_executor_job(device.update)
         except InvalidToken:
-            await hass.async_add_executor_job(
-                device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD]
-            )
+            await hass.async_add_executor_job(device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
             _LOGGER.info("Token was invalid or expired, re-authentication executed.")
 
     coordinator = DataUpdateCoordinator(
@@ -98,9 +93,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data[DOMAIN][entry.entry_id][KEY_UNSUBSCRIBER] = unsub
 
     for component in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(entry, component)
-        )
+        hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, component))
 
     return True
 
@@ -109,10 +102,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Unload a config entry."""
     unload_ok = all(
         await asyncio.gather(
-            *[
-                hass.config_entries.async_forward_entry_unload(entry, component)
-                for component in PLATFORMS
-            ]
+            *[hass.config_entries.async_forward_entry_unload(entry, component) for component in PLATFORMS]
         )
     )
     if unload_ok:

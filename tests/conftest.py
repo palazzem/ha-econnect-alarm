@@ -1,7 +1,6 @@
 import pytest
 
-
-pytest_plugins = ['tests.hass.fixtures']
+pytest_plugins = ["tests.hass.fixtures"]
 
 
 @pytest.fixture
