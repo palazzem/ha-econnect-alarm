@@ -10,6 +10,7 @@ repos:
     - id: check-toml
     - id: check-yaml
     - id: end-of-file-fixer
+      exclude: custom_components/econnect_alarm/manifest.json
     - id: mixed-line-ending
     - id: trailing-whitespace
 
