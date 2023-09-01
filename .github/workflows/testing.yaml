@@ -36,3 +36,6 @@ jobs:
 
       - name: Test with tox environments
         run: tox
+
+      - name: Update Coveralls report
+        uses: coverallsapp/github-action@v2
