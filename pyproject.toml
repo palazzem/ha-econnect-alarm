@@ -72,3 +72,6 @@ allow-direct-references = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+
+[tool.hatch.build.targets.sdist]
+only-include = ["custom_components/econnect_alarm"]
