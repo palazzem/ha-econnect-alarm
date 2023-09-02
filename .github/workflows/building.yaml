@@ -1,0 +1,50 @@
+name: 'Building release package'
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Upgrade pip and install required tools
+        run: |
+          pip install --upgrade pip
+          pip install hatch
+
+      - name: Build the package
+        run: hatch -v build -t sdist
+
+      - name: Log package content
+        run: tar -tvf dist/*.tar.gz
+
+      - name: Install the package
+        run: pip install dist/*.tar.gz
+
+      - name: Test if the package is built correctly
+        run: python -c "import custom_components.econnect_alarm"
+
+      - name: Upload release archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: econnect-alarm-{{ github.ref_name }}
+          path: dist/*.tar.gz
