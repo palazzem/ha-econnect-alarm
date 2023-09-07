@@ -28,7 +28,7 @@ classifiers = [
 ]
 dependencies = [
   "homeassistant",
-  "econnect-python==0.5.1",
+  "econnect-python==0.6.0",
 ]
 
 [project.optional-dependencies]
@@ -39,6 +39,7 @@ dev = [
   "pytest",
   "pytest-cov",
   "pytest-mock",
+  "responses",
   "tox",
   # Home Assistant fixtures
   "freezegun",

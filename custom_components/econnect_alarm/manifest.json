@@ -15,7 +15,7 @@
     "custom_components.econnect_alarm"
   ],
   "requirements": [
-    "econnect-python==0.5.1"
+    "econnect-python==0.6.0"
   ],
   "version": "0.2.0"
 }
