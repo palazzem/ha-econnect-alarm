@@ -1,7 +1,8 @@
 import pytest
 import responses
 from elmo.api.client import ElmoClient
-from fixtures import responses as r
+
+from .fixtures import responses as r
 
 pytest_plugins = ["tests.hass.fixtures"]
 

@@ -6,7 +6,6 @@ from datetime import timedelta
 import async_timeout
 from elmo.api.client import ElmoClient
 from elmo.api.exceptions import InvalidToken
-from elmo.devices import AlarmDevice
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
@@ -22,6 +21,7 @@ from .const import (
     POLLING_TIMEOUT,
     SCAN_INTERVAL,
 )
+from .devices import AlarmDevice
 
 _LOGGER = logging.getLogger(__name__)
 
