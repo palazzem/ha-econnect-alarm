@@ -28,7 +28,7 @@ classifiers = [
 ]
 dependencies = [
   "homeassistant",
-  "econnect-python==0.5.1",
+  "econnect-python==0.6.0",
 ]
 
 [project.optional-dependencies]
