@@ -14,13 +14,14 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
     CONF_DOMAIN,
+    CONF_SCAN_INTERVAL,
     CONF_SYSTEM_URL,
     DOMAIN,
     KEY_COORDINATOR,
     KEY_DEVICE,
     KEY_UNSUBSCRIBER,
     POLLING_TIMEOUT,
-    SCAN_INTERVAL,
+    SCAN_INTERVAL_DEFAULT,
 )
 from .devices import AlarmDevice
 
@@ -89,11 +90,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             await hass.async_add_executor_job(device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
             _LOGGER.info("Token was invalid or expired, re-authentication executed.")
 
+    scan_interval = entry.options.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL_DEFAULT)
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
         name="elmo_iess_alarm",
-        update_interval=timedelta(seconds=SCAN_INTERVAL),
+        update_interval=timedelta(seconds=scan_interval),
         update_method=async_update_data,
     )
 

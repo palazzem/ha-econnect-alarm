@@ -14,6 +14,7 @@ from .const import (
     CONF_AREAS_ARM_NIGHT,
     CONF_AREAS_ARM_VACATION,
     CONF_DOMAIN,
+    CONF_SCAN_INTERVAL,
     CONF_SYSTEM_NAME,
     CONF_SYSTEM_URL,
     DOMAIN,
@@ -131,6 +132,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         suggest_arm_vacation = user_input.get(CONF_AREAS_ARM_VACATION) or self.config_entry.options.get(
             CONF_AREAS_ARM_VACATION
         )
+        suggest_scan_interval = user_input.get(CONF_SCAN_INTERVAL) or self.config_entry.options.get(CONF_SCAN_INTERVAL)
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
@@ -147,6 +149,10 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                         CONF_AREAS_ARM_VACATION,
                         description={"suggested_value": suggest_arm_vacation},
                     ): str,
+                    vol.Optional(
+                        CONF_SCAN_INTERVAL,
+                        description={"suggested_value": suggest_scan_interval},
+                    ): int,
                 }
             ),
             errors=errors,

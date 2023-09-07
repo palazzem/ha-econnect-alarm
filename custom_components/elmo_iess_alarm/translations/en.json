@@ -32,9 +32,10 @@
                 "data": {
                     "areas_arm_home": "Armed areas while at home (e.g 3,4 - optional)",
                     "areas_arm_night": "Armed areas at night (e.g. 3,4 - optional)",
-                    "areas_arm_vacation": "Armed areas when you are on vacation (e.g. 3,4 - optional)"
+                    "areas_arm_vacation": "Armed areas when you are on vacation (e.g. 3,4 - optional)",
+                    "scan_interval": "Scan interval (e.g. 120 - optional)"
                 },
-                "description": "Define sectors you want to arm in different modes.",
+                "description": "Define sectors you want to arm in different modes.\n\nSet 'Scan Interval' value only if you want to reduce data usage, in case the system is connected through a mobile network. Leave it empty for real time updates, or set it to a value in seconds (e.g. 120 for one update every 2 minutes)",
                 "title": "Configure your Elmo/IESS system"
             }
         }
