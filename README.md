@@ -3,6 +3,9 @@
 [![Linting](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/linting.yaml/badge.svg)](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/linting.yaml)
 [![Testing](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/testing.yaml/badge.svg)](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/testing.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/palazzem/ha-econnect-alarm/badge.svg?branch=main)](https://coveralls.io/github/palazzem/ha-econnect-alarm?branch=main)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/palazzem/ha-econnect-alarm)
+
+
 
 This project is a [Home Assistant](https://www.home-assistant.io/) integration for your Elmo-like Alarm connected to
 [e-Connect cloud](https://e-connect.elmospa.com/it/).
