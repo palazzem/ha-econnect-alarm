@@ -6,14 +6,15 @@ from datetime import timedelta
 import async_timeout
 from elmo.api.client import ElmoClient
 from elmo.api.exceptions import InvalidToken
+from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
-    BASE_URL,
     CONF_DOMAIN,
+    CONF_SYSTEM_URL,
     DOMAIN,
     KEY_COORDINATOR,
     KEY_DEVICE,
@@ -28,6 +29,22 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["alarm_control_panel", "binary_sensor"]
 
 
+async def async_migrate_entry(hass, config_entry: ConfigEntry):
+    """Config flow migrations."""
+    _LOGGER.info(f"Migrating from version {config_entry.version}")
+
+    if config_entry.version == 1:
+        # Config initialization
+        migrated_config = {**config_entry.data}
+        # Migration
+        migrated_config[CONF_SYSTEM_URL] = E_CONNECT_DEFAULT
+        config_entry.version = 2
+        hass.config_entries.async_update_entry(config_entry, data=migrated_config)
+
+    _LOGGER.info(f"Migration to version {config_entry.version} successful")
+    return True
+
+
 async def async_setup(hass: HomeAssistant, config: dict):
     """Set up the E-connect Alarm component."""
     hass.data[DOMAIN] = {}
@@ -40,7 +57,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     # Calling `device.connect` authenticates the device via an access token
     # and asks for the first update, hence why in `async_setup_entry` there is no need
     # to call `coordinator.async_refresh()`.
-    client = ElmoClient(BASE_URL, entry.data[CONF_DOMAIN])
+    client = ElmoClient(entry.data[CONF_SYSTEM_URL], entry.data[CONF_DOMAIN])
     device = AlarmDevice(client, entry.options)
     await hass.async_add_executor_job(device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
 

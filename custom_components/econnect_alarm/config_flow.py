@@ -3,12 +3,20 @@ import logging
 
 import voluptuous as vol
 from elmo.api.exceptions import CredentialError
+from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant import config_entries
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import callback
 from requests.exceptions import ConnectionError, HTTPError
 
-from .const import CONF_AREAS_ARM_HOME, CONF_AREAS_ARM_NIGHT, CONF_DOMAIN, DOMAIN
+from .const import (
+    CONF_AREAS_ARM_HOME,
+    CONF_AREAS_ARM_NIGHT,
+    CONF_DOMAIN,
+    CONF_SYSTEM_URL,
+    DOMAIN,
+    SUPPORTED_SYSTEMS,
+)
 from .exceptions import InvalidAreas
 from .helpers import parse_areas_config, validate_credentials
 
@@ -18,7 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore
     """Handle a config flow for E-connect Alarm."""
 
-    VERSION = 1
+    VERSION = 2
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
     @staticmethod
@@ -66,6 +74,11 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                         CONF_PASSWORD,
                         description={"suggested_value": user_input.get(CONF_PASSWORD)},
                     ): str,
+                    vol.Required(
+                        CONF_SYSTEM_URL,
+                        default=E_CONNECT_DEFAULT,
+                        description={"suggested_value": user_input.get(CONF_SYSTEM_URL)},
+                    ): vol.In(SUPPORTED_SYSTEMS),
                     vol.Optional(
                         CONF_DOMAIN,
                         description={"suggested_value": user_input.get(CONF_DOMAIN)},
