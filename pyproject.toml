@@ -39,6 +39,7 @@ dev = [
   "pytest",
   "pytest-cov",
   "pytest-mock",
+  "responses",
   "tox",
   # Home Assistant fixtures
   "freezegun",
