@@ -4,10 +4,16 @@
 [![Testing](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/testing.yaml/badge.svg)](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/testing.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/palazzem/ha-econnect-alarm/badge.svg?branch=main)](https://coveralls.io/github/palazzem/ha-econnect-alarm?branch=main)
 
-This project is a [Home Assistant](https://www.home-assistant.io/) integration for your Elmo Alarm connected to
+This project is a [Home Assistant](https://www.home-assistant.io/) integration for your Elmo-like Alarm connected to
 [e-Connect cloud](https://e-connect.elmospa.com/it/).
 
-**Current functionalities are:**
+## Supported Systems
+
+This Home Assistant integration targets Elmo-like alarm systems. The following systems are known to work:
+- [Elmo e-Connect](https://e-connect.elmospa.com/)
+- [IESS Metronet](https://www.iessonline.com/)
+
+**Available functionalities**
 - Configuration flow implemented to add login credentials and home and night areas
 - Arm and disarm the alarm based on sectors you have configured
 - Query the system and get the status of your sectors and inputs (e.g. doors, windows, etc.)
@@ -15,17 +21,13 @@ This project is a [Home Assistant](https://www.home-assistant.io/) integration f
 - A service is available and you can configure automations via YAML or via UI
 - `EconnectAlarm` entity is available and you can use the `AlarmPanel` card to control it in lovelace
 
-**Alarm statuses:**
+**Alarm status**
 - Arm Away: arms all areas
 - Disarm: disarm all areas
 - Arm Home: based on the configuration, arms given areas (optional)
 - Arm Night: based on the configuration, arms given areas (optional)
 
 If you are curious about the project and want to know more, check out our [Discord channel](https://discord.gg/NSmAPWw8tE)!
-
-## Requirements
-
-* Home Assistant
 
 ## Installation
 
@@ -40,10 +42,11 @@ If you are curious about the project and want to know more, check out our [Disco
 
 ### Setup
 
-<img src="https://user-images.githubusercontent.com/1560405/110982560-f084bb00-8368-11eb-8960-38d4f8bcb785.png" width="400"/>
+<img src="https://github.com/palazzem/ha-econnect-alarm/assets/1560405/46f35b2c-5f9f-4931-b0ed-a6657c6f1da5" width="400">
 
 - Username: is your username to access e-connect via web or app.
 - Password: is your password to access e-connect via web or app.
+- System:
 - Domain name (optional): domain used to access your login page via web. If you access to `https://connect.elmospa.com`,
   then this field must be empty. If you access to `https://connect.elmospa.com/<domain>` then add `<domain>` in this field.
   For instance if you access to `https://connect.elmospa.com/nwd/`, you must add `nwd` here.
