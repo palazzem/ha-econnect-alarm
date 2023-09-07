@@ -3,35 +3,46 @@ from elmo.api.client import ElmoClient
 from homeassistant import core
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
-from .const import BASE_URL, CONF_AREAS_ARM_HOME, CONF_AREAS_ARM_NIGHT, CONF_DOMAIN
+from .const import BASE_URL, CONF_DOMAIN
 from .exceptions import InvalidAreas
 
 
-def parse_areas_config(config, raises=False):
-    """Parse area config that is represented as a comma separated value.
+def parse_areas_config(config: str, raises: bool = False):
+    """Parses a comma-separated string of area configurations into a list of integers.
 
-    Usage:
-        parse_areas_config("3,4")  # Returns [3, 4]
+    Takes a string containing comma-separated area IDs and converts it to a list of integers.
+    In case of any parsing errors, either raises a custom `InvalidAreas` exception or returns an empty list
+    based on the `raises` flag.
 
     Args:
-        config: The string that is stored in the configuration registry.
-        raises: If set `True`, raises exceptions if they happen.
-    Raises:
-        ValueError: If given config is not a list of integers.
-        AttributeError: If given config is `None` object.
+        config (str): A comma-separated string of area IDs, e.g., "3,4".
+        raises (bool, optional): Determines the error handling behavior. If `True`, the function
+                                 raises the `InvalidAreas` exception upon encountering a parsing error.
+                                 If `False`, it suppresses the error and returns an empty list.
+                                 Defaults to `False`.
+
     Returns:
-        A Python list with integers representing areas ID, such as `[3, 4]`,
-        or `None` if invalid.
+        list[int]: A list of integers representing area IDs. If parsing fails and `raises` is `False`,
+                   returns an empty list.
+
+    Raises:
+        InvalidAreas: If there's a parsing error and the `raises` flag is set to `True`.
+
+    Examples:
+        >>> parse_areas_config("3,4")
+        [3, 4]
+        >>> parse_areas_config("3,a")
+        []
     """
     try:
         return [int(x) for x in config.split(",")]
-    except (ValueError, AttributeError) as err:
+    except (ValueError, AttributeError):
         if raises:
-            raise err
-        return None
+            raise InvalidAreas
+        return []
 
 
-async def validate_credentials(hass: core.HomeAssistant, data):
+async def validate_credentials(hass: core.HomeAssistant, config: dict):
     """Validate if user input includes valid credentials to connect.
 
     Initialize the client with an API endpoint and a vendor and authenticate
@@ -49,30 +60,6 @@ async def validate_credentials(hass: core.HomeAssistant, data):
         e-connect backend.
     """
     # Check Credentials
-    client = ElmoClient(BASE_URL, domain=data.get(CONF_DOMAIN))
-    await hass.async_add_executor_job(client.auth, data[CONF_USERNAME], data[CONF_PASSWORD])
+    client = ElmoClient(BASE_URL, domain=config.get(CONF_DOMAIN))
+    await hass.async_add_executor_job(client.auth, config.get(CONF_USERNAME), config.get(CONF_PASSWORD))
     return True
-
-
-async def validate_areas(hass: core.HomeAssistant, data):
-    """Validate if user input is a valid list of areas.
-
-    Args:
-        hass: HomeAssistant instance.
-        data: data that needs validation (configured areas).
-    Raises:
-        InvalidAreas: if the given list of areas is not parsable in a
-        Python list.
-    Returns:
-        `True` if given `data` includes properly formatted areas.
-    """
-
-    try:
-        # Check if areas are parsable
-        if data.get(CONF_AREAS_ARM_HOME):
-            parse_areas_config(data[CONF_AREAS_ARM_HOME], raises=True)
-        if data.get(CONF_AREAS_ARM_NIGHT):
-            parse_areas_config(data[CONF_AREAS_ARM_NIGHT], raises=True)
-        return True
-    except (ValueError, AttributeError):
-        raise InvalidAreas
