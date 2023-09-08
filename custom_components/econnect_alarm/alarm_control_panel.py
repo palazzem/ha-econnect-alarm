@@ -11,19 +11,19 @@ from homeassistant.components.alarm_control_panel.const import (
     SUPPORT_ALARM_ARM_NIGHT,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import STATE_ALARM_ARMING, STATE_ALARM_DISARMING
+from homeassistant.const import (
+    STATE_ALARM_ARMED_AWAY,
+    STATE_ALARM_ARMED_HOME,
+    STATE_ALARM_ARMED_NIGHT,
+    STATE_ALARM_ARMING,
+    STATE_ALARM_DISARMED,
+    STATE_ALARM_DISARMING,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import (
-    CONF_AREAS_ARM_HOME,
-    CONF_AREAS_ARM_NIGHT,
-    DOMAIN,
-    KEY_COORDINATOR,
-    KEY_DEVICE,
-)
+from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
 from .decorators import set_device_state
-from .helpers import parse_areas_config
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,9 +33,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     device = hass.data[DOMAIN][entry.entry_id][KEY_DEVICE]
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
     unique_id = entry.entry_id
-    # Optional arming areas
-    areas_home = parse_areas_config(entry.options.get(CONF_AREAS_ARM_HOME))
-    areas_night = parse_areas_config(entry.options.get(CONF_AREAS_ARM_NIGHT))
     async_add_devices(
         [
             EconnectAlarm(
@@ -43,8 +40,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
                 device,
                 coordinator,
                 unique_id,
-                areas_home=areas_home,
-                areas_night=areas_night,
             )
         ]
     )
@@ -53,14 +48,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
 class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     """E-connect alarm entity."""
 
-    def __init__(self, name, device, coordinator, unique_id, areas_home=None, areas_night=None):
+    def __init__(self, name, device, coordinator, unique_id):
         """Construct."""
         super().__init__(coordinator)
         self._name = name
         self._device = device
         self._unique_id = unique_id
-        self._areas_home = areas_home
-        self._areas_night = areas_night
 
     @property
     def unique_id(self):
@@ -92,30 +85,30 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
         """Return the list of supported features."""
         return SUPPORT_ALARM_ARM_HOME | SUPPORT_ALARM_ARM_AWAY | SUPPORT_ALARM_ARM_NIGHT
 
-    @set_device_state(STATE_ALARM_DISARMING)
+    @set_device_state(STATE_ALARM_DISARMED, STATE_ALARM_DISARMING)
     async def async_alarm_disarm(self, code=None):
         """Send disarm command."""
         await self.hass.async_add_executor_job(self._device.disarm, code)
 
-    @set_device_state(STATE_ALARM_ARMING)
+    @set_device_state(STATE_ALARM_ARMED_AWAY, STATE_ALARM_ARMING)
     async def async_alarm_arm_away(self, code=None):
         """Send arm away command."""
         await self.hass.async_add_executor_job(self._device.arm, code)
 
-    @set_device_state(STATE_ALARM_ARMING)
+    @set_device_state(STATE_ALARM_ARMED_HOME, STATE_ALARM_ARMING)
     async def async_alarm_arm_home(self, code=None):
         """Send arm home command."""
-        if not self._areas_home:
+        if not self._device._sectors_home:
             _LOGGER.warning("Triggering ARM HOME without configuration. Use integration Options to configure it.")
             return
 
-        await self.hass.async_add_executor_job(self._device.arm, code, self._areas_home)
+        await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_home)
 
-    @set_device_state(STATE_ALARM_ARMING)
+    @set_device_state(STATE_ALARM_ARMED_NIGHT, STATE_ALARM_ARMING)
     async def async_alarm_arm_night(self, code=None):
         """Send arm night command."""
-        if not self._areas_night:
+        if not self._device._sectors_night:
             _LOGGER.warning("Triggering ARM NIGHT without configuration. Use integration Options to configure it.")
             return
 
-        await self.hass.async_add_executor_job(self._device.arm, code, self._areas_night)
+        await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_night)

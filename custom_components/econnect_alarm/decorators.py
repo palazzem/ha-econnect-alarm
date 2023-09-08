@@ -7,7 +7,7 @@ from elmo.api.exceptions import CodeError, LockError
 _LOGGER = logging.getLogger(__name__)
 
 
-def set_device_state(new_state):
+def set_device_state(new_state, loader_state):
     """Set a new Alarm device state, or revert to a previous state in case of error.
 
     This decorator is used to convert a library exception in a log warning, while
@@ -20,10 +20,13 @@ def set_device_state(new_state):
         async def func_wrapper(*args, **kwargs):
             self = args[0]
             previous_state = self._device.state
-            self._device.state = new_state
+            self._device.state = loader_state
             self.async_write_ha_state()
             try:
-                return await func(*args, **kwargs)
+                result = await func(*args, **kwargs)
+                self._device.state = new_state
+                self.async_write_ha_state()
+                return result
             except LockError:
                 _LOGGER.warning(
                     "Impossible to obtain the lock. Be sure you inserted the code, or that nobody is using the panel."

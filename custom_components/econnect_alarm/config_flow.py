@@ -10,7 +10,7 @@ from requests.exceptions import ConnectionError, HTTPError
 
 from .const import CONF_AREAS_ARM_HOME, CONF_AREAS_ARM_NIGHT, CONF_DOMAIN, DOMAIN
 from .exceptions import InvalidAreas
-from .helpers import validate_areas, validate_credentials
+from .helpers import parse_areas_config, validate_credentials
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -93,7 +93,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         errors = {}
         if user_input is not None:
             try:
-                await validate_areas(self.hass, user_input)
+                parse_areas_config(user_input.get(CONF_AREAS_ARM_HOME), raises=True)
+                parse_areas_config(user_input.get(CONF_AREAS_ARM_NIGHT), raises=True)
             except InvalidAreas:
                 errors["base"] = "invalid_areas"
             except Exception as err:  # pylint: disable=broad-except
