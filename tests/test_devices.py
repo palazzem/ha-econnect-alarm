@@ -5,6 +5,7 @@ from homeassistant.const import (
     STATE_ALARM_ARMED_AWAY,
     STATE_ALARM_ARMED_HOME,
     STATE_ALARM_ARMED_NIGHT,
+    STATE_ALARM_ARMED_VACATION,
     STATE_ALARM_DISARMED,
     STATE_UNAVAILABLE,
 )
@@ -13,6 +14,7 @@ from requests.exceptions import HTTPError
 from custom_components.econnect_alarm.const import (
     CONF_AREAS_ARM_HOME,
     CONF_AREAS_ARM_NIGHT,
+    CONF_AREAS_ARM_VACATION,
 )
 from custom_components.econnect_alarm.devices import AlarmDevice
 
@@ -25,6 +27,7 @@ def test_device_constructor(client):
     assert device._lastIds == {q.SECTORS: 0, q.INPUTS: 0}
     assert device._sectors_home == []
     assert device._sectors_night == []
+    assert device._sectors_vacation == []
     assert device.state == STATE_UNAVAILABLE
     assert device.sectors_armed == {}
     assert device.sectors_disarmed == {}
@@ -37,6 +40,7 @@ def test_device_constructor_with_config(client):
     config = {
         CONF_AREAS_ARM_HOME: "3, 4",
         CONF_AREAS_ARM_NIGHT: "1, 2, 3",
+        CONF_AREAS_ARM_VACATION: "5, 3",
     }
     device = AlarmDevice(client, config=config)
     # Test
@@ -44,6 +48,7 @@ def test_device_constructor_with_config(client):
     assert device._lastIds == {q.SECTORS: 0, q.INPUTS: 0}
     assert device._sectors_home == [3, 4]
     assert device._sectors_night == [1, 2, 3]
+    assert device._sectors_vacation == [5, 3]
     assert device.state == STATE_UNAVAILABLE
     assert device.sectors_armed == {}
     assert device.sectors_disarmed == {}
@@ -425,11 +430,38 @@ def test_get_state_armed_night_out_of_order(client):
     assert device.get_state() == STATE_ALARM_ARMED_NIGHT
 
 
+def test_get_state_armed_vacation(client):
+    """Test when sectors are armed for vacation."""
+    device = AlarmDevice(client)
+    device._sectors_vacation = [4, 5, 6]
+    device.sectors_armed = {
+        0: {"id": 1, "index": 0, "element": 4, "excluded": False, "status": True, "name": "S1 Living Room"},
+        1: {"id": 2, "index": 1, "element": 5, "excluded": False, "status": True, "name": "S2 Bedroom"},
+        2: {"id": 3, "index": 2, "element": 6, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    }
+    # Test (out of order keys to test sorting)
+    assert device.get_state() == STATE_ALARM_ARMED_VACATION
+
+
+def test_get_state_armed_vacation_out_of_order(client):
+    """Test when sectors are armed for vacation (out of order)."""
+    device = AlarmDevice(client)
+    device._sectors_vacation = [5, 6, 4]
+    device.sectors_armed = {
+        0: {"id": 1, "index": 0, "element": 6, "excluded": False, "status": True, "name": "S1 Living Room"},
+        1: {"id": 2, "index": 1, "element": 4, "excluded": False, "status": True, "name": "S2 Bedroom"},
+        2: {"id": 3, "index": 2, "element": 5, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    }
+    # Test
+    assert device.get_state() == STATE_ALARM_ARMED_VACATION
+
+
 def test_get_state_armed_away(client):
     """Test when sectors are armed but don't match home or night."""
     device = AlarmDevice(client)
     device._sectors_home = [1, 2, 3]
     device._sectors_night = [4, 5, 6]
+    device._sectors_vacation = [4, 2]
     device.sectors_armed = {
         0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
         1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
