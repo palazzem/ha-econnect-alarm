@@ -5,6 +5,8 @@ from elmo.api.exceptions import CodeError, CredentialError, LockError, ParseErro
 from elmo.utils import _filter_data
 from homeassistant.const import (
     STATE_ALARM_ARMED_AWAY,
+    STATE_ALARM_ARMED_HOME,
+    STATE_ALARM_ARMED_NIGHT,
     STATE_ALARM_DISARMED,
     STATE_UNAVAILABLE,
 )
@@ -88,6 +90,31 @@ class AlarmDevice:
             _LOGGER.error(f"Device | Error parsing the poll response: {err}")
             raise err
 
+    def get_state(self):
+        """Determine the alarm state based on the armed sectors.
+
+        This method evaluates the armed sectors and maps them to predefined
+        alarm states: home, night, or away. If no sectors are armed, it returns
+        a disarmed state. For accurate comparisons, the method sorts the sectors
+        internally, ensuring robustness against potentially unsorted input.
+
+        Returns:
+            str: One of the predefined HA alarm states.
+        """
+        if not self.sectors_armed:
+            return STATE_ALARM_DISARMED
+
+        # Sort lists here for robustness, ensuring accurate comparisons
+        # regardless of whether the input lists were pre-sorted or not.
+        sectors_armed_sorted = sorted(self.sectors_armed.keys())
+        if sectors_armed_sorted == sorted(self._sectors_home):
+            return STATE_ALARM_ARMED_HOME
+
+        if sectors_armed_sorted == sorted(self._sectors_night):
+            return STATE_ALARM_ARMED_NIGHT
+
+        return STATE_ALARM_ARMED_AWAY
+
     def update(self):
         """Updates the internal state of the device based on the latest data.
 
@@ -126,8 +153,8 @@ class AlarmDevice:
         self._lastIds[q.SECTORS] = sectors.get("last_id", 0)
         self._lastIds[q.INPUTS] = inputs.get("last_id", 0)
 
-        # Update the internal state machine
-        self.state = STATE_ALARM_ARMED_AWAY if self.sectors_armed else STATE_ALARM_DISARMED
+        # Update the internal state machine (mapping state)
+        self.state = self.get_state()
 
     def arm(self, code, sectors=None):
         try:

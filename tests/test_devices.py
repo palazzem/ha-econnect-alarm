@@ -1,6 +1,13 @@
 import pytest
 from elmo import query as q
 from elmo.api.exceptions import CodeError, CredentialError, LockError, ParseError
+from homeassistant.const import (
+    STATE_ALARM_ARMED_AWAY,
+    STATE_ALARM_ARMED_HOME,
+    STATE_ALARM_ARMED_NIGHT,
+    STATE_ALARM_DISARMED,
+    STATE_UNAVAILABLE,
+)
 from requests.exceptions import HTTPError
 
 from custom_components.econnect_alarm.const import (
@@ -18,7 +25,7 @@ def test_device_constructor(client):
     assert device._lastIds == {q.SECTORS: 0, q.INPUTS: 0}
     assert device._sectors_home == []
     assert device._sectors_night == []
-    assert device.state == "unavailable"
+    assert device.state == STATE_UNAVAILABLE
     assert device.sectors_armed == {}
     assert device.sectors_disarmed == {}
     assert device.inputs_alerted == {}
@@ -37,7 +44,7 @@ def test_device_constructor_with_config(client):
     assert device._lastIds == {q.SECTORS: 0, q.INPUTS: 0}
     assert device._sectors_home == [3, 4]
     assert device._sectors_night == [1, 2, 3]
-    assert device.state == "unavailable"
+    assert device.state == STATE_UNAVAILABLE
     assert device.sectors_armed == {}
     assert device.sectors_disarmed == {}
     assert device.inputs_alerted == {}
@@ -354,3 +361,69 @@ def test_device_disarm_code_error(client, mocker):
         device.disarm("1234", sectors=[4])
     assert device._connection.lock.call_count == 1
     assert device._connection.disarm.call_count == 0
+
+
+def test_get_state_no_sectors_armed(client):
+    """Test when no sectors are armed."""
+    device = AlarmDevice(client)
+    device.sectors_armed = {}
+    device._sectors_home = []
+    device._sectors_night = []
+    # Test
+    assert device.get_state() == STATE_ALARM_DISARMED
+
+
+def test_get_state_armed_home(client):
+    """Test when sectors are armed for home."""
+    device = AlarmDevice(client)
+    device._sectors_home = [1, 2, 3]
+    device.sectors_armed = {1: {}, 2: {}, 3: {}}
+    # Test
+    assert device.get_state() == STATE_ALARM_ARMED_HOME
+
+
+def test_get_state_armed_home_out_of_order(client):
+    """Test when sectors are armed for home (out of order)."""
+    device = AlarmDevice(client)
+    device._sectors_home = [2, 1, 3]
+    device.sectors_armed = {3: {}, 1: {}, 2: {}}
+    # Test
+    assert device.get_state() == STATE_ALARM_ARMED_HOME
+
+
+def test_get_state_armed_night(client):
+    """Test when sectors are armed for night."""
+    device = AlarmDevice(client)
+    device._sectors_night = [4, 5, 6]
+    device.sectors_armed = {4: {}, 5: {}, 6: {}}
+    # Test (out of order keys to test sorting)
+    assert device.get_state() == STATE_ALARM_ARMED_NIGHT
+
+
+def test_get_state_armed_night_out_of_order(client):
+    """Test when sectors are armed for night (out of order)."""
+    device = AlarmDevice(client)
+    device._sectors_night = [5, 6, 4]
+    device.sectors_armed = {6: {}, 4: {}, 5: {}}
+    # Test
+    assert device.get_state() == STATE_ALARM_ARMED_NIGHT
+
+
+def test_get_state_armed_away(client):
+    """Test when sectors are armed but don't match home or night."""
+    device = AlarmDevice(client)
+    device._sectors_home = [1, 2, 3]
+    device._sectors_night = [4, 5, 6]
+    device.sectors_armed = {1: {}, 2: {}, 4: {}}
+    # Test
+    assert device.get_state() == STATE_ALARM_ARMED_AWAY
+
+
+def test_get_state_armed_mixed(client):
+    """Test when some sectors from home and night are armed."""
+    device = AlarmDevice(client)
+    device._sectors_home = [1, 2, 3]
+    device._sectors_night = [4, 5, 6]
+    device.sectors_armed = {1: {}, 2: {}, 3: {}, 5: {}}
+    # Test
+    assert device.get_state() == STATE_ALARM_ARMED_AWAY
