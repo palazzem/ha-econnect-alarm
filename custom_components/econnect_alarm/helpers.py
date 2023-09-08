@@ -34,6 +34,10 @@ def parse_areas_config(config: str, raises: bool = False):
         >>> parse_areas_config("3,a")
         []
     """
+    if config == "" or config is None:
+        # Empty config is considered valid (no sectors configured)
+        return []
+
     try:
         return [int(x) for x in config.split(",")]
     except (ValueError, AttributeError):
