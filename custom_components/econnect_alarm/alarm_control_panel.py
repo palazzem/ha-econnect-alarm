@@ -9,12 +9,14 @@ from homeassistant.components.alarm_control_panel.const import (
     SUPPORT_ALARM_ARM_AWAY,
     SUPPORT_ALARM_ARM_HOME,
     SUPPORT_ALARM_ARM_NIGHT,
+    SUPPORT_ALARM_ARM_VACATION,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     STATE_ALARM_ARMED_AWAY,
     STATE_ALARM_ARMED_HOME,
     STATE_ALARM_ARMED_NIGHT,
+    STATE_ALARM_ARMED_VACATION,
     STATE_ALARM_ARMING,
     STATE_ALARM_DISARMED,
     STATE_ALARM_DISARMING,
@@ -83,7 +85,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return SUPPORT_ALARM_ARM_HOME | SUPPORT_ALARM_ARM_AWAY | SUPPORT_ALARM_ARM_NIGHT
+        return SUPPORT_ALARM_ARM_HOME | SUPPORT_ALARM_ARM_AWAY | SUPPORT_ALARM_ARM_NIGHT | SUPPORT_ALARM_ARM_VACATION
 
     @set_device_state(STATE_ALARM_DISARMED, STATE_ALARM_DISARMING)
     async def async_alarm_disarm(self, code=None):
@@ -112,3 +114,12 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
             return
 
         await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_night)
+
+    @set_device_state(STATE_ALARM_ARMED_VACATION, STATE_ALARM_ARMING)
+    async def async_alarm_arm_vacation(self, code=None):
+        """Send arm vacation command."""
+        if not self._device._sectors_vacation:
+            _LOGGER.warning("Triggering ARM VACATION without configuration. Use integration Options to configure it.")
+            return
+
+        await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_vacation)

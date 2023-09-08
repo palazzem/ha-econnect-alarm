@@ -12,6 +12,7 @@ from requests.exceptions import ConnectionError, HTTPError
 from .const import (
     CONF_AREAS_ARM_HOME,
     CONF_AREAS_ARM_NIGHT,
+    CONF_AREAS_ARM_VACATION,
     CONF_DOMAIN,
     CONF_SYSTEM_URL,
     DOMAIN,
@@ -95,6 +96,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     Available options are:
         * Areas armed in Arm Away state
         * Areas armed in Arm Night state
+        * Areas armed in Arm Vacation state
     """
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
@@ -108,6 +110,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             try:
                 parse_areas_config(user_input.get(CONF_AREAS_ARM_HOME), raises=True)
                 parse_areas_config(user_input.get(CONF_AREAS_ARM_NIGHT), raises=True)
+                parse_areas_config(user_input.get(CONF_AREAS_ARM_VACATION), raises=True)
             except InvalidAreas:
                 errors["base"] = "invalid_areas"
             except Exception as err:  # pylint: disable=broad-except
@@ -120,6 +123,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         user_input = user_input or {}
         suggest_arm_home = user_input.get(CONF_AREAS_ARM_HOME) or self.config_entry.options.get(CONF_AREAS_ARM_HOME)
         suggest_arm_night = user_input.get(CONF_AREAS_ARM_NIGHT) or self.config_entry.options.get(CONF_AREAS_ARM_NIGHT)
+        suggest_arm_vacation = user_input.get(CONF_AREAS_ARM_VACATION) or self.config_entry.options.get(
+            CONF_AREAS_ARM_VACATION
+        )
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
@@ -131,6 +137,10 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     vol.Optional(
                         CONF_AREAS_ARM_NIGHT,
                         description={"suggested_value": suggest_arm_night},
+                    ): str,
+                    vol.Optional(
+                        CONF_AREAS_ARM_VACATION,
+                        description={"suggested_value": suggest_arm_vacation},
                     ): str,
                 }
             ),
