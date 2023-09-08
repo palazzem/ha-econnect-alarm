@@ -195,6 +195,7 @@ def test_device_update_state_machine_armed(client, mocker):
     """Should check if the state machine is properly updated after calling update()."""
     device = AlarmDevice(client)
     mocker.patch.object(device._connection, "query")
+    device._connection._session_id = "test"
     device._connection.query.side_effect = [
         {
             "last_id": 3,
@@ -222,6 +223,7 @@ def test_device_update_state_machine_disarmed(client, mocker):
     """Should check if the state machine is properly updated after calling update()."""
     device = AlarmDevice(client)
     mocker.patch.object(device._connection, "query")
+    device._connection._session_id = "test"
     device._connection.query.side_effect = [
         {
             "last_id": 3,

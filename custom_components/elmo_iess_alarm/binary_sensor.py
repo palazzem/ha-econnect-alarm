@@ -1,6 +1,9 @@
 """Module for e-connect binary sensors (sectors and inputs)."""
 from elmo import query
-from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -36,7 +39,59 @@ async def async_setup_entry(
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{sensor_id}"
         sensors.append(EconnectDoorWindowSensor(unique_id, sensor_id, entry, name, coordinator, device, query.INPUTS))
 
+    # Retrieve alarm system global status
+    alerts = await hass.async_add_executor_job(device._connection.get_status)
+    for alert_id, _ in alerts.items():
+        unique_id = f"{entry.entry_id}_{DOMAIN}_{alert_id}"
+        sensors.append(EconnectAlertSensor(unique_id, alert_id, entry, coordinator, device))
+
     async_add_entities(sensors)
+
+
+class EconnectAlertSensor(CoordinatorEntity, BinarySensorEntity):
+    """Representation of a e-Connect alerts."""
+
+    def __init__(
+        self,
+        unique_id: str,
+        alert_id: str,
+        config: ConfigEntry,
+        coordinator: DataUpdateCoordinator,
+        device: AlarmDevice,
+    ) -> None:
+        """Construct."""
+        super().__init__(coordinator)
+        self.entity_id = generate_entity_id(config, alert_id)
+        self._unique_id = unique_id
+        self._alert_id = alert_id
+        self._device = device
+
+    @property
+    def unique_id(self) -> str:
+        """Return the unique identifier."""
+        return self._unique_id
+
+    @property
+    def name(self) -> str:
+        """Return the name of this entity."""
+        # TODO: this needs to be translated with a friendly name
+        return self._alert_id
+
+    @property
+    def icon(self) -> str:
+        """Return the icon used by this entity."""
+        return "hass:alarm-light"
+
+    @property
+    def device_class(self) -> str:
+        """Return the device class."""
+        return BinarySensorDeviceClass.PROBLEM
+
+    @property
+    def is_on(self) -> bool:
+        """Return the sensor status (on/off)."""
+        state = self._device.alerts.get(self._alert_id)
+        return state > 1 if self._alert_id == "anomalies_led" else state > 0
 
 
 class EconnectDoorWindowSensor(CoordinatorEntity, BinarySensorEntity):

@@ -53,6 +53,7 @@ class AlarmDevice:
 
         # Alarm state
         self.state = STATE_UNAVAILABLE
+        self.alerts = {}
         self.sectors_armed = {}
         self.sectors_disarmed = {}
         self.inputs_alerted = {}
@@ -148,6 +149,7 @@ class AlarmDevice:
         try:
             sectors = self._connection.query(q.SECTORS)
             inputs = self._connection.query(q.INPUTS)
+            alerts = self._connection.get_status()
         except (HTTPError, ParseError) as err:
             _LOGGER.error(f"Device | Error while checking if there are updates: {err}")
             raise
@@ -160,6 +162,9 @@ class AlarmDevice:
 
         self._lastIds[q.SECTORS] = sectors.get("last_id", 0)
         self._lastIds[q.INPUTS] = inputs.get("last_id", 0)
+
+        # Update system alerts
+        self.alerts = alerts
 
         # Update the internal state machine (mapping state)
         self.state = self.get_state()

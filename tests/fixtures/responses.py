@@ -240,3 +240,43 @@ INPUTS = """[
        "InProgress": false
    }
 ]"""
+STATUS = """
+    {
+        "StatusUid": 1,
+        "PanelLeds": {
+            "InputsLed": 2,
+            "AnomaliesLed": 1,
+            "AlarmLed": 0,
+            "TamperLed": 0
+        },
+        "PanelAnomalies": {
+            "HasAnomaly": false,
+            "PanelTamper": 0,
+            "PanelNoPower": 0,
+            "PanelLowBattery": 0,
+            "GsmAnomaly": 0,
+            "GsmLowBalance": 0,
+            "PstnAnomaly": 0,
+            "SystemTest": 0,
+            "ModuleRegistration": 0,
+            "RfInterference": 0,
+            "InputFailure": 0,
+            "InputAlarm": 0,
+            "InputBypass": 0,
+            "InputLowBattery": 0,
+            "InputNoSupervision": 0,
+            "DeviceTamper": 0,
+            "DeviceFailure": 0,
+            "DeviceNoPower": 0,
+            "DeviceLowBattery": 0,
+            "DeviceNoSupervision": 0,
+            "DeviceSystemBlock": 0
+        },
+        "PanelAlignmentAdv": {
+            "ManualFwUpAvailable": false,
+            "Id": 1,
+            "Index": -1,
+            "Element": 0
+        }
+    }
+"""
