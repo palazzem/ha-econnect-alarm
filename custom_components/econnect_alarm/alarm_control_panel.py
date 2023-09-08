@@ -98,17 +98,17 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     @set_device_state(STATE_ALARM_ARMED_HOME, STATE_ALARM_ARMING)
     async def async_alarm_arm_home(self, code=None):
         """Send arm home command."""
-        if not self._areas_home:
+        if not self._device._sectors_home:
             _LOGGER.warning("Triggering ARM HOME without configuration. Use integration Options to configure it.")
             return
 
-        await self.hass.async_add_executor_job(self._device.arm, code, self._areas_home)
+        await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_home)
 
     @set_device_state(STATE_ALARM_ARMED_NIGHT, STATE_ALARM_ARMING)
     async def async_alarm_arm_night(self, code=None):
         """Send arm night command."""
-        if not self._areas_night:
+        if not self._device._sectors_night:
             _LOGGER.warning("Triggering ARM NIGHT without configuration. Use integration Options to configure it.")
             return
 
-        await self.hass.async_add_executor_job(self._device.arm, code, self._areas_night)
+        await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_night)

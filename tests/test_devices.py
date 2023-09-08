@@ -366,9 +366,9 @@ def test_device_disarm_code_error(client, mocker):
 def test_get_state_no_sectors_armed(client):
     """Test when no sectors are armed."""
     device = AlarmDevice(client)
-    device.sectors_armed = {}
     device._sectors_home = []
     device._sectors_night = []
+    device.sectors_armed = {}
     # Test
     assert device.get_state() == STATE_ALARM_DISARMED
 
@@ -377,7 +377,11 @@ def test_get_state_armed_home(client):
     """Test when sectors are armed for home."""
     device = AlarmDevice(client)
     device._sectors_home = [1, 2, 3]
-    device.sectors_armed = {1: {}, 2: {}, 3: {}}
+    device.sectors_armed = {
+        0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
+        1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
+        2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    }
     # Test
     assert device.get_state() == STATE_ALARM_ARMED_HOME
 
@@ -386,7 +390,11 @@ def test_get_state_armed_home_out_of_order(client):
     """Test when sectors are armed for home (out of order)."""
     device = AlarmDevice(client)
     device._sectors_home = [2, 1, 3]
-    device.sectors_armed = {3: {}, 1: {}, 2: {}}
+    device.sectors_armed = {
+        0: {"id": 1, "index": 0, "element": 3, "excluded": False, "status": True, "name": "S1 Living Room"},
+        1: {"id": 2, "index": 1, "element": 1, "excluded": False, "status": True, "name": "S2 Bedroom"},
+        2: {"id": 3, "index": 2, "element": 2, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    }
     # Test
     assert device.get_state() == STATE_ALARM_ARMED_HOME
 
@@ -395,7 +403,11 @@ def test_get_state_armed_night(client):
     """Test when sectors are armed for night."""
     device = AlarmDevice(client)
     device._sectors_night = [4, 5, 6]
-    device.sectors_armed = {4: {}, 5: {}, 6: {}}
+    device.sectors_armed = {
+        0: {"id": 1, "index": 0, "element": 4, "excluded": False, "status": True, "name": "S1 Living Room"},
+        1: {"id": 2, "index": 1, "element": 5, "excluded": False, "status": True, "name": "S2 Bedroom"},
+        2: {"id": 3, "index": 2, "element": 6, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    }
     # Test (out of order keys to test sorting)
     assert device.get_state() == STATE_ALARM_ARMED_NIGHT
 
@@ -404,7 +416,11 @@ def test_get_state_armed_night_out_of_order(client):
     """Test when sectors are armed for night (out of order)."""
     device = AlarmDevice(client)
     device._sectors_night = [5, 6, 4]
-    device.sectors_armed = {6: {}, 4: {}, 5: {}}
+    device.sectors_armed = {
+        0: {"id": 1, "index": 0, "element": 6, "excluded": False, "status": True, "name": "S1 Living Room"},
+        1: {"id": 2, "index": 1, "element": 4, "excluded": False, "status": True, "name": "S2 Bedroom"},
+        2: {"id": 3, "index": 2, "element": 5, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    }
     # Test
     assert device.get_state() == STATE_ALARM_ARMED_NIGHT
 
@@ -414,7 +430,11 @@ def test_get_state_armed_away(client):
     device = AlarmDevice(client)
     device._sectors_home = [1, 2, 3]
     device._sectors_night = [4, 5, 6]
-    device.sectors_armed = {1: {}, 2: {}, 4: {}}
+    device.sectors_armed = {
+        0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
+        1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
+        2: {"id": 3, "index": 2, "element": 4, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    }
     # Test
     assert device.get_state() == STATE_ALARM_ARMED_AWAY
 
@@ -424,6 +444,11 @@ def test_get_state_armed_mixed(client):
     device = AlarmDevice(client)
     device._sectors_home = [1, 2, 3]
     device._sectors_night = [4, 5, 6]
-    device.sectors_armed = {1: {}, 2: {}, 3: {}, 5: {}}
+    device.sectors_armed = {
+        0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
+        1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
+        2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": True, "name": "S3 Outdoor"},
+        3: {"id": 4, "index": 3, "element": 5, "excluded": False, "status": True, "name": "S5 Perimeter"},
+    }
     # Test
     assert device.get_state() == STATE_ALARM_ARMED_AWAY

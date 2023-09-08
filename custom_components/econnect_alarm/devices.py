@@ -104,9 +104,11 @@ class AlarmDevice:
         if not self.sectors_armed:
             return STATE_ALARM_DISARMED
 
+        # Note: `element` is the sector ID you use to arm/disarm the sector.
+        sectors = [sectors["element"] for sectors in self.sectors_armed.values()]
         # Sort lists here for robustness, ensuring accurate comparisons
         # regardless of whether the input lists were pre-sorted or not.
-        sectors_armed_sorted = sorted(self.sectors_armed.keys())
+        sectors_armed_sorted = sorted(sectors)
         if sectors_armed_sorted == sorted(self._sectors_home):
             return STATE_ALARM_ARMED_HOME
 

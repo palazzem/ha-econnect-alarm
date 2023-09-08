@@ -1,8 +1,5 @@
 """Module for e-connect binary sensors (sectors and inputs)."""
-import logging
-
 from elmo import query
-from elmo.devices import AlarmDevice
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -12,9 +9,9 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
 
-from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
+from custom_components.econnect_alarm.devices import AlarmDevice
 
-_LOGGER = logging.getLogger(__name__)
+from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
 
 
 async def async_setup_entry(
