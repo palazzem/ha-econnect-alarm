@@ -35,6 +35,7 @@ async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup,
             "username": "test-username",
             "password": "test-password",
             "domain": "test-domain",
+            "system_base_url": "https://connect.elmospa.com",
         },
     )
     await hass.async_block_till_done()
@@ -45,6 +46,7 @@ async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup,
         "username": "test-username",
         "password": "test-password",
         "domain": "test-domain",
+        "system_base_url": "https://connect.elmospa.com",
     }
     # Check HA setup
     assert len(mock_setup.mock_calls) == 1
@@ -55,6 +57,47 @@ async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup,
     client = mock_client()
     assert client.auth.call_count == 1
     assert ("test-username", "test-password") == client.auth.call_args.args
+
+
+@patch("custom_components.econnect_alarm.async_setup", return_value=True)
+@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.econnect_alarm.helpers.ElmoClient")
+async def test_form_submit_with_defaults(mock_client, mock_setup_entry, mock_setup, hass):
+    """Test a properly submitted form with defaults."""
+    form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+
+    result = await hass.config_entries.flow.async_configure(
+        form["flow_id"],
+        {
+            "username": "test-username",
+            "password": "test-password",
+        },
+    )
+    await hass.async_block_till_done()
+
+    assert result["type"] == "create_entry"
+    assert result["title"] == "E-connect Alarm"
+    assert result["data"] == {
+        "username": "test-username",
+        "password": "test-password",
+        "system_base_url": "https://connect.elmospa.com",
+    }
+    # Check HA setup
+    assert len(mock_setup.mock_calls) == 1
+    assert len(mock_setup_entry.mock_calls) == 1
+    # Check Client defaults initialization during validation
+    assert ("https://connect.elmospa.com",) == mock_client.call_args.args
+
+
+async def test_form_supported_systems(hass):
+    """Test supported systems are pre-loaded in the dropdown."""
+    form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+    supported_systems = form["data_schema"].schema["system_base_url"].container
+    # Test
+    assert supported_systems == {
+        "https://connect.elmospa.com": "Elmo e-Connect",
+        "https://metronet.iessonline.com": "IESS Metronet",
+    }
 
 
 @patch("custom_components.econnect_alarm.async_setup", return_value=True)

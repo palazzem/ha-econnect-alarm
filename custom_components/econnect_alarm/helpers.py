@@ -3,7 +3,7 @@ from elmo.api.client import ElmoClient
 from homeassistant import core
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
-from .const import BASE_URL, CONF_DOMAIN
+from .const import CONF_DOMAIN, CONF_SYSTEM_URL
 from .exceptions import InvalidAreas
 
 
@@ -60,6 +60,6 @@ async def validate_credentials(hass: core.HomeAssistant, config: dict):
         e-connect backend.
     """
     # Check Credentials
-    client = ElmoClient(BASE_URL, domain=config.get(CONF_DOMAIN))
+    client = ElmoClient(config.get(CONF_SYSTEM_URL), domain=config.get(CONF_DOMAIN))
     await hass.async_add_executor_job(client.auth, config.get(CONF_USERNAME), config.get(CONF_PASSWORD))
     return True

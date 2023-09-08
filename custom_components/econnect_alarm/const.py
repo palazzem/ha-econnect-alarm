@@ -1,6 +1,12 @@
 """Constants for the E-connect Alarm integration."""
-BASE_URL = "https://connect.elmospa.com"
+from elmo import systems as s
+
+SUPPORTED_SYSTEMS = {
+    s.ELMO_E_CONNECT: "Elmo e-Connect",
+    s.IESS_METRONET: "IESS Metronet",
+}
 CONF_DOMAIN = "domain"
+CONF_SYSTEM_URL = "system_base_url"
 CONF_AREAS_ARM_HOME = "areas_arm_home"
 CONF_AREAS_ARM_NIGHT = "areas_arm_night"
 DOMAIN = "econnect_alarm"
