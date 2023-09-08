@@ -41,7 +41,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     # and asks for the first update, hence why in `async_setup_entry` there is no need
     # to call `coordinator.async_refresh()`.
     client = ElmoClient(BASE_URL, entry.data[CONF_DOMAIN])
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client, entry.options)
     await hass.async_add_executor_job(device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
 
     # Execute device update in a thread pool

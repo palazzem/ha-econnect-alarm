@@ -10,6 +10,9 @@ from homeassistant.const import (
 )
 from requests.exceptions import HTTPError
 
+from .const import CONF_AREAS_ARM_HOME, CONF_AREAS_ARM_NIGHT
+from .helpers import parse_areas_config
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -28,13 +31,20 @@ class AlarmDevice:
         print(device.state)
     """
 
-    def __init__(self, connection):
+    def __init__(self, connection, config=None):
         # Configuration and internals
         self._connection = connection
+        self._sectors_home = []
+        self._sectors_night = []
         self._lastIds = {
             q.SECTORS: 0,
             q.INPUTS: 0,
         }
+
+        # Load user configuration
+        if config is not None:
+            self._sectors_home = parse_areas_config(config.get(CONF_AREAS_ARM_HOME))
+            self._sectors_night = parse_areas_config(config.get(CONF_AREAS_ARM_NIGHT))
 
         # Alarm state
         self.state = STATE_UNAVAILABLE

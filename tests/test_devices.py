@@ -3,6 +3,10 @@ from elmo import query as q
 from elmo.api.exceptions import CodeError, CredentialError, LockError, ParseError
 from requests.exceptions import HTTPError
 
+from custom_components.econnect_alarm.const import (
+    CONF_AREAS_ARM_HOME,
+    CONF_AREAS_ARM_NIGHT,
+)
 from custom_components.econnect_alarm.devices import AlarmDevice
 
 
@@ -12,6 +16,27 @@ def test_device_constructor(client):
     # Test
     assert device._connection == client
     assert device._lastIds == {q.SECTORS: 0, q.INPUTS: 0}
+    assert device._sectors_home == []
+    assert device._sectors_night == []
+    assert device.state == "unavailable"
+    assert device.sectors_armed == {}
+    assert device.sectors_disarmed == {}
+    assert device.inputs_alerted == {}
+    assert device.inputs_wait == {}
+
+
+def test_device_constructor_with_config(client):
+    """Should initialize defaults attributes to run properly."""
+    config = {
+        CONF_AREAS_ARM_HOME: "3, 4",
+        CONF_AREAS_ARM_NIGHT: "1, 2, 3",
+    }
+    device = AlarmDevice(client, config=config)
+    # Test
+    assert device._connection == client
+    assert device._lastIds == {q.SECTORS: 0, q.INPUTS: 0}
+    assert device._sectors_home == [3, 4]
+    assert device._sectors_night == [1, 2, 3]
     assert device.state == "unavailable"
     assert device.sectors_armed == {}
     assert device.sectors_disarmed == {}
