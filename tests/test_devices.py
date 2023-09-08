@@ -12,7 +12,7 @@ from custom_components.econnect_alarm.devices import AlarmDevice
 
 def test_device_constructor(client):
     """Should initialize defaults attributes to run properly."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     # Test
     assert device._connection == client
     assert device._lastIds == {q.SECTORS: 0, q.INPUTS: 0}
@@ -46,7 +46,7 @@ def test_device_constructor_with_config(client):
 
 def test_device_connect(client, mocker):
     """Should call authentication endpoints and update internal state."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.spy(device._connection, "auth")
     # Test
     device.connect("username", "password")
@@ -57,7 +57,7 @@ def test_device_connect(client, mocker):
 
 def test_device_connect_error(client, mocker):
     """Should handle (log) authentication errors (not 2xx)."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.patch.object(device._connection, "auth")
     device._connection.auth.side_effect = HTTPError("Unable to communicate with e-Connect")
     # Test
@@ -68,7 +68,7 @@ def test_device_connect_error(client, mocker):
 
 def test_device_connect_credential_error(client, mocker):
     """Should handle (log) credential errors (401/403)."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.patch.object(device._connection, "auth")
     device._connection.auth.side_effect = CredentialError("Incorrect username and/or password")
     # Test
@@ -79,7 +79,7 @@ def test_device_connect_credential_error(client, mocker):
 
 def test_device_has_updates(client, mocker):
     """Should call the client polling system passing the internal state."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     device.connect("username", "password")
     device._lastIds[q.SECTORS] = 20
     device._lastIds[q.INPUTS] = 20
@@ -97,7 +97,7 @@ def test_device_has_updates_ids_immutable(client, mocker):
         ids[q.SECTORS] = 0
         ids[q.INPUTS] = 0
 
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     device._lastIds = {q.SECTORS: 4, q.INPUTS: 42}
     mocker.patch.object(device._connection, "poll")
     device._connection.poll.side_effect = bad_poll
@@ -109,7 +109,7 @@ def test_device_has_updates_ids_immutable(client, mocker):
 
 def test_device_has_updates_errors(client, mocker):
     """Should handle (log) polling errors."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.patch.object(device._connection, "poll")
     device._connection.poll.side_effect = HTTPError("Unable to communicate with e-Connect")
     # Test
@@ -121,7 +121,7 @@ def test_device_has_updates_errors(client, mocker):
 
 def test_device_has_updates_parse_errors(client, mocker):
     """Should handle (log) polling errors."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.patch.object(device._connection, "poll")
     device._connection.poll.side_effect = ParseError("Error parsing the poll response")
     # Test
@@ -133,7 +133,7 @@ def test_device_has_updates_parse_errors(client, mocker):
 
 def test_device_update_success(client, mocker):
     """Should check store the e-connect System status in the device object."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.spy(device._connection, "query")
     sectors_armed = {
         0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
@@ -165,7 +165,7 @@ def test_device_update_success(client, mocker):
 
 def test_device_update_http_error(client, mocker):
     """Tests if device's update method raises HTTPError when querying."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.patch.object(device._connection, "query", side_effect=HTTPError("HTTP Error"))
     with pytest.raises(HTTPError):
         device.update()
@@ -173,7 +173,7 @@ def test_device_update_http_error(client, mocker):
 
 def test_device_update_parse_error(client, mocker):
     """Tests if update method raises ParseError when querying."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.patch.object(device._connection, "query", side_effect=ParseError("Parse Error"))
     with pytest.raises(ParseError):
         device.update()
@@ -181,7 +181,7 @@ def test_device_update_parse_error(client, mocker):
 
 def test_device_update_state_machine_armed(client, mocker):
     """Should check if the state machine is properly updated after calling update()."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.patch.object(device._connection, "query")
     device._connection.query.side_effect = [
         {
@@ -208,7 +208,7 @@ def test_device_update_state_machine_armed(client, mocker):
 
 def test_device_update_state_machine_disarmed(client, mocker):
     """Should check if the state machine is properly updated after calling update()."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.patch.object(device._connection, "query")
     device._connection.query.side_effect = [
         {
@@ -236,7 +236,7 @@ def test_device_update_state_machine_disarmed(client, mocker):
 @pytest.mark.xfail
 def test_device_update_query_not_valid(client, mocker):
     """Should not crash if an exception is raised."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.patch.object(device._connection, "query")
     device._connection.query.side_effect = Exception("Unexpected")
     # Test
@@ -245,7 +245,7 @@ def test_device_update_query_not_valid(client, mocker):
 
 def test_device_arm_success(client, mocker):
     """Should arm the e-connect system using the underlying client."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.spy(device._connection, "lock")
     mocker.spy(device._connection, "arm")
     # Test
@@ -259,7 +259,7 @@ def test_device_arm_success(client, mocker):
 
 def test_device_arm_error(client, mocker):
     """Should handle (log) connection errors."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.spy(device._connection, "lock")
     mocker.spy(device._connection, "arm")
     device._connection.lock.side_effect = HTTPError("Unable to communicate with e-Connect")
@@ -273,7 +273,7 @@ def test_device_arm_error(client, mocker):
 
 def test_device_arm_lock_error(client, mocker):
     """Should handle (log) locking errors."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.spy(device._connection, "lock")
     mocker.spy(device._connection, "arm")
     device._connection.lock.side_effect = LockError("Unable to acquire the lock")
@@ -287,7 +287,7 @@ def test_device_arm_lock_error(client, mocker):
 
 def test_device_arm_code_error(client, mocker):
     """Should handle (log) code errors."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.spy(device._connection, "lock")
     mocker.spy(device._connection, "arm")
     device._connection.lock.side_effect = CodeError("Code is incorrect")
@@ -301,7 +301,7 @@ def test_device_arm_code_error(client, mocker):
 
 def test_device_disarm_success(client, mocker):
     """Should disarm the e-connect system using the underlying client."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.spy(device._connection, "lock")
     mocker.spy(device._connection, "disarm")
     # Test
@@ -316,7 +316,7 @@ def test_device_disarm_success(client, mocker):
 
 def test_device_disarm_error(client, mocker):
     """Should handle (log) connection errors."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.spy(device._connection, "lock")
     mocker.spy(device._connection, "disarm")
     device._connection.lock.side_effect = HTTPError("Unable to communicate with e-Connect")
@@ -330,7 +330,7 @@ def test_device_disarm_error(client, mocker):
 
 def test_device_disarm_lock_error(client, mocker):
     """Should handle (log) locking errors."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.spy(device._connection, "lock")
     mocker.spy(device._connection, "disarm")
     device._connection.lock.side_effect = LockError("Unable to acquire the lock")
@@ -344,7 +344,7 @@ def test_device_disarm_lock_error(client, mocker):
 
 def test_device_disarm_code_error(client, mocker):
     """Should handle (log) code errors."""
-    device = AlarmDevice(connection=client)
+    device = AlarmDevice(client)
     mocker.spy(device._connection, "lock")
     mocker.spy(device._connection, "disarm")
     device._connection.lock.side_effect = CodeError("Code is incorrect")
