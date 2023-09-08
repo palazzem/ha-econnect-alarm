@@ -1,6 +1,12 @@
+import logging
+
 import pytest
 import responses
 from elmo.api.client import ElmoClient
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+
+from custom_components.econnect_alarm.alarm_control_panel import EconnectAlarm
+from custom_components.econnect_alarm.devices import AlarmDevice
 
 from .fixtures import responses as r
 
@@ -11,6 +17,30 @@ pytest_plugins = ["tests.hass.fixtures"]
 async def hass(hass):
     hass.data["custom_components"] = None
     yield hass
+
+
+@pytest.fixture(scope="function")
+def alarm_entity(hass, client):
+    """Fixture to provide a test instance of the EconnectAlarm entity.
+
+    This sets up an AlarmDevice and its corresponding DataUpdateCoordinator,
+    then initializes the EconnectAlarm entity with a test name and ID. It also
+    assigns the Home Assistant instance and a mock entity ID to the created entity.
+
+    Args:
+        hass: Mock Home Assistant instance.
+        client: Mock client for the AlarmDevice.
+
+    Yields:
+        EconnectAlarm: Initialized test instance of the EconnectAlarm entity.
+    """
+    device = AlarmDevice(client)
+    coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_alarm")
+    entity = EconnectAlarm(name="Test Alarm", device=device, coordinator=coordinator, unique_id="test_id")
+    # Set up the fixture
+    entity.hass = hass
+    entity.entity_id = "econnect_alarm.test_id"
+    yield entity
 
 
 @pytest.fixture(scope="function")
