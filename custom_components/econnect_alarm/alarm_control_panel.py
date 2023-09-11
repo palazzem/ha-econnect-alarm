@@ -34,7 +34,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     """Platform setup with the forwarded config entry."""
     device = hass.data[DOMAIN][entry.entry_id][KEY_DEVICE]
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
-    unique_id = entry.entry_id
+    unique_id = f"{DOMAIN}_{entry.entry_id}"
     async_add_devices(
         [
             EconnectAlarm(

@@ -1,6 +1,6 @@
 {
-  "domain": "econnect_alarm",
-  "name": "E-connect Alarm",
+  "domain": "elmo_iess_alarm",
+  "name": "Elmo/IESS Alarm",
   "after_dependencies": [],
   "codeowners": [
     "@palazzem"
