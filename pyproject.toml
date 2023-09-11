@@ -1,5 +1,8 @@
 [build-system]
-requires = ["hatchling"]
+requires = [
+  "hatchling",
+  "hatch-zipped-directory",
+]
 build-backend = "hatchling.build"
 
 [project]
@@ -75,4 +78,7 @@ allow-direct-references = true
 asyncio_mode = "auto"
 
 [tool.hatch.build.targets.sdist]
+only-include = ["custom_components/econnect_alarm"]
+
+[tool.hatch.build.targets.zipped-directory]
 only-include = ["custom_components/econnect_alarm"]
