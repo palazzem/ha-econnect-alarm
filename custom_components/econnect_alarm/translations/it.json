@@ -1,0 +1,41 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Dispositivo già configurato"
+        },
+        "error": {
+            "cannot_connect": "Connessione fallita",
+            "invalid_auth": "Autenticazione non valida",
+            "invalid_areas": "Settori selezionati non validi",
+            "unknown": "Errore inaspettato: controlla i tuoi log"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "domain": "Nome dominio (opzionale)",
+                    "username": "Nome utente",
+                    "password": "Password"
+                },
+                "description": "Inserisci il tuo nome utente e password per accedere. Puoi configurare il sistema selezionando \"Opzioni\" dopo aver installato l'integrazione.",
+                "title": "Configura il tuo sistema e-Connect/IESS"
+            }
+        }
+    },
+    "options": {
+        "error": {
+            "invalid_areas": "Settori selezionati non validi",
+            "unknown": "Errore inaspettato: controlla i tuoi log"
+        },
+        "step": {
+            "init": {
+                "data": {
+                    "areas_arm_home": "Settori armati mentre sei a casa (es. 3,4 - opzionale)",
+                    "areas_arm_night": "Settori armati di notte (es. 3,4 - opzionale)",
+                    "areas_arm_vacation": "Settori armati quando sei in vacanza (es. 3,4 - opzionale)"
+                },
+                "description": "Definisci i settori che desideri armare in diverse modalità.",
+                "title": "Configura il tuo sistema e-Connect/IESS"
+            }
+        }
+    }
+}
