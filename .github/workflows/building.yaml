@@ -34,7 +34,7 @@ jobs:
       - name: Detect build version
         run: echo "PKG_VERSION=$(hatch version)" >> "$GITHUB_ENV"
 
-      - name: Build the package
+      - name: Build test package
         run: hatch -v build -t sdist
 
       - name: Log package content
@@ -46,9 +46,12 @@ jobs:
       - name: Test if the package is built correctly
         run: python -c "import custom_components.econnect_alarm"
 
+      - name: Build the release package
+        run: hatch -v build -t zipped-directory
+
       - name: Upload release archive
         uses: actions/upload-artifact@v3
         with:
-          name: econnect-alarm-${{ env.PKG_VERSION }}.tar.gz
-          path: dist/econnect_alarm-${{ env.PKG_VERSION }}.tar.gz
+          name: econnect-alarm-${{ env.PKG_VERSION }}.zip
+          path: dist/econnect_alarm-${{ env.PKG_VERSION }}.zip
           if-no-files-found: error
