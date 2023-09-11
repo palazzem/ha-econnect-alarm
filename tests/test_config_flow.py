@@ -41,7 +41,7 @@ async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup,
     await hass.async_block_till_done()
 
     assert result["type"] == "create_entry"
-    assert result["title"] == "E-connect Alarm"
+    assert result["title"] == "Elmo/IESS Alarm"
     assert result["data"] == {
         "username": "test-username",
         "password": "test-password",
@@ -76,7 +76,7 @@ async def test_form_submit_with_defaults(mock_client, mock_setup_entry, mock_set
     await hass.async_block_till_done()
 
     assert result["type"] == "create_entry"
-    assert result["title"] == "E-connect Alarm"
+    assert result["title"] == "Elmo/IESS Alarm"
     assert result["data"] == {
         "username": "test-username",
         "password": "test-password",

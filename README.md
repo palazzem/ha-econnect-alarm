@@ -41,11 +41,11 @@ If you are curious about the project and want to know more, check out our [Disco
    folder so that the full path from your config folder is `custom_components/elmo_iess_alarm/`
 3. Restart Home Assistant. If it's your only custom component you'll see a warning in your logs.
 4. Once Home Assistant is started, from the UI go to Configuration > Integrations > Add Integrations. Search for
-   "E-connect Alarm". After selecting, dependencies will be downloaded and it could take up to a minute.
+   "Elmo/IESS Alarm". After selecting, dependencies will be downloaded and it could take up to a minute.
 
 ### Setup
 
-<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/1560405/267038244-a5a590f3-8982-4f01-8ad0-5e7b00222643.png" width="400">
+<img src="https://github.com/palazzem/ha-econnect-alarm/assets/1560405/7f2c3eee-cbf7-457c-8fe0-f586ecf0d9f5" width="400">
 
 - Username: is your username to access Elmo/IESS via web or app.
 - Password: is your password to access Elmo/IESS via web or app.
@@ -55,18 +55,22 @@ If you are curious about the project and want to know more, check out our [Disco
 
 ### Options
 
-<img src="https://github.com/palazzem/ha-econnect-alarm/assets/1560405/1e99bf57-a29f-4a33-b503-56d3af6b0169" width="400"/>
+In the option page you can configure your alarm presets in case you want to fine-tune which sectors are armed. To proceed with the configuration,
+open the integration page and click on Elmo/IESS integration. Once the page is opened, you should see the following integration page:
 
-From the integration page, you can configure some options to alter the integration behavior. Click on "Options".
+<img src="https://github.com/palazzem/ha-econnect-alarm/assets/1560405/47ddb8b9-1fae-4a3a-998c-729905c5bd64" width="400"/>
 
-<img src="https://github.com/palazzem/ha-econnect-alarm/assets/1560405/1469369b-ca95-4ae7-9a67-fd6ca8fbb21d" width="400"/>
+To configure the integration, click on "Configure".
 
-- Armed areas while at home (optional): list areas you want to arm when you select Arm Home. If not set, that mode is not
-  available and no actions are taken when you click the button.
-- Armed areas at night (optional): list areas you want to arm when you select Arm Night. If not set, that mode is not available
-  and no actions are taken when you click the button.
-- Armed areas on vacation (optional): list areas you want to arm when you select Arm Vacation. If not set, that mode is not available
-  and no actions are taken when you click the button.
+<img src="https://github.com/palazzem/ha-econnect-alarm/assets/1560405/d82f1fd6-8cbd-47cf-b0b2-d920a28abdf0" width="400"/>
+
+
+You can now define your presets:
+- Armed areas while at home: list areas you want to arm when you select Arm Home.
+- Armed areas at night (optional): list areas you want to arm when you select Arm Night.
+- Armed areas on vacation (optional): list areas you want to arm when you select Arm Vacation.
+
+In case you don't define any sector for a given preset, no actions are taken when you use the preset from your alarm panel.
 
 ### Automations
 
