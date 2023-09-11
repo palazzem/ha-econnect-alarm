@@ -8,7 +8,7 @@ from requests.exceptions import ConnectionError, HTTPError
 from requests.models import Response
 from voluptuous.error import MultipleInvalid
 
-from custom_components.econnect_alarm.const import DOMAIN
+from custom_components.elmo_iess_alarm.const import DOMAIN
 
 
 async def test_form_fields(hass):
@@ -22,9 +22,9 @@ async def test_form_fields(hass):
     assert form["data_schema"].schema["domain"] == str
 
 
-@patch("custom_components.econnect_alarm.async_setup", return_value=True)
-@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
-@patch("custom_components.econnect_alarm.helpers.ElmoClient")
+@patch("custom_components.elmo_iess_alarm.async_setup", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.elmo_iess_alarm.helpers.ElmoClient")
 async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup, hass):
     """Test a properly submitted form initializes an ElmoClient."""
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
@@ -59,9 +59,9 @@ async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup,
     assert ("test-username", "test-password") == client.auth.call_args.args
 
 
-@patch("custom_components.econnect_alarm.async_setup", return_value=True)
-@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
-@patch("custom_components.econnect_alarm.helpers.ElmoClient")
+@patch("custom_components.elmo_iess_alarm.async_setup", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.elmo_iess_alarm.helpers.ElmoClient")
 async def test_form_submit_with_defaults(mock_client, mock_setup_entry, mock_setup, hass):
     """Test a properly submitted form with defaults."""
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
@@ -100,8 +100,8 @@ async def test_form_supported_systems(hass):
     }
 
 
-@patch("custom_components.econnect_alarm.async_setup", return_value=True)
-@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup_entry", return_value=True)
 async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
     """Test the form has the expected required fields."""
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
@@ -118,10 +118,10 @@ async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
     assert "required key not provided @ data['password']" in errors
 
 
-@patch("custom_components.econnect_alarm.async_setup", return_value=True)
-@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup_entry", return_value=True)
 @patch(
-    "custom_components.econnect_alarm.helpers.ElmoClient.auth",
+    "custom_components.elmo_iess_alarm.helpers.ElmoClient.auth",
     side_effect=CredentialError,
 )
 async def test_form_submit_wrong_credential(mock_client, mock_setup_entry, mock_setup, hass):
@@ -142,10 +142,10 @@ async def test_form_submit_wrong_credential(mock_client, mock_setup_entry, mock_
     assert result["errors"]["base"] == "invalid_auth"
 
 
-@patch("custom_components.econnect_alarm.async_setup", return_value=True)
-@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup_entry", return_value=True)
 @patch(
-    "custom_components.econnect_alarm.helpers.ElmoClient.auth",
+    "custom_components.elmo_iess_alarm.helpers.ElmoClient.auth",
     side_effect=ConnectionError,
 )
 async def test_form_submit_connection_error(mock_client, mock_setup_entry, mock_setup, hass):
@@ -166,8 +166,8 @@ async def test_form_submit_connection_error(mock_client, mock_setup_entry, mock_
     assert result["errors"]["base"] == "cannot_connect"
 
 
-@patch("custom_components.econnect_alarm.async_setup", return_value=True)
-@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup_entry", return_value=True)
 async def test_form_client_errors(mock_setup_entry, mock_setup, hass):
     """Test the right error is raised for 4xx API errors."""
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
@@ -179,7 +179,7 @@ async def test_form_client_errors(mock_setup_entry, mock_setup, hass):
         err = HTTPError(response=r)
 
         with patch(
-            "custom_components.econnect_alarm.helpers.ElmoClient.auth",
+            "custom_components.elmo_iess_alarm.helpers.ElmoClient.auth",
             side_effect=err,
         ):
             result = await hass.config_entries.flow.async_configure(
@@ -196,8 +196,8 @@ async def test_form_client_errors(mock_setup_entry, mock_setup, hass):
             assert result["errors"]["base"] == "client_error"
 
 
-@patch("custom_components.econnect_alarm.async_setup", return_value=True)
-@patch("custom_components.econnect_alarm.async_setup_entry", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup", return_value=True)
+@patch("custom_components.elmo_iess_alarm.async_setup_entry", return_value=True)
 async def test_form_server_errors(mock_setup_entry, mock_setup, hass):
     """Test the right error is raised for 5xx API errors."""
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
@@ -209,7 +209,7 @@ async def test_form_server_errors(mock_setup_entry, mock_setup, hass):
         err = HTTPError(response=r)
 
         with patch(
-            "custom_components.econnect_alarm.helpers.ElmoClient.auth",
+            "custom_components.elmo_iess_alarm.helpers.ElmoClient.auth",
             side_effect=err,
         ):
             result = await hass.config_entries.flow.async_configure(

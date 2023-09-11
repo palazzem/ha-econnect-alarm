@@ -1,4 +1,4 @@
-"""Helper methods to reuse common logic across econnect_alarm module."""
+"""Helper methods to reuse common logic across elmo_iess_alarm module."""
 from elmo.api.client import ElmoClient
 from homeassistant import core
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME

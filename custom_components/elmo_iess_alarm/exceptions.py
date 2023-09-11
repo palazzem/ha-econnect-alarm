@@ -1,4 +1,4 @@
-"""Exceptions raised by econnect_alarm component."""
+"""Exceptions raised by elmo_iess_alarm component."""
 from homeassistant.exceptions import HomeAssistantError
 
 

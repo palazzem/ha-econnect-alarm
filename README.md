@@ -1,4 +1,4 @@
-# Home Assistant e-Connect Integration (Elmo)
+# Home Assistant Elmo/IESS Integration
 
 [![Linting](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/linting.yaml/badge.svg)](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/linting.yaml)
 [![Testing](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/testing.yaml/badge.svg)](https://github.com/palazzem/ha-econnect-alarm/actions/workflows/testing.yaml)
@@ -7,12 +7,12 @@
 
 
 
-This project is a [Home Assistant](https://www.home-assistant.io/) integration for your Elmo-like Alarm connected to
-[e-Connect cloud](https://e-connect.elmospa.com/it/).
+This project is a [Home Assistant](https://www.home-assistant.io/) integration for your Elmo/IESS Alarm connected to
+[e-Connect cloud](https://e-connect.elmospa.com/it/) or [Metronet](https://metronet.iessonline.com/).
 
 ## Supported Systems
 
-This Home Assistant integration targets Elmo-like alarm systems. The following systems are known to work:
+This integration supports Elmo/IESS alarm systems. The following systems are known to work:
 - [Elmo e-Connect](https://e-connect.elmospa.com/)
 - [IESS Metronet](https://www.iessonline.com/)
 
@@ -38,7 +38,7 @@ If you are curious about the project and want to know more, check out our [Disco
 
 1. Create a new folder in your configuration folder (where the `configuration.yaml` lives) called `custom_components`
 2. Download the [latest version](https://github.com/palazzem/ha-econnect-alarm/releases) into the `custom_components`
-   folder so that the full path from your config folder is `custom_components/econnect_alarm/`
+   folder so that the full path from your config folder is `custom_components/elmo_iess_alarm/`
 3. Restart Home Assistant. If it's your only custom component you'll see a warning in your logs.
 4. Once Home Assistant is started, from the UI go to Configuration > Integrations > Add Integrations. Search for
    "E-connect Alarm". After selecting, dependencies will be downloaded and it could take up to a minute.
@@ -47,23 +47,25 @@ If you are curious about the project and want to know more, check out our [Disco
 
 <img src="https://github-production-user-asset-6210df.s3.amazonaws.com/1560405/267038244-a5a590f3-8982-4f01-8ad0-5e7b00222643.png" width="400">
 
-- Username: is your username to access e-connect via web or app.
-- Password: is your password to access e-connect via web or app.
+- Username: is your username to access Elmo/IESS via web or app.
+- Password: is your password to access Elmo/IESS via web or app.
 - System: pick the brand of alarm system you are using.
 - Domain name (optional): domain used to access your login page via web. For instance, if you access to `https://connect.elmospa.com/vendor/`,
   you must set the domain to `vendor`. In case you don't have a vendor defined, set it to `default`.
 
 ### Options
 
-<img src="https://user-images.githubusercontent.com/1560405/110982667-1ad67880-8369-11eb-9930-a35028680d70.png" width="400"/>
+<img src="https://github.com/palazzem/ha-econnect-alarm/assets/1560405/1e99bf57-a29f-4a33-b503-56d3af6b0169" width="400"/>
 
 From the integration page, you can configure some options to alter the integration behavior. Click on "Options".
 
-<img src="https://user-images.githubusercontent.com/1560405/110982987-7e60a600-8369-11eb-8a89-48d527c7040c.png" width="400"/>
+<img src="https://github.com/palazzem/ha-econnect-alarm/assets/1560405/1469369b-ca95-4ae7-9a67-fd6ca8fbb21d" width="400"/>
 
 - Armed areas while at home (optional): list areas you want to arm when you select Arm Home. If not set, that mode is not
   available and no actions are taken when you click the button.
 - Armed areas at night (optional): list areas you want to arm when you select Arm Night. If not set, that mode is not available
+  and no actions are taken when you click the button.
+- Armed areas on vacation (optional): list areas you want to arm when you select Arm Vacation. If not set, that mode is not available
   and no actions are taken when you click the button.
 
 ### Automations

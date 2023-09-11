@@ -92,7 +92,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
-        name="econnect_alarm",
+        name="elmo_iess_alarm",
         update_interval=timedelta(seconds=SCAN_INTERVAL),
         update_method=async_update_data,
     )

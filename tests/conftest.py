@@ -5,8 +5,8 @@ import responses
 from elmo.api.client import ElmoClient
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from custom_components.econnect_alarm.alarm_control_panel import EconnectAlarm
-from custom_components.econnect_alarm.devices import AlarmDevice
+from custom_components.elmo_iess_alarm.alarm_control_panel import EconnectAlarm
+from custom_components.elmo_iess_alarm.devices import AlarmDevice
 
 from .fixtures import responses as r
 
@@ -35,11 +35,11 @@ def alarm_entity(hass, client):
         EconnectAlarm: Initialized test instance of the EconnectAlarm entity.
     """
     device = AlarmDevice(client)
-    coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_alarm")
+    coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="elmo_iess_alarm")
     entity = EconnectAlarm(name="Test Alarm", device=device, coordinator=coordinator, unique_id="test_id")
     # Set up the fixture
     entity.hass = hass
-    entity.entity_id = "econnect_alarm.test_id"
+    entity.entity_id = "elmo_iess_alarm.test_id"
     yield entity
 
 
