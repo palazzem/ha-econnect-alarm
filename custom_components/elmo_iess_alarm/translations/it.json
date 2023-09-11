@@ -17,7 +17,7 @@
                     "password": "Password"
                 },
                 "description": "Fornisci le tue credenziali e il dominio utilizzato per accedere alla tua pagina di login via web.\n\nAd esempio, se accedi a `https://connect.elmospa.com/installatore/`, devi impostare il dominio su `installatore`. Nel caso in cui non hai un installatore definito, impostalo su `default`.\n\nPuoi configurare il sistema selezionando \"Opzioni\" dopo aver installato l'integrazione.",
-                "title": "Configura il tuo sistema e-Connect/IESS"
+                "title": "Configura il tuo sistema Elmo/IESS"
             }
         }
     },
@@ -34,7 +34,7 @@
                     "areas_arm_vacation": "Settori armati quando sei in vacanza (es. 3,4 - opzionale)"
                 },
                 "description": "Definisci i settori che desideri armare in diverse modalità.",
-                "title": "Configura il tuo sistema e-Connect/IESS"
+                "title": "Configura il tuo sistema Elmo/IESS"
             }
         }
     }
