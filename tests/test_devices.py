@@ -11,12 +11,12 @@ from homeassistant.const import (
 )
 from requests.exceptions import HTTPError
 
-from custom_components.econnect_alarm.const import (
+from custom_components.elmo_iess_alarm.const import (
     CONF_AREAS_ARM_HOME,
     CONF_AREAS_ARM_NIGHT,
     CONF_AREAS_ARM_VACATION,
 )
-from custom_components.econnect_alarm.devices import AlarmDevice
+from custom_components.elmo_iess_alarm.devices import AlarmDevice
 
 
 def test_device_constructor(client):

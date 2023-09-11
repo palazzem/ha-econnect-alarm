@@ -4,5 +4,5 @@
     "render_readme": true,
     "hide_default_branch": true,
     "zip_release": true,
-    "filename": "hacs_econnect_alarm.zip"
+    "filename": "hacs_elmo_iess_alarm.zip"
   }

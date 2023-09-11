@@ -12,7 +12,7 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/palazzem/ha-econnect-alarm/issues",
   "loggers": [
-    "custom_components.econnect_alarm"
+    "custom_components.elmo_iess_alarm"
   ],
   "requirements": [
     "econnect-python==0.6.0"

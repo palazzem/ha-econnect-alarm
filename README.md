@@ -38,7 +38,7 @@ If you are curious about the project and want to know more, check out our [Disco
 
 1. Create a new folder in your configuration folder (where the `configuration.yaml` lives) called `custom_components`
 2. Download the [latest version](https://github.com/palazzem/ha-econnect-alarm/releases) into the `custom_components`
-   folder so that the full path from your config folder is `custom_components/econnect_alarm/`
+   folder so that the full path from your config folder is `custom_components/elmo_iess_alarm/`
 3. Restart Home Assistant. If it's your only custom component you'll see a warning in your logs.
 4. Once Home Assistant is started, from the UI go to Configuration > Integrations > Add Integrations. Search for
    "E-connect Alarm". After selecting, dependencies will be downloaded and it could take up to a minute.

@@ -1,7 +1,7 @@
 import pytest
 
-from custom_components.econnect_alarm.exceptions import InvalidAreas
-from custom_components.econnect_alarm.helpers import parse_areas_config
+from custom_components.elmo_iess_alarm.exceptions import InvalidAreas
+from custom_components.elmo_iess_alarm.helpers import parse_areas_config
 
 
 def test_parse_areas_config_valid_input():

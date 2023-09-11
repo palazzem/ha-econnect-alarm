@@ -9,7 +9,7 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
 
-from custom_components.econnect_alarm.devices import AlarmDevice
+from custom_components.elmo_iess_alarm.devices import AlarmDevice
 
 from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
 
@@ -56,7 +56,7 @@ class EconnectDoorWindowSensor(CoordinatorEntity, BinarySensorEntity):
         self._unique_id = unique_id
         self._sensor_id = sensor_id
         self._sensor_type = sensor_type
-        self._name = name
+        self._name = f"{DOMAIN} {name}"
 
     @property
     def unique_id(self) -> str:

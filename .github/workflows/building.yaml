@@ -38,13 +38,13 @@ jobs:
         run: hatch -v build -t sdist
 
       - name: Log package content
-        run: tar -tvf dist/econnect_alarm-$PKG_VERSION.tar.gz
+        run: tar -tvf dist/elmo_iess_alarm-$PKG_VERSION.tar.gz
 
       - name: Install the package
-        run: pip install dist/econnect_alarm-$PKG_VERSION.tar.gz
+        run: pip install dist/elmo_iess_alarm-$PKG_VERSION.tar.gz
 
       - name: Test if the package is built correctly
-        run: python -c "import custom_components.econnect_alarm"
+        run: python -c "import custom_components.elmo_iess_alarm"
 
       - name: Build the release package
         run: hatch -v build -t zipped-directory
@@ -52,6 +52,6 @@ jobs:
       - name: Upload release archive
         uses: actions/upload-artifact@v3
         with:
-          name: econnect-alarm-${{ env.PKG_VERSION }}.zip
-          path: dist/econnect_alarm-${{ env.PKG_VERSION }}.zip
+          name: elmo-iess-alarm-${{ env.PKG_VERSION }}.zip
+          path: dist/elmo_iess_alarm-${{ env.PKG_VERSION }}.zip
           if-no-files-found: error
