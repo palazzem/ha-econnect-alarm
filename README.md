@@ -45,14 +45,13 @@ If you are curious about the project and want to know more, check out our [Disco
 
 ### Setup
 
-<img src="https://github.com/palazzem/ha-econnect-alarm/assets/1560405/46f35b2c-5f9f-4931-b0ed-a6657c6f1da5" width="400">
+<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/1560405/267038244-a5a590f3-8982-4f01-8ad0-5e7b00222643.png" width="400">
 
 - Username: is your username to access e-connect via web or app.
 - Password: is your password to access e-connect via web or app.
-- System:
-- Domain name (optional): domain used to access your login page via web. If you access to `https://connect.elmospa.com`,
-  then this field must be empty. If you access to `https://connect.elmospa.com/<domain>` then add `<domain>` in this field.
-  For instance if you access to `https://connect.elmospa.com/nwd/`, you must add `nwd` here.
+- System: pick the brand of alarm system you are using.
+- Domain name (optional): domain used to access your login page via web. For instance, if you access to `https://connect.elmospa.com/vendor/`,
+  you must set the domain to `vendor`. In case you don't have a vendor defined, set it to `default`.
 
 ### Options
 
