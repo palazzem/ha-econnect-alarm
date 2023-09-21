@@ -20,6 +20,8 @@ from homeassistant.const import (
     STATE_ALARM_ARMING,
     STATE_ALARM_DISARMED,
     STATE_ALARM_DISARMING,
+    CONF_USERNAME,
+    CONF_ALIAS,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -35,10 +37,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     device = hass.data[DOMAIN][entry.entry_id][KEY_DEVICE]
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
     unique_id = f"{DOMAIN}_{entry.entry_id}"
+    
+    # Check if there is an alias in configuration flow and use it for naming
+    if "alias" in entry.data:
+       name_alias = f"{entry.data[CONF_ALIAS]}"
+    else:
+       name_alias = f"{entry.data[CONF_USERNAME]}"
+
     async_add_devices(
         [
             EconnectAlarm(
-                "Alarm Panel",
+                name_alias,
                 device,
                 coordinator,
                 unique_id,
