@@ -12,6 +12,7 @@
         "step": {
             "user": {
                 "data": {
+                    "alias": "Name of the control panel (optional)",
                     "domain": "Domain name (optional)",
                     "username": "Username",
                     "password": "Password"
