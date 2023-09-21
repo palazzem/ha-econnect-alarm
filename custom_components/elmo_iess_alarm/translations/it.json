@@ -12,6 +12,7 @@
         "step": {
             "user": {
                 "data": {
+                    "alias": "Nome dell'impianto (opzionale)",
                     "domain": "Nome dominio (opzionale)",
                     "username": "Nome utente",
                     "password": "Password"
