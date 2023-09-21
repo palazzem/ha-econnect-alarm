@@ -3,6 +3,7 @@
     "step": {
       "user": {
         "data": {
+          "alias": "[%key:common::config_flow::data::alias%]",
           "domain": "Domain name (optional)",
           "username": "[%key:common::config_flow::data::username%]",
           "password": "[%key:common::config_flow::data::password%]"
