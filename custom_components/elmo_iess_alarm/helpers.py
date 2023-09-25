@@ -90,7 +90,7 @@ def generate_entity_name(entry: ConfigEntry, name: Union[str, None] = None) -> s
         "elmo_iess_alarm_seaside_home_window"
     """
     if CONF_SYSTEM_NAME in entry.data:
-        entity_system_name = f"{DOMAIN} {entry.data[CONF_SYSTEM_NAME]} {name or ''}"
+        entity_system_name = f"{DOMAIN} {entry.data[CONF_SYSTEM_NAME]} {name or ''}".strip()
     else:
-        entity_system_name = f"{DOMAIN} {entry.data[CONF_USERNAME]} {name or ''}"
+        entity_system_name = f"{DOMAIN} {entry.data[CONF_USERNAME]} {name or ''}".strip()
     return entity_system_name
