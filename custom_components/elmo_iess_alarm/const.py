@@ -5,9 +5,9 @@ SUPPORTED_SYSTEMS = {
     s.ELMO_E_CONNECT: "Elmo e-Connect",
     s.IESS_METRONET: "IESS Metronet",
 }
-CONF_ALIAS = "alias"
 CONF_DOMAIN = "domain"
 CONF_SYSTEM_URL = "system_base_url"
+CONF_SYSTEM_NAME = "system_name"
 CONF_AREAS_ARM_HOME = "areas_arm_home"
 CONF_AREAS_ARM_NIGHT = "areas_arm_night"
 CONF_AREAS_ARM_VACATION = "areas_arm_vacation"
