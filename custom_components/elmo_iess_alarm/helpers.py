@@ -73,7 +73,6 @@ async def validate_credentials(hass: core.HomeAssistant, config: dict):
 
 
 def generate_entity_name(entry: ConfigEntry, name: Union[str, None] = None) -> str:
-    pass
     """Generate a name for the entity based on system configuration or username.
 
     Args:
