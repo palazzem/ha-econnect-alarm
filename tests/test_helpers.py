@@ -42,13 +42,13 @@ def test_generate_entity_name_with_none(config_entry):
     assert generate_entity_name(config_entry, None) == "elmo_iess_alarm test_user"
 
 def test_generate_entity_name_empty_system(config_entry):
-    config_entry["system_name"] = "Home"
+    config_entry.data["system_name"] = "Home"
     assert generate_entity_name(config_entry) == "elmo_iess_alarm Home"
 
 def test_generate_entity_name_with_name_system(config_entry):
-    config_entry["system_name"] = "Home"
+    config_entry.data["system_name"] = "Home"
     assert generate_entity_name(config_entry, "window") == "elmo_iess_alarm Home window"
 
 def test_generate_entity_name_with_none_system(config_entry):
-    config_entry["system_name"] = "Home"
+    config_entry.data["system_name"] = "Home"
     assert generate_entity_name(config_entry, None) == "elmo_iess_alarm Home"
