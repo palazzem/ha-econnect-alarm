@@ -12,10 +12,10 @@
         "step": {
             "user": {
                 "data": {
-                    "alias": "Name of the control panel (optional)",
                     "domain": "Domain name (optional)",
                     "username": "Username",
-                    "password": "Password"
+                    "password": "Password",
+                    "system_name": "Name of the control panel (optional)"
                 },
                 "description": "Provide your credentials and the domain used to access your login page via web.\n\nFor instance, if you access to `https://connect.elmospa.com/vendor/`, you must set the domain to `vendor`. In case you don't have a vendor defined, set it to `default`.\n\nYou can configure the system selecting \"Options\" after installing the integration.",
                 "title": "Configure your Elmo/IESS system"
