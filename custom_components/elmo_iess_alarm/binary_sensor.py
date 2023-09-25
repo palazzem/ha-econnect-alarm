@@ -2,7 +2,6 @@
 from elmo import query
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_USERNAME, CONF_ALIAS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
@@ -13,7 +12,7 @@ from homeassistant.helpers.update_coordinator import (
 from custom_components.elmo_iess_alarm.devices import AlarmDevice
 
 from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
-
+from .helpers import generate_entity_name
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -21,7 +20,6 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up e-connect binary sensors from a config entry."""
-
     device = hass.data[DOMAIN][entry.entry_id][KEY_DEVICE]
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
     # Load all entities and register sectors and inputs
@@ -31,38 +29,13 @@ async def async_setup_entry(
     inventory = await hass.async_add_executor_job(device._connection._get_descriptions)
     for sector_id, name in inventory[query.SECTORS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.SECTORS}_{sector_id}"
-        
-    # Check if there is an alias in configuration flow and use it for naming
-        if "alias" in entry.data:
-            name_alias = f"{entry.data[CONF_ALIAS]} {name}"
-        else:
-            name_alias = f"{entry.data[CONF_USERNAME]} {name}"
-            
-        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sector_id, query.SECTORS, name_alias))
+        entity_name = f"{generate_entity_name(entry)} {name}"
+        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sector_id, query.SECTORS, entity_name))
 
     for sensor_id, name in inventory[query.INPUTS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{sensor_id}"
-        
-    # Check if there is an alias in configuration flow and use it for naming
-        if "alias" in entry.data:
-            name_alias = f"{entry.data[CONF_ALIAS]} {name}"
-        else:
-            name_alias = f"{entry.data[CONF_USERNAME]} {name}"
-            
-        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sensor_id, query.INPUTS, name_alias))
-
-    # Retrieve alarm system global status
-    alerts = await hass.async_add_executor_job(device._connection.get_status)
-    for name, value in alerts.items():
-        unique_id = f"{entry.entry_id}_{name}"
-        
-    # Check if there is an alias in configuration flow and use it for naming
-        if "alias" in entry.data:
-            name_alias = f"{entry.data[CONF_ALIAS]} {name}"
-        else:
-            name_alias = f"{entry.data[CONF_USERNAME]} {name}"
-            
-        sensors.append(EconnectAlertSensor(coordinator, unique_id, name_alias, value))
+        entity_name = f"{generate_entity_name(entry)} {name}"
+        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sensor_id, query.INPUTS, entity_name))
 
     async_add_entities(sensors)
 
@@ -85,7 +58,7 @@ class EconnectDoorWindowSensor(CoordinatorEntity, BinarySensorEntity):
         self._unique_id = unique_id
         self._sensor_id = sensor_id
         self._sensor_type = sensor_type
-        self._name = name
+        self._name =name
 
     @property
     def unique_id(self) -> str:
