@@ -26,6 +26,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
 from .decorators import set_device_state
+from .helpers import generate_entity_name
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     async_add_devices(
         [
             EconnectAlarm(
-                "Alarm Panel",
+                generate_entity_name(entry),
                 device,
                 coordinator,
                 unique_id,

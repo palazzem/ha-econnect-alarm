@@ -68,3 +68,20 @@ def client():
         server.add(responses.POST, "https://example.com/api/areas", body=r.AREAS, status=200)
         server.add(responses.POST, "https://example.com/api/inputs", body=r.INPUTS, status=200)
         yield client
+
+
+@pytest.fixture(scope="function")
+def config_entry():
+    """Creates a mock config entry for testing purposes.
+
+    This config entry is designed to emulate the behavior of a real config entry for
+    testing purposes.
+    """
+
+    class MockConfigEntry:
+        def __init__(self):
+            self.data = {
+                "username": "test_user",
+            }
+
+    return MockConfigEntry()

@@ -12,6 +12,7 @@ from homeassistant.helpers.update_coordinator import (
 from custom_components.elmo_iess_alarm.devices import AlarmDevice
 
 from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
+from .helpers import generate_entity_name
 
 
 async def async_setup_entry(
@@ -29,11 +30,19 @@ async def async_setup_entry(
     inventory = await hass.async_add_executor_job(device._connection._get_descriptions)
     for sector_id, name in inventory[query.SECTORS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.SECTORS}_{sector_id}"
-        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sector_id, query.SECTORS, name))
+        sensors.append(
+            EconnectDoorWindowSensor(
+                coordinator, device, unique_id, sector_id, query.SECTORS, generate_entity_name(entry, name)
+            )
+        )
 
     for sensor_id, name in inventory[query.INPUTS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{sensor_id}"
-        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sensor_id, query.INPUTS, name))
+        sensors.append(
+            EconnectDoorWindowSensor(
+                coordinator, device, unique_id, sensor_id, query.INPUTS, generate_entity_name(entry, name)
+            )
+        )
 
     async_add_entities(sensors)
 
@@ -56,7 +65,7 @@ class EconnectDoorWindowSensor(CoordinatorEntity, BinarySensorEntity):
         self._unique_id = unique_id
         self._sensor_id = sensor_id
         self._sensor_type = sensor_type
-        self._name = f"{DOMAIN} {name}"
+        self._name = name
 
     @property
     def unique_id(self) -> str:

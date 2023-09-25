@@ -14,6 +14,7 @@ from .const import (
     CONF_AREAS_ARM_NIGHT,
     CONF_AREAS_ARM_VACATION,
     CONF_DOMAIN,
+    CONF_SYSTEM_NAME,
     CONF_SYSTEM_URL,
     DOMAIN,
     SUPPORTED_SYSTEMS,
@@ -83,6 +84,10 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                     vol.Optional(
                         CONF_DOMAIN,
                         description={"suggested_value": user_input.get(CONF_DOMAIN)},
+                    ): str,
+                    vol.Optional(
+                        CONF_SYSTEM_NAME,
+                        description={"suggested_value": user_input.get(CONF_SYSTEM_NAME)},
                     ): str,
                 }
             ),

@@ -1,7 +1,10 @@
 import pytest
 
 from custom_components.elmo_iess_alarm.exceptions import InvalidAreas
-from custom_components.elmo_iess_alarm.helpers import parse_areas_config
+from custom_components.elmo_iess_alarm.helpers import (
+    generate_entity_name,
+    parse_areas_config,
+)
 
 
 def test_parse_areas_config_valid_input():
@@ -31,3 +34,30 @@ def test_parse_areas_config_raises_value_error():
 
 def test_parse_areas_config_whitespace():
     assert parse_areas_config(" 3 , 4 ") == [3, 4]
+
+
+def test_generate_entity_name_empty(config_entry):
+    assert generate_entity_name(config_entry) == "elmo_iess_alarm test_user"
+
+
+def test_generate_entity_name_with_name(config_entry):
+    assert generate_entity_name(config_entry, "window") == "elmo_iess_alarm test_user window"
+
+
+def test_generate_entity_name_with_none(config_entry):
+    assert generate_entity_name(config_entry, None) == "elmo_iess_alarm test_user"
+
+
+def test_generate_entity_name_empty_system(config_entry):
+    config_entry.data["system_name"] = "Home"
+    assert generate_entity_name(config_entry) == "elmo_iess_alarm Home"
+
+
+def test_generate_entity_name_with_name_system(config_entry):
+    config_entry.data["system_name"] = "Home"
+    assert generate_entity_name(config_entry, "window") == "elmo_iess_alarm Home window"
+
+
+def test_generate_entity_name_with_none_system(config_entry):
+    config_entry.data["system_name"] = "Home"
+    assert generate_entity_name(config_entry, None) == "elmo_iess_alarm Home"
