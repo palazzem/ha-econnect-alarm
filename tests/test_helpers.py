@@ -67,7 +67,7 @@ def test_generate_entity_name_empty_system():
                 "system_name": "Home",
             }
     config_entry = MockConfigEntry()
-    assert generate_entity_name(config_entry) == "elmo_iess_alarm test_user"
+    assert generate_entity_name(config_entry) == "elmo_iess_alarm Home"
 
 def test_generate_entity_name_with_name_system():
     class MockConfigEntry:
@@ -77,7 +77,7 @@ def test_generate_entity_name_with_name_system():
                 "system_name": "Home",
             }
     config_entry = MockConfigEntry()
-    assert generate_entity_name(config_entry, "window") == "elmo_iess_alarm test_user window"
+    assert generate_entity_name(config_entry, "window") == "elmo_iess_alarm Home window"
 
 def test_generate_entity_name_with_none_system():
     class MockConfigEntry:
@@ -87,4 +87,4 @@ def test_generate_entity_name_with_none_system():
                 "system_name": "Home",
             }
     config_entry = MockConfigEntry()
-    assert generate_entity_name(config_entry, None) == "elmo_iess_alarm test_user"
+    assert generate_entity_name(config_entry, None) == "elmo_iess_alarm Home"
