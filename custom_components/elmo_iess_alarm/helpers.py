@@ -2,8 +2,9 @@
 from elmo.api.client import ElmoClient
 from homeassistant import core
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.config_entries import ConfigEntry
 
-from .const import CONF_DOMAIN, CONF_SYSTEM_URL
+from .const import CONF_DOMAIN, CONF_SYSTEM_URL, CONF_SYSTEM_NAME, DOMAIN
 from .exceptions import InvalidAreas
 
 
@@ -67,3 +68,12 @@ async def validate_credentials(hass: core.HomeAssistant, config: dict):
     client = ElmoClient(config.get(CONF_SYSTEM_URL), domain=config.get(CONF_DOMAIN))
     await hass.async_add_executor_job(client.auth, config.get(CONF_USERNAME), config.get(CONF_PASSWORD))
     return True
+
+def generate_entity_name(entry: ConfigEntry) -> str:
+
+    # Check if there is a configured system name in configuration flow or use the username for naming
+    if "system_name" in entry.data:
+       entity_system_name = f"{DOMAIN}_{entry.data[CONF_SYSTEM_NAME]}"
+    else:
+       entity_system_name = f"{DOMAIN}_{entry.data[CONF_USERNAME]}"
+    return entity_system_name
