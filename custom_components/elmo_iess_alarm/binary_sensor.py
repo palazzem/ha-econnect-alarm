@@ -29,13 +29,11 @@ async def async_setup_entry(
     inventory = await hass.async_add_executor_job(device._connection._get_descriptions)
     for sector_id, name in inventory[query.SECTORS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.SECTORS}_{sector_id}"
-        entity_name = f"{generate_entity_name(entry)} {name}"
-        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sector_id, query.SECTORS, entity_name))
+        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sector_id, query.SECTORS, generate_entity_name(entry,name)))
 
     for sensor_id, name in inventory[query.INPUTS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{sensor_id}"
-        entity_name = f"{generate_entity_name(entry)} {name}"
-        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sensor_id, query.INPUTS, entity_name))
+        sensors.append(EconnectDoorWindowSensor(coordinator, device, unique_id, sensor_id, query.INPUTS, generate_entity_name(entry,name)))
 
     async_add_entities(sensors)
 
