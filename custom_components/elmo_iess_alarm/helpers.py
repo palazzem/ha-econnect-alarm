@@ -69,11 +69,23 @@ async def validate_credentials(hass: core.HomeAssistant, config: dict):
     await hass.async_add_executor_job(client.auth, config.get(CONF_USERNAME), config.get(CONF_PASSWORD))
     return True
 
-def generate_entity_name(entry: ConfigEntry) -> str:
+def generate_entity_name(entry: ConfigEntry, name: str = None) -> str:
+    pass
+    """Generate a name for the entity based on system configuration or username.
 
-    # Check if there is a configured system name in configuration flow or use the username for naming
+    Args:
+        entry (ConfigEntry): The configuration entry from Home Assistant containing system configuration or username.
+
+    Returns:
+        str: The generated entity name, which is a combination of the domain and either the configured system name or the username.
+
+    Example:
+        >>> entry.data = {"system_name": "Seaside Home"}
+        >>> generate_entity_name(entry, "window")
+        "elmo_iess_alarm_seaside_home_window"
+    """
     if "system_name" in entry.data:
-       entity_system_name = f"{DOMAIN}_{entry.data[CONF_SYSTEM_NAME]}"
+       entity_system_name = f"{DOMAIN} {entry.data[CONF_SYSTEM_NAME]} {name or ''}"
     else:
-       entity_system_name = f"{DOMAIN}_{entry.data[CONF_USERNAME]}"
+       entity_system_name = f"{DOMAIN} {entry.data[CONF_USERNAME]} {name or ''}"
     return entity_system_name
