@@ -1,10 +1,12 @@
 """Helper methods to reuse common logic across elmo_iess_alarm module."""
+from typing import Union
+
 from elmo.api.client import ElmoClient
 from homeassistant import core
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
-from .const import CONF_DOMAIN, CONF_SYSTEM_URL, CONF_SYSTEM_NAME, DOMAIN
+from .const import CONF_DOMAIN, CONF_SYSTEM_NAME, CONF_SYSTEM_URL, DOMAIN
 from .exceptions import InvalidAreas
 
 
@@ -69,15 +71,18 @@ async def validate_credentials(hass: core.HomeAssistant, config: dict):
     await hass.async_add_executor_job(client.auth, config.get(CONF_USERNAME), config.get(CONF_PASSWORD))
     return True
 
-def generate_entity_name(entry: ConfigEntry, name: str = None) -> str:
+
+def generate_entity_name(entry: ConfigEntry, name: Union[str, None] = None) -> str:
     pass
     """Generate a name for the entity based on system configuration or username.
 
     Args:
-        entry (ConfigEntry): The configuration entry from Home Assistant containing system configuration or username.
+        entry (ConfigEntry): The configuration entry from Home Assistant containing system
+                             configuration or username.
 
     Returns:
-        str: The generated entity name, which is a combination of the domain and either the configured system name or the username.
+        str: The generated entity name, which is a combination of the domain and either the configured
+             system name or the username.
 
     Example:
         >>> entry.data = {"system_name": "Seaside Home"}
@@ -85,7 +90,7 @@ def generate_entity_name(entry: ConfigEntry, name: str = None) -> str:
         "elmo_iess_alarm_seaside_home_window"
     """
     if CONF_SYSTEM_NAME in entry.data:
-       entity_system_name = f"{DOMAIN} {entry.data[CONF_SYSTEM_NAME]} {name or ''}"
+        entity_system_name = f"{DOMAIN} {entry.data[CONF_SYSTEM_NAME]} {name or ''}"
     else:
-       entity_system_name = f"{DOMAIN} {entry.data[CONF_USERNAME]} {name or ''}"
+        entity_system_name = f"{DOMAIN} {entry.data[CONF_USERNAME]} {name or ''}"
     return entity_system_name
