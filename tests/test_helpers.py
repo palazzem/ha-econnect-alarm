@@ -37,27 +37,32 @@ def test_parse_areas_config_whitespace():
 
 
 def test_generate_entity_name_empty(config_entry):
-    assert generate_entity_name(config_entry) == "elmo_iess_alarm test_user"
+    assert generate_entity_name(config_entry) == "elmo_iess_alarm_test_user"
 
 
 def test_generate_entity_name_with_name(config_entry):
-    assert generate_entity_name(config_entry, "window") == "elmo_iess_alarm test_user window"
+    assert generate_entity_name(config_entry, "window") == "elmo_iess_alarm_test_user_window"
 
 
 def test_generate_entity_name_with_none(config_entry):
-    assert generate_entity_name(config_entry, None) == "elmo_iess_alarm test_user"
+    assert generate_entity_name(config_entry, None) == "elmo_iess_alarm_test_user"
 
 
 def test_generate_entity_name_empty_system(config_entry):
     config_entry.data["system_name"] = "Home"
-    assert generate_entity_name(config_entry) == "elmo_iess_alarm Home"
+    assert generate_entity_name(config_entry) == "elmo_iess_alarm_home"
 
 
 def test_generate_entity_name_with_name_system(config_entry):
     config_entry.data["system_name"] = "Home"
-    assert generate_entity_name(config_entry, "window") == "elmo_iess_alarm Home window"
+    assert generate_entity_name(config_entry, "window") == "elmo_iess_alarm_home_window"
 
 
 def test_generate_entity_name_with_none_system(config_entry):
     config_entry.data["system_name"] = "Home"
-    assert generate_entity_name(config_entry, None) == "elmo_iess_alarm Home"
+    assert generate_entity_name(config_entry, None) == "elmo_iess_alarm_home"
+
+
+def test_generate_entity_name_with_spaces(config_entry):
+    config_entry.data["system_name"] = "Home Assistant"
+    assert generate_entity_name(config_entry, None) == "elmo_iess_alarm_home_assistant"
