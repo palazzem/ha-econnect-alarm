@@ -13,6 +13,7 @@ from homeassistant.components.alarm_control_panel.const import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    CONF_USERNAME,
     STATE_ALARM_ARMED_AWAY,
     STATE_ALARM_ARMED_HOME,
     STATE_ALARM_ARMED_NIGHT,
@@ -24,9 +25,9 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
+from .const import CONF_SYSTEM_NAME, DOMAIN, KEY_COORDINATOR, KEY_DEVICE
 from .decorators import set_device_state
-from .helpers import generate_entity_name
+from .helpers import generate_entity_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,10 +40,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     async_add_devices(
         [
             EconnectAlarm(
-                generate_entity_name(entry),
+                unique_id,
+                entry,
                 device,
                 coordinator,
-                unique_id,
             )
         ]
     )
@@ -51,12 +52,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
 class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     """E-connect alarm entity."""
 
-    def __init__(self, name, device, coordinator, unique_id):
+    _attr_has_entity_name = True
+
+    def __init__(self, unique_id, config, device, coordinator):
         """Construct."""
         super().__init__(coordinator)
-        self._name = name
-        self._device = device
+        self.entity_id = generate_entity_id(config)
         self._unique_id = unique_id
+        self._name = f"Alarm Panel {config.data.get(CONF_SYSTEM_NAME) or config.data.get(CONF_USERNAME)}"
+        self._device = device
 
     @property
     def unique_id(self):
