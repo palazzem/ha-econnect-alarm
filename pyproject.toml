@@ -32,8 +32,8 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
 ]
 dependencies = [
-  "homeassistant",
   "econnect-python==0.6.0",
+  "homeassistant",
 ]
 
 [project.optional-dependencies]

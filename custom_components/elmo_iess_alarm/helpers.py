@@ -5,6 +5,7 @@ from elmo.api.client import ElmoClient
 from homeassistant import core
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.util import slugify
 
 from .const import CONF_DOMAIN, CONF_SYSTEM_NAME, CONF_SYSTEM_URL, DOMAIN
 from .exceptions import InvalidAreas
@@ -78,18 +79,23 @@ def generate_entity_name(entry: ConfigEntry, name: Union[str, None] = None) -> s
     Args:
         entry (ConfigEntry): The configuration entry from Home Assistant containing system
                              configuration or username.
+        name (Union[str, None]): Additional name component to be appended to the entity name.
 
     Returns:
         str: The generated entity name, which is a combination of the domain and either the configured
-             system name or the username.
+             system name or the username, optionally followed by the provided name.
 
     Example:
         >>> entry.data = {"system_name": "Seaside Home"}
         >>> generate_entity_name(entry, "window")
         "elmo_iess_alarm_seaside_home_window"
     """
-    if CONF_SYSTEM_NAME in entry.data:
-        entity_system_name = f"{DOMAIN} {entry.data[CONF_SYSTEM_NAME]} {name or ''}".strip()
-    else:
-        entity_system_name = f"{DOMAIN} {entry.data[CONF_USERNAME]} {name or ''}".strip()
-    return entity_system_name
+    # Retrieve the system name or username from the ConfigEntry
+    system_name = entry.data.get(CONF_SYSTEM_NAME) or entry.data.get(CONF_USERNAME)
+
+    # Default to empty string if a name is not provided
+    additional_name = name or ""
+
+    # Generate the entity name and use Home Assistant slugify to ensure it's a valid entity ID
+    entity_name = f"{DOMAIN}_{system_name}_{additional_name}"
+    return slugify(entity_name)
