@@ -97,5 +97,5 @@ def generate_entity_name(entry: ConfigEntry, name: Union[str, None] = None) -> s
     additional_name = name or ""
 
     # Generate the entity name and use Home Assistant slugify to ensure it's a valid entity ID
-    entity_name = f"{DOMAIN}_{system_name}_{additional_name}"
-    return slugify(entity_name)
+    entity_name = slugify(f"{system_name}_{additional_name}")
+    return f"{DOMAIN}.{entity_name}"
