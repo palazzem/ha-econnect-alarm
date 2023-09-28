@@ -33,6 +33,7 @@ def test_device_constructor(client):
     assert device.sectors_disarmed == {}
     assert device.inputs_alerted == {}
     assert device.inputs_wait == {}
+    assert device.alerts == {}
 
 
 def test_device_constructor_with_config(client):
@@ -161,6 +162,33 @@ def test_device_update_success(client, mocker):
     inputs_wait = {
         2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"}
     }
+    alerts = {
+        "alarm_led": 0,
+        "anomalies_led": 1,
+        "device_failure": 0,
+        "device_low_battery": 0,
+        "device_no_power": 0,
+        "device_no_supervision": 0,
+        "device_system_block": 0,
+        "device_tamper": 0,
+        "gsm_anomaly": 0,
+        "gsm_low_balance": 0,
+        "has_anomaly": False,
+        "input_alarm": 0,
+        "input_bypass": 0,
+        "input_failure": 0,
+        "input_low_battery": 0,
+        "input_no_supervision": 0,
+        "inputs_led": 2,
+        "module_registration": 0,
+        "panel_low_battery": 0,
+        "panel_no_power": 0,
+        "panel_tamper": 0,
+        "pstn_anomaly": 0,
+        "rf_interference": 0,
+        "system_test": 0,
+        "tamper_led": 0,
+    }
     device.connect("username", "password")
     # Test
     device.update()
@@ -169,6 +197,7 @@ def test_device_update_success(client, mocker):
     assert device.sectors_disarmed == sectors_disarmed
     assert device.inputs_alerted == inputs_alerted
     assert device.inputs_wait == inputs_wait
+    assert device.alerts == alerts
     assert device._lastIds == {
         q.SECTORS: 4,
         q.INPUTS: 42,
