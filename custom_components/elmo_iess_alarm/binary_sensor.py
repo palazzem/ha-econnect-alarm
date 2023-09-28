@@ -12,7 +12,7 @@ from homeassistant.helpers.update_coordinator import (
 from custom_components.elmo_iess_alarm.devices import AlarmDevice
 
 from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
-from .helpers import generate_entity_name
+from .helpers import generate_entity_id
 
 
 async def async_setup_entry(
@@ -30,19 +30,11 @@ async def async_setup_entry(
     inventory = await hass.async_add_executor_job(device._connection._get_descriptions)
     for sector_id, name in inventory[query.SECTORS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.SECTORS}_{sector_id}"
-        sensors.append(
-            EconnectDoorWindowSensor(
-                coordinator, device, unique_id, sector_id, query.SECTORS, generate_entity_name(entry, name)
-            )
-        )
+        sensors.append(EconnectDoorWindowSensor(unique_id, sector_id, entry, name, coordinator, device, query.SECTORS))
 
     for sensor_id, name in inventory[query.INPUTS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{sensor_id}"
-        sensors.append(
-            EconnectDoorWindowSensor(
-                coordinator, device, unique_id, sensor_id, query.INPUTS, generate_entity_name(entry, name)
-            )
-        )
+        sensors.append(EconnectDoorWindowSensor(unique_id, sensor_id, entry, name, coordinator, device, query.INPUTS))
 
     async_add_entities(sensors)
 
@@ -50,22 +42,26 @@ async def async_setup_entry(
 class EconnectDoorWindowSensor(CoordinatorEntity, BinarySensorEntity):
     """Representation of a e-connect door window sensor."""
 
+    _attr_has_entity_name = True
+
     def __init__(
         self,
-        coordinator: DataUpdateCoordinator,
-        device: AlarmDevice,
         unique_id: str,
         sensor_id: int,
-        sensor_type: int,
+        config: ConfigEntry,
         name: str,
+        coordinator: DataUpdateCoordinator,
+        device: AlarmDevice,
+        sensor_type: int,
     ) -> None:
         """Construct."""
         super().__init__(coordinator)
+        self.entity_id = generate_entity_id(config, name)
+        self._name = name
         self._device = device
         self._unique_id = unique_id
         self._sensor_id = sensor_id
         self._sensor_type = sensor_type
-        self._name = name
 
     @property
     def unique_id(self) -> str:

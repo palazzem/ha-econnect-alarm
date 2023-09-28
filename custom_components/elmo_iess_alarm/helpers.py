@@ -73,29 +73,32 @@ async def validate_credentials(hass: core.HomeAssistant, config: dict):
     return True
 
 
-def generate_entity_name(entry: ConfigEntry, name: Union[str, None] = None) -> str:
-    """Generate a name for the entity based on system configuration or username.
+def generate_entity_id(config: ConfigEntry, name: Union[str, None] = None) -> str:
+    """Generate an entity ID based on system configuration or username.
 
     Args:
-        entry (ConfigEntry): The configuration entry from Home Assistant containing system
-                             configuration or username.
+        config (ConfigEntry): The configuration entry from Home Assistant containing system
+                              configuration or username.
         name (Union[str, None]): Additional name component to be appended to the entity name.
 
     Returns:
-        str: The generated entity name, which is a combination of the domain and either the configured
+        str: The generated entity id, which is a combination of the domain and either the configured
              system name or the username, optionally followed by the provided name.
 
     Example:
-        >>> entry.data = {"system_name": "Seaside Home"}
+        >>> config.data = {"system_name": "Seaside Home"}
         >>> generate_entity_name(entry, "window")
-        "elmo_iess_alarm_seaside_home_window"
+        "elmo_iess_alarm.seaside_home_window"
     """
     # Retrieve the system name or username from the ConfigEntry
-    system_name = entry.data.get(CONF_SYSTEM_NAME) or entry.data.get(CONF_USERNAME)
+    system_name = config.data.get(CONF_SYSTEM_NAME) or config.data.get(CONF_USERNAME)
 
     # Default to empty string if a name is not provided
     additional_name = name or ""
 
-    # Generate the entity name and use Home Assistant slugify to ensure it's a valid entity ID
-    entity_name = f"{DOMAIN}_{system_name}_{additional_name}"
-    return slugify(entity_name)
+    # Generate the entity ID and use Home Assistant slugify to ensure it's a valid value
+    # NOTE: We append DOMAIN twice as HA removes the domain from the entity ID name. This is unexpected
+    # as it means we lose our namespacing, even though this is the suggested method explained in HA documentation.
+    # See: https://www.home-assistant.io/faq/unique_id/#can-be-changed
+    entity_name = slugify(f"{system_name}_{additional_name}")
+    return f"{DOMAIN}.{DOMAIN}_{entity_name}"

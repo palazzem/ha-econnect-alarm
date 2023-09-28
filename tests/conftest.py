@@ -20,7 +20,7 @@ async def hass(hass):
 
 
 @pytest.fixture(scope="function")
-def alarm_entity(hass, client):
+def alarm_entity(hass, client, config_entry):
     """Fixture to provide a test instance of the EconnectAlarm entity.
 
     This sets up an AlarmDevice and its corresponding DataUpdateCoordinator,
@@ -36,10 +36,8 @@ def alarm_entity(hass, client):
     """
     device = AlarmDevice(client)
     coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="elmo_iess_alarm")
-    entity = EconnectAlarm(name="Test Alarm", device=device, coordinator=coordinator, unique_id="test_id")
-    # Set up the fixture
+    entity = EconnectAlarm(unique_id="test_id", config=config_entry, device=device, coordinator=coordinator)
     entity.hass = hass
-    entity.entity_id = "elmo_iess_alarm.test_id"
     yield entity
 
 
