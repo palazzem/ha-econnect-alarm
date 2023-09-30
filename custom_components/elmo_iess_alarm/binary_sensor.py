@@ -51,6 +51,8 @@ async def async_setup_entry(
 class EconnectAlertSensor(CoordinatorEntity, BinarySensorEntity):
     """Representation of a e-Connect alerts."""
 
+    _attr_has_entity_name = True
+
     def __init__(
         self,
         unique_id: str,
@@ -72,9 +74,8 @@ class EconnectAlertSensor(CoordinatorEntity, BinarySensorEntity):
         return self._unique_id
 
     @property
-    def name(self) -> str:
-        """Return the name of this entity."""
-        # TODO: this needs to be translated with a friendly name
+    def translation_key(self) -> str:
+        """Return the translation key to translate the entity's name and states."""
         return self._alert_id
 
     @property

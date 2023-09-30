@@ -47,17 +47,17 @@ def test_binary_sensor_door_window_entity_id_with_system_name(hass, config_entry
 
 
 def test_binary_sensor_alert_name(hass, config_entry, alarm_entity):
-    # Ensure the alert has the right name
+    # Ensure the alert has the right translation key
     coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="elmo_iess_alarm")
     entity = EconnectAlertSensor("test_id", "has_anomalies", config_entry, coordinator, alarm_entity)
-    assert entity.name == "has_anomalies"
+    assert entity.translation_key == "has_anomalies"
 
 
 def test_binary_sensor_alert_name_with_system_name(hass, config_entry, alarm_entity):
-    # The system name doesn't change the Entity name
+    # The system name doesn't change the translation key
     coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="elmo_iess_alarm")
     entity = EconnectAlertSensor("test_id", "has_anomalies", config_entry, coordinator, alarm_entity)
-    assert entity.name == "has_anomalies"
+    assert entity.translation_key == "has_anomalies"
 
 
 def test_binary_sensor_alert_entity_id(hass, config_entry, alarm_entity):

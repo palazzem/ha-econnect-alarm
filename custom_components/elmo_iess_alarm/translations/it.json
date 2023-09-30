@@ -39,5 +39,184 @@
                 "title": "Configura il tuo sistema Elmo/IESS"
             }
         }
+    },
+    "entity": {
+        "binary_sensor": {
+            "anomalies_led": {
+                "name": "LED Anomalie",
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "inputs_led": {
+                "name": "LED Ingressi",
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "alarm_led": {
+                "name": "LED Allarme",
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "tamper_led": {
+                "name": "LED Manomissione",
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "has_anomaly": {
+                "name": "Anomalia",
+                "state": {
+                    "on": "Rilevata",
+                    "off": "No"
+                }
+            },
+            "panel_tamper": {
+                "name": "Protezione Sistema",
+                "state": {
+                    "on": "Manomesso",
+                    "off": "Sicuro"
+                }
+            },
+            "panel_no_power": {
+                "name": "Alimentazione Sistema",
+                "state": {
+                    "on": "Senza Alimentazione",
+                    "off": "Alimentato"
+                }
+            },
+            "panel_low_battery": {
+                "name": "Batteria Sistema",
+                "state": {
+                    "on": "Batteria Scarica",
+                    "off": "OK"
+                }
+            },
+            "gsm_anomaly": {
+                "name": "Stato GSM",
+                "state": {
+                    "on": "Anomalia",
+                    "off": "OK"
+                }
+            },
+            "gsm_low_balance": {
+                "name": "Credito GSM",
+                "state": {
+                    "on": "Scarso",
+                    "off": "OK"
+                }
+            },
+            "pstn_anomaly": {
+                "name": "Anomalia PSTN",
+                "state": {
+                    "on": "Rilevato",
+                    "off": "No"
+                }
+            },
+            "system_test": {
+                "name": "Test Sistema",
+                "state": {
+                    "on": "Richiesto",
+                    "off": "OK"
+                }
+            },
+            "module_registration": {
+                "name": "Registrazione Modulo",
+                "state": {
+                    "on": "In Registrazione",
+                    "off": "Non in Registrazione"
+                }
+            },
+            "rf_interference": {
+                "name": "Interferenza RF",
+                "state": {
+                    "on": "Rilevato",
+                    "off": "No"
+                }
+            },
+            "input_failure": {
+                "name": "Guasto Ingresso",
+                "state": {
+                    "on": "Rilevato",
+                    "off": "No"
+                }
+            },
+            "input_alarm": {
+                "name": "Allarme Ingresso",
+                "state": {
+                    "on": "Innesca",
+                    "off": "No"
+                }
+            },
+            "input_bypass": {
+                "name": "Bypass Ingresso",
+                "state": {
+                    "on": "Bypassato",
+                    "off": "No"
+                }
+            },
+            "input_low_battery": {
+                "name": "Batteria Ingresso",
+                "state": {
+                    "on": "Batteria Scarica",
+                    "off": "OK"
+                }
+            },
+            "input_no_supervision": {
+                "name": "Ingresso Non Supervisionato",
+                "state": {
+                    "on": "Non Supervisionato",
+                    "off": "Supervisionato"
+                }
+            },
+            "device_tamper": {
+                "name": "Protezione Dispositivo",
+                "state": {
+                    "on": "Manomesso",
+                    "off": "Sicuro"
+                }
+            },
+            "device_failure": {
+                "name": "Guasto Dispositivo",
+                "state": {
+                    "on": "Rilevato",
+                    "off": "No"
+                }
+            },
+            "device_no_power": {
+                "name": "Alimentazione Dispositivo",
+                "state": {
+                    "on": "Senza Alimentazione",
+                    "off": "Alimentato"
+                }
+            },
+            "device_low_battery": {
+                "name": "Batteria Dispositivo",
+                "state": {
+                    "on": "Batteria Scarica",
+                    "off": "OK"
+                }
+            },
+            "device_no_supervision": {
+                "name": "Dispositivo Non Supervisionato",
+                "state": {
+                    "on": "Non Supervisionato",
+                    "off": "Supervisionato"
+                }
+            },
+            "device_system_block": {
+                "name": "Blocco Sistema Dispositivo",
+                "state": {
+                    "on": "Bloccato",
+                    "off": "Non Bloccato"
+                }
+            }
+        }
     }
 }

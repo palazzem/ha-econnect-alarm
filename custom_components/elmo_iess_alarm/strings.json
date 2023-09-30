@@ -23,21 +23,200 @@
     }
   },
   "options": {
-      "error": {
-          "invalid_areas": "Selected sectors are invalid",
-          "unknown": "Unexpected error: check your logs"
-      },
-      "step": {
-          "init": {
-            "data": {
-              "areas_arm_home": "Armed areas while at home (e.g 3,4 - optional)",
-              "areas_arm_night": "Armed areas at night (e.g. 3,4 - optional)",
-              "areas_arm_vacation": "Armed areas when you are on vacation (e.g. 3,4 - optional)",
-              "scan_interval": "Scan interval (e.g. 120 - optional)"
-            },
-            "description": "Define sectors you want to arm in different modes.\n\nSet 'Scan Interval' value only if you want to reduce data usage, in case the system is connected through a mobile network. Leave it empty for real time updates, or set it to a value in seconds (e.g. 120 for one update every 2 minutes)",
-            "title": "Configure your Elmo/IESS system"
-          }
+    "error": {
+      "invalid_areas": "Selected sectors are invalid",
+      "unknown": "Unexpected error: check your logs"
+    },
+    "step": {
+      "init": {
+        "data": {
+          "areas_arm_home": "Armed areas while at home (e.g 3,4 - optional)",
+          "areas_arm_night": "Armed areas at night (e.g. 3,4 - optional)",
+          "areas_arm_vacation": "Armed areas when you are on vacation (e.g. 3,4 - optional)",
+          "scan_interval": "Scan interval (e.g. 120 - optional)"
+        },
+        "description": "Define sectors you want to arm in different modes.\n\nSet 'Scan Interval' value only if you want to reduce data usage, in case the system is connected through a mobile network. Leave it empty for real time updates, or set it to a value in seconds (e.g. 120 for one update every 2 minutes)",
+        "title": "Configure your Elmo/IESS system"
       }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "anomalies_led": {
+        "name": "Anomalies LED",
+        "state": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "inputs_led": {
+        "name": "Inputs LED",
+        "state": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "alarm_led": {
+        "name": "Alarm LED",
+        "state": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "tamper_led": {
+        "name": "Tamper LED",
+        "state": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "has_anomaly": {
+        "name": "Anomalies",
+        "state": {
+          "on": "Detected",
+          "off": "No"
+        }
+      },
+      "panel_tamper": {
+        "name": "System Protection",
+        "state": {
+          "on": "Tampered",
+          "off": "Secure"
+        }
+      },
+      "panel_no_power": {
+        "name": "System Power",
+        "state": {
+          "on": "No Power",
+          "off": "Powered"
+        }
+      },
+      "panel_low_battery": {
+        "name": "System Battery",
+        "state": {
+          "on": "Low Battery",
+          "off": "OK"
+        }
+      },
+      "gsm_anomaly": {
+        "name": "GSM Status",
+        "state": {
+          "on": "Anomaly",
+          "off": "OK"
+        }
+      },
+      "gsm_low_balance": {
+        "name": "GSM Plafond Balance",
+        "state": {
+          "on": "Low",
+          "off": "OK"
+        }
+      },
+      "pstn_anomaly": {
+        "name": "PSTN Anomaly",
+        "state": {
+          "on": "Detected",
+          "off": "No"
+        }
+      },
+      "system_test": {
+        "name": "System Test",
+        "state": {
+          "on": "Required",
+          "off": "OK"
+        }
+      },
+      "module_registration": {
+        "name": "Module Registration",
+        "state": {
+          "on": "Registering",
+          "off": "Not Registering"
+        }
+      },
+      "rf_interference": {
+        "name": "RF Interference",
+        "state": {
+          "on": "Detected",
+          "off": "No"
+        }
+      },
+      "input_failure": {
+        "name": "Input Failure",
+        "state": {
+          "on": "Detected",
+          "off": "No"
+        }
+      },
+      "input_alarm": {
+        "name": "Input Alarm",
+        "state": {
+          "on": "Triggered",
+          "off": "No"
+        }
+      },
+      "input_bypass": {
+        "name": "Input Bypass",
+        "state": {
+          "on": "Bypassed",
+          "off": "No"
+        }
+      },
+      "input_low_battery": {
+        "name": "Input Battery",
+        "state": {
+          "on": "Low Battery",
+          "off": "OK"
+        }
+      },
+      "input_no_supervision": {
+        "name": "Input No Supervision",
+        "state": {
+          "on": "Not Supervised",
+          "off": "Supervised"
+        }
+      },
+      "device_tamper": {
+        "name": "Device Protection",
+        "state": {
+          "on": "Tampered",
+          "off": "Secure"
+        }
+      },
+      "device_failure": {
+        "name": "Device Failure",
+        "state": {
+          "on": "Detected",
+          "off": "No"
+        }
+      },
+      "device_no_power": {
+        "name": "Device Power",
+        "state": {
+          "on": "No Power",
+          "off": "Powered"
+        }
+      },
+      "device_low_battery": {
+        "name": "Device Battery",
+        "state": {
+          "on": "Low Battery",
+          "off": "OK"
+        }
+      },
+      "device_no_supervision": {
+        "name": "Device No Supervision",
+        "state": {
+          "on": "Not Supervised",
+          "off": "Supervised"
+        }
+      },
+      "device_system_block": {
+        "name": "Device System Block",
+        "state": {
+          "on": "Blocked",
+          "off": "Not Blocked"
+        }
+      }
+    }
   }
 }
