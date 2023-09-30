@@ -90,6 +90,31 @@ UI example:
 
 <img src="https://user-images.githubusercontent.com/1560405/110870435-ba91f900-82cc-11eb-9ebc-442152fd67f1.png" width="500"/>
 
+### HomeKit integration
+
+If you want to integrate your alarm with the Apple ecosystem to use Siri or Apple Home automations follow these steps:
+
+1) Add these entries inside configuration.yaml to let Home Assistant create a new bridge with just the Alarm Panel exposed.
+
+```
+homekit:
+  - filter:
+      include_domains:
+        - alarm_control_panel
+    entity_config:
+      alarm_control_panel.alarm_panel:
+       code: <PIN CODE>
+  - name: HASS Bridge Alarm
+    port: 21065
+```
+
+2) Please replace <PIN CODE> with your alarm code.
+3) Reboot Home Assistant.
+4) Scan the QR code inside the Notifications area with your iPhone to add the alarm into the Apple Home app.
+
+Please note that Apple Home need you to confirm automations that involves security devices such as lockers and alarm systems.
+
+
 ## Contributing
 
 We are very open to the community's contributions - be it a quick fix of a typo, or a completely new feature!
