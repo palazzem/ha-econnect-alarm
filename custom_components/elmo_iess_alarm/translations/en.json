@@ -43,28 +43,28 @@
     "entity": {
         "binary_sensor": {
             "anomalies_led": {
-                "name": "Anomalies LED",
+                "name": "General Anomaly",
                 "state": {
                     "on": "On",
                     "off": "Off"
                 }
             },
             "inputs_led": {
-                "name": "Inputs LED",
+                "name": "Zones Ready Status",
                 "state": {
                     "on": "On",
                     "off": "Off"
                 }
             },
             "alarm_led": {
-                "name": "Alarm LED",
+                "name": "General Alarm",
                 "state": {
                     "on": "On",
                     "off": "Off"
                 }
             },
             "tamper_led": {
-                "name": "Tamper LED",
+                "name": "General Tamper",
                 "state": {
                     "on": "On",
                     "off": "Off"
@@ -78,14 +78,14 @@
                 }
             },
             "panel_tamper": {
-                "name": "System Protection",
+                "name": "Panel Tamper",
                 "state": {
                     "on": "Tampered",
                     "off": "Secure"
                 }
             },
             "panel_no_power": {
-                "name": "System Power",
+                "name": "System Main Power",
                 "state": {
                     "on": "No Power",
                     "off": "Powered"

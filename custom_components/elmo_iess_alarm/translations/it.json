@@ -43,28 +43,28 @@
     "entity": {
         "binary_sensor": {
             "anomalies_led": {
-                "name": "LED Anomalie",
+                "name": "Anomalia Generale",
                 "state": {
                     "on": "On",
                     "off": "Off"
                 }
             },
             "inputs_led": {
-                "name": "LED Ingressi",
+                "name": "Stato Inseribilità Zone",
                 "state": {
                     "on": "On",
                     "off": "Off"
                 }
             },
             "alarm_led": {
-                "name": "LED Allarme",
+                "name": "Allarme Generale",
                 "state": {
                     "on": "On",
                     "off": "Off"
                 }
             },
             "tamper_led": {
-                "name": "LED Manomissione",
+                "name": "Manomissione Generale",
                 "state": {
                     "on": "On",
                     "off": "Off"
@@ -78,7 +78,7 @@
                 }
             },
             "panel_tamper": {
-                "name": "Protezione Sistema",
+                "name": "Manomissione Centrale",
                 "state": {
                     "on": "Manomesso",
                     "off": "Sicuro"
@@ -120,7 +120,7 @@
                 }
             },
             "system_test": {
-                "name": "Test Sistema",
+                "name": "Test Impianto",
                 "state": {
                     "on": "Richiesto",
                     "off": "OK"
@@ -169,14 +169,14 @@
                 }
             },
             "input_no_supervision": {
-                "name": "Ingresso Non Supervisionato",
+                "name": "Mancata Supervisione Ingresso",
                 "state": {
                     "on": "Non Supervisionato",
                     "off": "Supervisionato"
                 }
             },
             "device_tamper": {
-                "name": "Protezione Dispositivo",
+                "name": "Manomissione Dispositivo",
                 "state": {
                     "on": "Manomesso",
                     "off": "Sicuro"
@@ -204,7 +204,7 @@
                 }
             },
             "device_no_supervision": {
-                "name": "Dispositivo Non Supervisionato",
+                "name": "Mancata Supervisione Dispositivo",
                 "state": {
                     "on": "Non Supervisionato",
                     "off": "Supervisionato"
