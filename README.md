@@ -92,9 +92,9 @@ UI example:
 
 ### HomeKit integration
 
-If you want to integrate your alarm with the Apple ecosystem to use Siri or Apple Home automations follow these steps:
+If you want to integrate your alarm with the Apple ecosystem to use Siri or Apple Home automations, follow these steps:
 
-1) Add these entries inside 'configuration.yaml' to let Home Assistant create a new bridge with just the Alarm Panel exposed.
+1) Add these entries inside `configuration.yaml` to let Home Assistant create a new bridge with just the Alarm Panel exposed.
 
 ```
 homekit:
@@ -108,11 +108,11 @@ homekit:
     port: 21065
 ```
 
-2) Please replace <PIN CODE> with your alarm code.
+2) Please replace `<PIN CODE>` with your specific alarm code.
 3) Reboot Home Assistant.
 4) Scan the QR code available in your Home Assistant Notifications area (bottom-left badge) with your iPhone to add the alarm into the Apple Home app.
 
-Please note that Apple Home need you to confirm automations that involves security devices such as lockers and alarm systems.
+Please note that Apple Home requires you to confirm automations that involves security devices such as lockers and alarm systems.
 
 
 ## Contributing
