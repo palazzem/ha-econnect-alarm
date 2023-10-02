@@ -3,7 +3,7 @@ import logging
 from elmo import query
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from custom_components.elmo_iess_alarm.binary_sensor import (
+from custom_components.econnect_metronet.binary_sensor import (
     EconnectAlertSensor,
     EconnectDoorWindowSensor,
 )

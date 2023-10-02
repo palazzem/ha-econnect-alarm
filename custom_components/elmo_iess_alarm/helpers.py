@@ -1,4 +1,3 @@
-"""Helper methods to reuse common logic across elmo_iess_alarm module."""
 from typing import Union
 
 from elmo.api.client import ElmoClient

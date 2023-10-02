@@ -2,8 +2,8 @@ import logging
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from custom_components.elmo_iess_alarm.alarm_control_panel import EconnectAlarm
-from custom_components.elmo_iess_alarm.devices import AlarmDevice
+from custom_components.econnect_metronet.alarm_control_panel import EconnectAlarm
+from custom_components.econnect_metronet.devices import AlarmDevice
 
 
 def test_alarm_panel_name(client, hass, config_entry):

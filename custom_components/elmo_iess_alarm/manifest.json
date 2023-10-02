@@ -1,6 +1,6 @@
 {
-  "domain": "elmo_iess_alarm",
-  "name": "Elmo/IESS Alarm",
+  "domain": "econnect_metronet",
+  "name": "e-Connect/Metronet Alarm",
   "after_dependencies": [],
   "codeowners": [
     "@palazzem"
@@ -12,7 +12,7 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/palazzem/ha-econnect-alarm/issues",
   "loggers": [
-    "custom_components.elmo_iess_alarm"
+    "custom_components.econnect_metronet"
   ],
   "requirements": [
     "econnect-python==0.7.0"

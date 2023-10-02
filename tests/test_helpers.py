@@ -1,8 +1,8 @@
 import pytest
 from homeassistant.core import valid_entity_id
 
-from custom_components.elmo_iess_alarm.exceptions import InvalidAreas
-from custom_components.elmo_iess_alarm.helpers import (
+from custom_components.econnect_metronet.exceptions import InvalidAreas
+from custom_components.econnect_metronet.helpers import (
     generate_entity_id,
     parse_areas_config,
 )

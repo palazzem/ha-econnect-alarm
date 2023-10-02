@@ -1,8 +1,8 @@
 {
-    "name": "Home Assistant e-Connect Integration (Elmo)",
+    "name": "Home Assistant e-Connect/Metronet Integration (Elmo)",
     "content_in_root": false,
     "render_readme": true,
     "hide_default_branch": true,
     "zip_release": true,
-    "filename": "hacs_elmo_iess_alarm.zip"
+    "filename": "hacs_econnect_metronet.zip"
   }
