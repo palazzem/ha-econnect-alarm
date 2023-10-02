@@ -33,7 +33,7 @@ def test_binary_sensor_door_window_entity_id(hass, config_entry, alarm_entity):
     entity = EconnectDoorWindowSensor(
         "test_id", 1, config_entry, "1 Tamper Sirena", coordinator, alarm_entity, query.INPUTS
     )
-    assert entity.entity_id == "elmo_iess_alarm.elmo_iess_alarm_test_user_1_tamper_sirena"
+    assert entity.entity_id == "econnect_metronet.econnect_metronet_test_user_1_tamper_sirena"
 
 
 def test_binary_sensor_door_window_entity_id_with_system_name(hass, config_entry, alarm_entity):
@@ -43,7 +43,7 @@ def test_binary_sensor_door_window_entity_id_with_system_name(hass, config_entry
     entity = EconnectDoorWindowSensor(
         "test_id", 1, config_entry, "1 Tamper Sirena", coordinator, alarm_entity, query.INPUTS
     )
-    assert entity.entity_id == "elmo_iess_alarm.elmo_iess_alarm_home_1_tamper_sirena"
+    assert entity.entity_id == "econnect_metronet.econnect_metronet_home_1_tamper_sirena"
 
 
 def test_binary_sensor_alert_name(hass, config_entry, alarm_entity):
@@ -64,7 +64,7 @@ def test_binary_sensor_alert_entity_id(hass, config_entry, alarm_entity):
     # Ensure the alert has a valid Entity ID
     coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="elmo_iess_alarm")
     entity = EconnectAlertSensor("test_id", "has_anomalies", config_entry, coordinator, alarm_entity)
-    assert entity.entity_id == "elmo_iess_alarm.elmo_iess_alarm_test_user_has_anomalies"
+    assert entity.entity_id == "econnect_metronet.econnect_metronet_test_user_has_anomalies"
 
 
 def test_binary_sensor_alert_entity_id_with_system_name(hass, config_entry, alarm_entity):
@@ -72,4 +72,4 @@ def test_binary_sensor_alert_entity_id_with_system_name(hass, config_entry, alar
     config_entry.data["system_name"] = "Home"
     coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="elmo_iess_alarm")
     entity = EconnectAlertSensor("test_id", "has_anomalies", config_entry, coordinator, alarm_entity)
-    assert entity.entity_id == "elmo_iess_alarm.elmo_iess_alarm_home_has_anomalies"
+    assert entity.entity_id == "econnect_metronet.econnect_metronet_home_has_anomalies"

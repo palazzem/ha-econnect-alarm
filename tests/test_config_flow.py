@@ -118,12 +118,9 @@ async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
     assert "required key not provided @ data['password']" in errors
 
 
-@patch("custom_components.elmo_iess_alarm.async_setup", return_value=True)
-@patch("custom_components.elmo_iess_alarm.async_setup_entry", return_value=True)
-@patch(
-    "custom_components.elmo_iess_alarm.helpers.ElmoClient.auth",
-    side_effect=CredentialError,
-)
+@patch("custom_components.econnect_metronet.async_setup", return_value=True)
+@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
+@patch("custom_components.econnect_metronet.helpers.ElmoClient.auth", side_effect=CredentialError)
 async def test_form_submit_wrong_credential(mock_client, mock_setup_entry, mock_setup, hass):
     """Test the right error is raised for CredentialError exception."""
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
