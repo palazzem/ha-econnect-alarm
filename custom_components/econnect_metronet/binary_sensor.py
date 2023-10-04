@@ -27,16 +27,16 @@ async def async_setup_entry(
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
     # Load all entities and register sectors and inputs
     # TODO: use a public API (change in econnect-python)
-    # TODO: check why I can't use directly the device (maybe it's not loaded at this time)
-    sensors = []
-    inventory = await hass.async_add_executor_job(device._connection._get_descriptions)
-    for sector_id, name in inventory[query.SECTORS].items():
-        unique_id = f"{entry.entry_id}_{DOMAIN}_{query.SECTORS}_{sector_id}"
-        sensors.append(EconnectDoorWindowSensor(unique_id, sector_id, entry, name, coordinator, device, query.SECTORS))
 
-    for sensor_id, name in inventory[query.INPUTS].items():
-        unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{sensor_id}"
-        sensors.append(EconnectDoorWindowSensor(unique_id, sensor_id, entry, name, coordinator, device, query.INPUTS))
+    sensors = []
+
+    for id, name in device.sectors_configured.items():
+        unique_id = f"{entry.entry_id}_{DOMAIN}_{query.SECTORS}_{id}"
+        sensors.append(EconnectDoorWindowSensor(unique_id, id, entry, name, coordinator, device, query.SECTORS))
+
+    for id, name in device.inputs_configured.items():
+        unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{id}"
+        sensors.append(EconnectDoorWindowSensor(unique_id, id, entry, name, coordinator, device, query.INPUTS))
 
     # Retrieve alarm system global status
     alerts = await hass.async_add_executor_job(device._connection.get_status)

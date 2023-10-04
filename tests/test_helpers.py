@@ -3,6 +3,7 @@ from homeassistant.core import valid_entity_id
 
 from custom_components.econnect_metronet.exceptions import InvalidAreas
 from custom_components.econnect_metronet.helpers import (
+    filter_dict_key,
     generate_entity_id,
     parse_areas_config,
 )
@@ -81,3 +82,7 @@ def test_generate_entity_name_with_spaces(config_entry):
     entity_id = generate_entity_id(config_entry)
     assert entity_id == "econnect_metronet.econnect_metronet_home_assistant"
     assert valid_entity_id(entity_id)
+
+
+def test_filter_dict_key():
+    assert filter_dict_key({0: {"b": 1, "c": 2, "d": 3}}, "d") == {0: 3}

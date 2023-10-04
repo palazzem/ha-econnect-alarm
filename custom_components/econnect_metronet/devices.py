@@ -14,7 +14,7 @@ from homeassistant.const import (
 from requests.exceptions import HTTPError
 
 from .const import CONF_AREAS_ARM_HOME, CONF_AREAS_ARM_NIGHT, CONF_AREAS_ARM_VACATION
-from .helpers import parse_areas_config
+from .helpers import filter_dict_key, parse_areas_config
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,6 +58,8 @@ class AlarmDevice:
         self.sectors_disarmed = {}
         self.inputs_alerted = {}
         self.inputs_wait = {}
+        self.inputs_configured = {}
+        self.sectors_configured = {}
 
     def connect(self, username, password):
         """Establish a connection with the E-connect backend, to retrieve an access
@@ -155,6 +157,8 @@ class AlarmDevice:
             raise
 
         # Filter sectors and inputs
+        self.inputs_configured = filter_dict_key(inputs["inputs"], "name")
+        self.sectors_configured = filter_dict_key(sectors["sectors"], "name")
         self.sectors_armed = _filter_data(sectors, "sectors", True)
         self.sectors_disarmed = _filter_data(sectors, "sectors", False)
         self.inputs_alerted = _filter_data(inputs, "inputs", True)

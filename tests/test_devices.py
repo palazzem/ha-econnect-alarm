@@ -29,6 +29,8 @@ def test_device_constructor(client):
     assert device._sectors_night == []
     assert device._sectors_vacation == []
     assert device.state == STATE_UNAVAILABLE
+    assert device.sectors_configured == {}
+    assert device.inputs_configured == {}
     assert device.sectors_armed == {}
     assert device.sectors_disarmed == {}
     assert device.inputs_alerted == {}
@@ -51,6 +53,8 @@ def test_device_constructor_with_config(client):
     assert device._sectors_night == [1, 2, 3]
     assert device._sectors_vacation == [5, 3]
     assert device.state == STATE_UNAVAILABLE
+    assert device.sectors_configured == {}
+    assert device.inputs_configured == {}
     assert device.sectors_armed == {}
     assert device.sectors_disarmed == {}
     assert device.inputs_alerted == {}
@@ -148,6 +152,16 @@ def test_device_update_success(client, mocker):
     """Should check store the e-connect System status in the device object."""
     device = AlarmDevice(client)
     mocker.spy(device._connection, "query")
+    sectors_configured = {
+        0: "S1 Living Room",
+        1: "S2 Bedroom",
+        2: "S3 Outdoor",
+    }
+    inputs_configured = {
+        0: "Entryway Sensor",
+        1: "Outdoor Sensor 1",
+        2: "Outdoor Sensor 2",
+    }
     sectors_armed = {
         0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
         1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
@@ -193,6 +207,8 @@ def test_device_update_success(client, mocker):
     # Test
     device.update()
     assert device._connection.query.call_count == 2
+    assert device.sectors_configured == sectors_configured
+    assert device.inputs_configured == inputs_configured
     assert device.sectors_armed == sectors_armed
     assert device.sectors_disarmed == sectors_disarmed
     assert device.inputs_alerted == inputs_alerted

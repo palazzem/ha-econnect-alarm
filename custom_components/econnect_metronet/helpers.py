@@ -101,3 +101,24 @@ def generate_entity_id(config: ConfigEntry, name: Union[str, None] = None) -> st
     # See: https://www.home-assistant.io/faq/unique_id/#can-be-changed
     entity_name = slugify(f"{system_name}_{additional_name}")
     return f"{DOMAIN}.{DOMAIN}_{entity_name}"
+
+
+def filter_dict_key(dict: dict, search_key: str):
+    """
+    Filters a dictionary based on a specified search key.
+
+    Args:
+        dict (dict): The input dictionary to be filtered.
+        search_key (str): The key to filter the dictionary.
+
+    Returns:
+        dict: A new dictionary containing only the specified key-value pairs.
+
+    Example:
+        >>> my_dict = {'a': {'x': 1, 'y': 2}, 'b': {'x': 3, 'y': 4}}
+        >>> filter_dict_key(my_dict, 'x')
+        {'a': 1, 'b': 3}
+    """
+    filtered_dict = {k: v[key] for k, v in dict.items() for key in [search_key]}
+
+    return filtered_dict
