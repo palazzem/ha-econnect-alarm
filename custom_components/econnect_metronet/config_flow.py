@@ -61,7 +61,7 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                 _LOGGER.error("Unexpected exception %s", err)
                 errors["base"] = "unknown"
             else:
-                return self.async_create_entry(title="Elmo/IESS Alarm", data=user_input)
+                return self.async_create_entry(title="e-Connect/Metronet Alarm", data=user_input)
 
         # Populate with latest changes
         user_input = user_input or {}
@@ -123,7 +123,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 _LOGGER.error("Unexpected exception %s", err)
                 errors["base"] = "unknown"
             else:
-                return self.async_create_entry(title="Elmo/IESS Alarm", data=user_input)
+                return self.async_create_entry(title="e-Connect/Metronet Alarm", data=user_input)
 
         # Populate with latest changes or previous settings
         user_input = user_input or {}
