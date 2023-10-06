@@ -10,6 +10,7 @@ from homeassistant.const import (
     STATE_UNAVAILABLE,
 )
 from requests.exceptions import HTTPError
+from requests.models import Response
 
 from custom_components.econnect_metronet.const import (
     CONF_AREAS_ARM_HOME,
@@ -111,6 +112,7 @@ def test_device_has_updates_ids_immutable(client, mocker):
         ids[q.INPUTS] = 0
 
     device = AlarmDevice(client)
+    device.connect("username", "password")
     device._lastIds = {q.SECTORS: 4, q.INPUTS: 42}
     mocker.patch.object(device._connection, "poll")
     device._connection.poll.side_effect = bad_poll
@@ -123,8 +125,9 @@ def test_device_has_updates_ids_immutable(client, mocker):
 def test_device_has_updates_errors(client, mocker):
     """Should handle (log) polling errors."""
     device = AlarmDevice(client)
+    device.connect("username", "password")
     mocker.patch.object(device._connection, "poll")
-    device._connection.poll.side_effect = HTTPError("Unable to communicate with e-Connect")
+    device._connection.poll.side_effect = HTTPError(response=Response())
     # Test
     with pytest.raises(HTTPError):
         device.has_updates()
@@ -135,6 +138,7 @@ def test_device_has_updates_errors(client, mocker):
 def test_device_has_updates_parse_errors(client, mocker):
     """Should handle (log) polling errors."""
     device = AlarmDevice(client)
+    device.connect("username", "password")
     mocker.patch.object(device._connection, "poll")
     device._connection.poll.side_effect = ParseError("Error parsing the poll response")
     # Test
@@ -207,7 +211,7 @@ def test_device_update_success(client, mocker):
 def test_device_update_http_error(client, mocker):
     """Tests if device's update method raises HTTPError when querying."""
     device = AlarmDevice(client)
-    mocker.patch.object(device._connection, "query", side_effect=HTTPError("HTTP Error"))
+    mocker.patch.object(device._connection, "query", side_effect=HTTPError(response=Response()))
     with pytest.raises(HTTPError):
         device.update()
 
@@ -305,7 +309,7 @@ def test_device_arm_error(client, mocker):
     device = AlarmDevice(client)
     mocker.spy(device._connection, "lock")
     mocker.spy(device._connection, "arm")
-    device._connection.lock.side_effect = HTTPError("Unable to communicate with e-Connect")
+    device._connection.lock.side_effect = HTTPError(response=Response())
     device._connection._session_id = "test"
     # Test
     with pytest.raises(HTTPError):
@@ -362,7 +366,7 @@ def test_device_disarm_error(client, mocker):
     device = AlarmDevice(client)
     mocker.spy(device._connection, "lock")
     mocker.spy(device._connection, "disarm")
-    device._connection.lock.side_effect = HTTPError("Unable to communicate with e-Connect")
+    device._connection.lock.side_effect = HTTPError(response=Response())
     device._connection._session_id = "test"
     # Test
     with pytest.raises(HTTPError):

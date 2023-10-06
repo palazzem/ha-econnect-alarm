@@ -53,7 +53,22 @@ async def async_setup(hass: HomeAssistant, config: dict):
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Set up E-connect Alarm from a config entry."""
+    """Set up a configuration entry for the alarm device in Home Assistant.
+
+    This asynchronous method initializes an AlarmDevice instance to access the cloud service.
+    It uses a DataUpdateCoordinator to aggregate status updates from different entities
+    into a single request. The method also registers a listener to track changes in the configuration options.
+
+    Args:
+        hass (HomeAssistant): The Home Assistant instance.
+        entry (ConfigEntry): The configuration entry containing the setup details for the alarm device.
+
+    Returns:
+        bool: True if the setup was successful, False otherwise.
+
+    Raises:
+        Any exceptions raised by the coordinator or the setup process will be propagated up to the caller.
+    """
     # Initialize the device with an API endpoint and a vendor.
     # Calling `device.connect` authenticates the device via an access token
     # and asks for the first update, hence why in `async_setup_entry` there is no need
@@ -72,23 +87,32 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         so entities can quickly look up their data.
         """
         try:
-            # TODO: detect what happens if the update fails; check the unhappy path
-            # TODO: use homeassistant.helpers.update_coordinator.UpdateFailed to
-            # detect when an update fails.
-            # Note: asyncio.TimeoutError and aiohttp.ClientError are already
-            # handled by the data update coordinator.
+            # `device.has_updates` implements e-Connect long-polling API. This
+            # action blocks the thread for 15 seconds, or when the backend publishes an update
+            # POLLING_TIMEOUT ensures an upper bound regardless of the underlying implementation.
             async with async_timeout.timeout(POLLING_TIMEOUT):
-                # `client.poll` implements e-connect long-polling API. This
-                # action blocks the thread for at most 15 seconds, or when
-                # something changes in the backend. POLLING_TIMEOUT ensures
-                # an upper bound regardless of the underlying implementation.
+                _LOGGER.debug("Coordinator | Waiting for changes (long-polling)")
+                coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
+                if not coordinator.last_update_success:
+                    # Force an update if at least one failed. This is required to prevent
+                    # a misalignment between the `AlarmDevice` and backend IDs, needed to implement
+                    # the long-polling strategy. If IDs are misaligned, then no updates happen and
+                    # the integration remains stuck.
+                    # See: https://github.com/palazzem/ha-econnect-alarm/issues/51
+                    _LOGGER.debug("Coordinator | Resetting IDs due to a failed update")
+                    return await hass.async_add_executor_job(device.update)
                 status = await hass.async_add_executor_job(device.has_updates)
                 if status["has_changes"]:
+                    _LOGGER.debug("Coordinator | Changes detected, sending an update")
                     # State machine is in `device.state`
                     return await hass.async_add_executor_job(device.update)
+                else:
+                    _LOGGER.debug("Coordinator | No changes detected")
         except InvalidToken:
+            _LOGGER.debug("Coordinator | Invalid token detected, authenticating")
             await hass.async_add_executor_job(device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
-            _LOGGER.info("Token was invalid or expired, re-authentication executed.")
+            _LOGGER.debug("Coordinator | Authentication completed with success")
+            return await hass.async_add_executor_job(device.update)
 
     scan_interval = entry.options.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL_DEFAULT)
     coordinator = DataUpdateCoordinator(
