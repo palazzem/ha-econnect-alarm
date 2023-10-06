@@ -82,10 +82,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                 # action blocks the thread for at most 15 seconds, or when
                 # something changes in the backend. POLLING_TIMEOUT ensures
                 # an upper bound regardless of the underlying implementation.
+                ids = await hass.async_add_executor_job(device._get_last_IDS)
+                _LOGGER.debug(f"Polling IDs registered in the device: {device._lastIds}")
+                _LOGGER.debug(f"Polling IDs expected in the update: {ids}")
                 status = await hass.async_add_executor_job(device.has_updates)
                 if status["has_changes"]:
+                    _LOGGER.debug("Changes detected, sending an update")
                     # State machine is in `device.state`
                     return await hass.async_add_executor_job(device.update)
+                _LOGGER.debug("No changes.")
         except InvalidToken:
             await hass.async_add_executor_job(device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
             _LOGGER.info("Token was invalid or expired, re-authentication executed.")

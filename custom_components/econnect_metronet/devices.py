@@ -124,6 +124,22 @@ class AlarmDevice:
 
         return STATE_ALARM_ARMED_AWAY
 
+    def _get_last_IDS(self):
+        """DEBUG FUNCTION"""
+        # Retrieve sectors and inputs
+        try:
+            sectors = self._connection.query(q.SECTORS)
+            inputs = self._connection.query(q.INPUTS)
+        except (HTTPError, ParseError) as err:
+            _LOGGER.error(f"Device | Error while checking if there are updates: {err}")
+            raise
+
+        # Filter sectors and inputs
+        return {
+            q.SECTORS: sectors.get("last_id", 0),
+            q.INPUTS: inputs.get("last_id", 0),
+        }
+
     def update(self):
         """Updates the internal state of the device based on the latest data.
 
