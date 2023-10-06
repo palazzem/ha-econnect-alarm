@@ -19,12 +19,24 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3.5.3
 
-      - name: Build Integration ZIP package
+      - name: Detect package version
+        run: echo "PKG_VERSION=$(hatch version)" >> "$GITHUB_ENV"
+
+      - name: Build release package (tar)
+        run: hatch -v build -t sdist
+
+      - name: Build release package (zip)
+        run: hatch -v build -t zipped-directory
+
+      - name: Build release package (HACS)
         run: |
           cd ${{ github.workspace }}/custom_components/econnect_metronet
           zip hacs_econnect_metronet.zip -r ./
 
-      - name: Upload ZIP package release
+      - name: Upload release packages
         uses: softprops/action-gh-release@v0.1.15
         with:
-          files: ${{ github.workspace }}/custom_components/econnect_metronet/hacs_econnect_metronet.zip
+          files: |
+            ${{ github.workspace }}/dist/econnect_metronet-$PKG_VERSION.tar.gz
+            ${{ github.workspace }}/dist/econnect_metronet-$PKG_VERSION.zip
+            ${{ github.workspace }}/custom_components/econnect_metronet/hacs_econnect_metronet.zip
