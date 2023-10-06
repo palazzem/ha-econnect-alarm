@@ -77,18 +77,25 @@ class AlarmDevice:
             raise err
 
     def has_updates(self):
-        """Use the connection to detect a possible change. This is a blocking call
-        that must not be called in the main thread. Check `ElmoClient.poll()` method
-        for more details.
+        """Check if there have been any updates using the established connection.
 
-        Values passed to `ElmoClient.poll()` are the last known IDs for sectors and
-        inputs. A new dictionary is sent to avoid the underlying client to mutate
-        the device internal state.
+        This method uses the connection to detect possible changes. It's a blocking
+        call that requests for the system unit status to detect possible connection issues,
+        and then polls for updates. The method blocks for 15 seconds and it should not be
+        invoked from the main thread.
+
+        Raises:
+            HTTPError: If there's an error while polling for updates.
+            ParseError: If there's an error parsing the poll response.
+
+        Returns:
+            dict: Dictionary with the updates if any, based on the last known IDs.
         """
         try:
-            return self._connection.poll({x: y for x, y in self._lastIds.items()})
+            self._connection.get_status()
+            return self._connection.poll({key: value for key, value in self._lastIds.items()})
         except HTTPError as err:
-            _LOGGER.error(f"Device | Error while checking if there are updates: {err}")
+            _LOGGER.error(f"Device | Error while polling for updates: {err.response.text}")
             raise err
         except ParseError as err:
             _LOGGER.error(f"Device | Error parsing the poll response: {err}")
@@ -150,9 +157,12 @@ class AlarmDevice:
             sectors = self._connection.query(q.SECTORS)
             inputs = self._connection.query(q.INPUTS)
             alerts = self._connection.get_status()
-        except (HTTPError, ParseError) as err:
-            _LOGGER.error(f"Device | Error while checking if there are updates: {err}")
-            raise
+        except HTTPError as err:
+            _LOGGER.error(f"Device | Error during the update: {err.response.text}")
+            raise err
+        except ParseError as err:
+            _LOGGER.error(f"Device | Error during the update: {err}")
+            raise err
 
         # Filter sectors and inputs
         self.sectors_armed = _filter_data(sectors, "sectors", True)
@@ -175,7 +185,7 @@ class AlarmDevice:
                 self._connection.arm(sectors=sectors)
                 self.state = STATE_ALARM_ARMED_AWAY
         except HTTPError as err:
-            _LOGGER.error(f"Device | Error while arming the system: {err}")
+            _LOGGER.error(f"Device | Error while arming the system: {err.response.text}")
             raise err
         except LockError as err:
             _LOGGER.error(f"Device | Error while acquiring the system lock: {err}")
@@ -190,7 +200,7 @@ class AlarmDevice:
                 self._connection.disarm(sectors=sectors)
                 self.state = STATE_ALARM_DISARMED
         except HTTPError as err:
-            _LOGGER.error(f"Device | Error while disarming the system: {err}")
+            _LOGGER.error(f"Device | Error while disarming the system: {err.response.text}")
             raise err
         except LockError as err:
             _LOGGER.error(f"Device | Error while acquiring the system lock: {err}")
