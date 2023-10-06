@@ -72,23 +72,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         so entities can quickly look up their data.
         """
         try:
-            # TODO: detect what happens if the update fails; check the unhappy path
-            # TODO: use homeassistant.helpers.update_coordinator.UpdateFailed to
-            # detect when an update fails.
-            # Note: asyncio.TimeoutError and aiohttp.ClientError are already
-            # handled by the data update coordinator.
+            # `device.has_updates` implements e-Connect long-polling API. This
+            # action blocks the thread for 15 seconds, or when the backend publishes an update
+            # POLLING_TIMEOUT ensures an upper bound regardless of the underlying implementation.
             async with async_timeout.timeout(POLLING_TIMEOUT):
-                # `client.poll` implements e-connect long-polling API. This
-                # action blocks the thread for at most 15 seconds, or when
-                # something changes in the backend. POLLING_TIMEOUT ensures
-                # an upper bound regardless of the underlying implementation.
+                coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
+                if not coordinator.last_update_success:
+                    # Force an update if at least one failed. This is required to prevent
+                    # a misalignment between the `AlarmDevice` and backend IDs, needed to implement
+                    # the long-polling strategy. If IDs are misaligned, then no updates happen and
+                    # the integration remains stuck.
+                    # See: https://github.com/palazzem/ha-econnect-alarm/issues/51
+                    _LOGGER.debug("Reset IDs to force an update when the connection is stable.")
+                    return await hass.async_add_executor_job(device.update)
                 status = await hass.async_add_executor_job(device.has_updates)
                 if status["has_changes"]:
+                    _LOGGER.debug("Changes detected, sending an update")
                     # State machine is in `device.state`
                     return await hass.async_add_executor_job(device.update)
+                else:
+                    _LOGGER.debug("No changes detected")
         except InvalidToken:
+            _LOGGER.debug("Invalid token detected. Re-authenticating")
             await hass.async_add_executor_job(device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
-            _LOGGER.info("Token was invalid or expired, re-authentication executed.")
+            _LOGGER.debug("Re-authentication completed with success")
+            return await hass.async_add_executor_job(device.update)
 
     scan_interval = entry.options.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL_DEFAULT)
     coordinator = DataUpdateCoordinator(
