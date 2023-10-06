@@ -37,6 +37,9 @@ jobs:
       - name: Build test package
         run: hatch -v build -t sdist
 
+      - name: Build the release candidate package
+        run: hatch -v build -t zipped-directory
+
       - name: Log package content
         run: tar -tvf dist/econnect_metronet-$PKG_VERSION.tar.gz
 
@@ -45,13 +48,3 @@ jobs:
 
       - name: Test if the package is built correctly
         run: python -c "import custom_components.econnect_metronet"
-
-      - name: Build the release package
-        run: hatch -v build -t zipped-directory
-
-      - name: Upload release archive
-        uses: actions/upload-artifact@v3
-        with:
-          name: econnect-metronet-${{ env.PKG_VERSION }}.zip
-          path: dist/econnect_metronet-${{ env.PKG_VERSION }}.zip
-          if-no-files-found: error
