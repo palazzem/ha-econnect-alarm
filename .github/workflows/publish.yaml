@@ -21,10 +21,10 @@ jobs:
 
       - name: Build Integration ZIP package
         run: |
-          cd ${{ github.workspace }}/custom_components/elmo_iess_alarm
-          zip hacs_elmo_iess_alarm.zip -r ./
+          cd ${{ github.workspace }}/custom_components/econnect_metronet
+          zip hacs_econnect_metronet.zip -r ./
 
       - name: Upload ZIP package release
         uses: softprops/action-gh-release@v0.1.15
         with:
-          files: ${{ github.workspace }}/custom_components/elmo_iess_alarm/hacs_elmo_iess_alarm.zip
+          files: ${{ github.workspace }}/custom_components/econnect_metronet/hacs_econnect_metronet.zip

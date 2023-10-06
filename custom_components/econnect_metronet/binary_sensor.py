@@ -12,9 +12,8 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
 
-from custom_components.elmo_iess_alarm.devices import AlarmDevice
-
 from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
+from .devices import AlarmDevice
 from .helpers import generate_entity_id
 
 

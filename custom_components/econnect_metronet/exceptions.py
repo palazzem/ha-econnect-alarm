@@ -1,4 +1,3 @@
-"""Exceptions raised by elmo_iess_alarm component."""
 from homeassistant.exceptions import HomeAssistantError
 
 

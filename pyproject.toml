@@ -6,7 +6,7 @@ requires = [
 build-backend = "hatchling.build"
 
 [project]
-name = "elmo-iess-alarm"
+name = "econnect-metronet"
 dynamic = ["version"]
 description = "Home Assistant integration that provides a full-fledged Alarm Panel to control your Elmo/IESS alarm systems."
 readme = "README.md"
@@ -60,8 +60,8 @@ lint = [
 ]
 
 all = [
-  "elmo-iess-alarm[dev]",
-  "elmo-iess-alarm[lint]",
+  "econnect-metronet[dev]",
+  "econnect-metronet[lint]",
 ]
 
 [project.urls]
@@ -70,7 +70,7 @@ Issues = "https://github.com/palazzem/ha-econnect-alarm/issues"
 Source = "https://github.com/palazzem/ha-econnect-alarm"
 
 [tool.hatch.version]
-path = "custom_components/elmo_iess_alarm/manifest.json"
+path = "custom_components/econnect_metronet/manifest.json"
 pattern = '"version":\s"(?P<version>[^"]+)"'
 
 [tool.hatch.metadata]
@@ -80,7 +80,7 @@ allow-direct-references = true
 asyncio_mode = "auto"
 
 [tool.hatch.build.targets.sdist]
-only-include = ["custom_components/elmo_iess_alarm"]
+only-include = ["custom_components/econnect_metronet"]
 
 [tool.hatch.build.targets.zipped-directory]
-only-include = ["custom_components/elmo_iess_alarm"]
+only-include = ["custom_components/econnect_metronet"]

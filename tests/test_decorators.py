@@ -1,7 +1,7 @@
 import pytest
 from elmo.api.exceptions import CodeError, LockError
 
-from custom_components.elmo_iess_alarm.decorators import set_device_state
+from custom_components.econnect_metronet.decorators import set_device_state
 
 
 @pytest.mark.asyncio
