@@ -24,6 +24,7 @@ def test_device_constructor(client):
     device = AlarmDevice(client)
     # Test
     assert device._connection == client
+    assert device._inventory == {}
     assert device._lastIds == {q.SECTORS: 0, q.INPUTS: 0}
     assert device._sectors_home == []
     assert device._sectors_night == []
@@ -46,6 +47,7 @@ def test_device_constructor_with_config(client):
     device = AlarmDevice(client, config=config)
     # Test
     assert device._connection == client
+    assert device._inventory == {}
     assert device._lastIds == {q.SECTORS: 0, q.INPUTS: 0}
     assert device._sectors_home == [3, 4]
     assert device._sectors_night == [1, 2, 3]
@@ -202,6 +204,55 @@ def test_device_update_success(client, mocker):
         q.SECTORS: 4,
         q.INPUTS: 42,
     }
+
+
+def test_device_inventory_update_success(client, mocker):
+    """Should check store the e-connect System status in the inventory device object."""
+    device = AlarmDevice(client)
+    mocker.spy(device._connection, "query")
+    inventory = {
+        "sectors": {
+            0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
+            1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
+            2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": False, "name": "S3 Outdoor"},
+        },
+        "inputs": {
+            0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "Entryway Sensor"},
+            1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "Outdoor Sensor 1"},
+            2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"},
+        },
+        "alerts": {
+            "alarm_led": 0,
+            "anomalies_led": 1,
+            "device_failure": 0,
+            "device_low_battery": 0,
+            "device_no_power": 0,
+            "device_no_supervision": 0,
+            "device_system_block": 0,
+            "device_tamper": 0,
+            "gsm_anomaly": 0,
+            "gsm_low_balance": 0,
+            "has_anomaly": False,
+            "input_alarm": 0,
+            "input_bypass": 0,
+            "input_failure": 0,
+            "input_low_battery": 0,
+            "input_no_supervision": 0,
+            "inputs_led": 2,
+            "module_registration": 0,
+            "panel_low_battery": 0,
+            "panel_no_power": 0,
+            "panel_tamper": 0,
+            "pstn_anomaly": 0,
+            "rf_interference": 0,
+            "system_test": 0,
+            "tamper_led": 0,
+        },
+    }
+    device.connect("username", "password")
+    # Test
+    device.update()
+    assert device._inventory == inventory
 
 
 def test_device_update_http_error(client, mocker):
