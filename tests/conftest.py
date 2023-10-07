@@ -20,6 +20,23 @@ async def hass(hass):
 
 
 @pytest.fixture(scope="function")
+def alarm_device(client):
+    """Yields an instance of AlarmDevice.
+
+    This fixture provides a scoped instance of AlarmDevice initialized with
+    the provided client.
+
+    Args:
+        client: The client used to initialize the AlarmDevice.
+
+    Yields:
+        An instance of AlarmDevice.
+    """
+    device = AlarmDevice(client)
+    yield device
+
+
+@pytest.fixture(scope="function")
 def alarm_entity(hass, client, config_entry):
     """Fixture to provide a test instance of the EconnectAlarm entity.
 
