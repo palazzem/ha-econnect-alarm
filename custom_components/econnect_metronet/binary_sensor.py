@@ -32,11 +32,11 @@ async def async_setup_entry(
     inventory = await hass.async_add_executor_job(device._connection._get_descriptions)
     for sector_id, name in inventory[query.SECTORS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.SECTORS}_{sector_id}"
-        sensors.append(SectorSensor(unique_id, sector_id, entry, name, coordinator, device, query.SECTORS))
+        sensors.append(SectorSensor(unique_id, sector_id, entry, name, coordinator, device))
 
     for sensor_id, name in inventory[query.INPUTS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{sensor_id}"
-        sensors.append(InputSensor(unique_id, sensor_id, entry, name, coordinator, device, query.INPUTS))
+        sensors.append(InputSensor(unique_id, sensor_id, entry, name, coordinator, device))
 
     # Retrieve alarm system global status
     alerts = await hass.async_add_executor_job(device._connection.get_status)
@@ -107,7 +107,6 @@ class InputSensor(CoordinatorEntity, BinarySensorEntity):
         name: str,
         coordinator: DataUpdateCoordinator,
         device: AlarmDevice,
-        sensor_type: int,
     ) -> None:
         """Construct."""
         super().__init__(coordinator)
@@ -116,7 +115,6 @@ class InputSensor(CoordinatorEntity, BinarySensorEntity):
         self._device = device
         self._unique_id = unique_id
         self._sensor_id = sensor_id
-        self._sensor_type = sensor_type
 
     @property
     def unique_id(self) -> str:
@@ -136,8 +134,6 @@ class InputSensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         """Return the binary sensor status (on/off)."""
-        # TODO: evaluate to expose a device API to get the status of a sensor
-        # instead of duplicating this sensor_type check
         return self._device.inputs_alerted.get(self._sensor_id) is not None
 
 
@@ -154,7 +150,6 @@ class SectorSensor(CoordinatorEntity, BinarySensorEntity):
         name: str,
         coordinator: DataUpdateCoordinator,
         device: AlarmDevice,
-        sensor_type: int,
     ) -> None:
         """Construct."""
         super().__init__(coordinator)
@@ -163,7 +158,6 @@ class SectorSensor(CoordinatorEntity, BinarySensorEntity):
         self._device = device
         self._unique_id = unique_id
         self._sector_id = sector_id
-        self._sensor_type = sensor_type
 
     @property
     def unique_id(self) -> str:
@@ -183,6 +177,4 @@ class SectorSensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         """Return the binary sensor status (on/off)."""
-        # TODO: evaluate to expose a device API to get the status of a sensor
-        # instead of duplicating this sensor_type check
         return self._device.sectors_armed.get(self._sector_id) is not None
