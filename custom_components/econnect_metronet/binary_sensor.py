@@ -1,4 +1,4 @@
-"""Module for e-connect binary sensors (sectors and inputs)."""
+"""Module for e-connect binary sensors (sectors, inputs and alert)."""
 from elmo import query
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
@@ -32,23 +32,23 @@ async def async_setup_entry(
     inventory = await hass.async_add_executor_job(device._connection._get_descriptions)
     for sector_id, name in inventory[query.SECTORS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.SECTORS}_{sector_id}"
-        sensors.append(EconnectDoorWindowSensor(unique_id, sector_id, entry, name, coordinator, device, query.SECTORS))
+        sensors.append(SectorSensor(unique_id, sector_id, entry, name, coordinator, device, query.SECTORS))
 
     for sensor_id, name in inventory[query.INPUTS].items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{sensor_id}"
-        sensors.append(EconnectDoorWindowSensor(unique_id, sensor_id, entry, name, coordinator, device, query.INPUTS))
+        sensors.append(InputSensor(unique_id, sensor_id, entry, name, coordinator, device, query.INPUTS))
 
     # Retrieve alarm system global status
     alerts = await hass.async_add_executor_job(device._connection.get_status)
     for alert_id, _ in alerts.items():
         unique_id = f"{entry.entry_id}_{DOMAIN}_{alert_id}"
-        sensors.append(EconnectAlertSensor(unique_id, alert_id, entry, coordinator, device))
+        sensors.append(AlertSensor(unique_id, alert_id, entry, coordinator, device))
 
     async_add_entities(sensors)
 
 
-class EconnectAlertSensor(CoordinatorEntity, BinarySensorEntity):
-    """Representation of a e-Connect alerts."""
+class AlertSensor(CoordinatorEntity, BinarySensorEntity):
+    """Representation of a e-Connect alert binary sensor"""
 
     _attr_has_entity_name = True
 
@@ -94,8 +94,8 @@ class EconnectAlertSensor(CoordinatorEntity, BinarySensorEntity):
         return state > 1 if self._alert_id == "anomalies_led" else state > 0
 
 
-class EconnectDoorWindowSensor(CoordinatorEntity, BinarySensorEntity):
-    """Representation of a e-connect door window sensor."""
+class InputSensor(CoordinatorEntity, BinarySensorEntity):
+    """Representation of a e-connect input binary sensor."""
 
     _attr_has_entity_name = True
 
@@ -131,21 +131,58 @@ class EconnectDoorWindowSensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def icon(self) -> str:
         """Return the icon used by this entity."""
-        if self._sensor_type == query.SECTORS:
-            return "hass:shield-home-outline"
-        elif self._sensor_type == query.INPUTS:
-            return "hass:electric-switch"
-        else:
-            return "hass:toggle-switch-off-outline"
+        return "hass:electric-switch"
 
     @property
     def is_on(self) -> bool:
         """Return the binary sensor status (on/off)."""
         # TODO: evaluate to expose a device API to get the status of a sensor
         # instead of duplicating this sensor_type check
-        if self._sensor_type == query.SECTORS:
-            return self._device.sectors_armed.get(self._sensor_id) is not None
-        elif self._sensor_type == query.INPUTS:
-            return self._device.inputs_alerted.get(self._sensor_id) is not None
-        else:
-            return False
+        return self._device.inputs_alerted.get(self._sensor_id) is not None
+
+
+class SectorSensor(CoordinatorEntity, BinarySensorEntity):
+    """Representation of a e-connect sector binary sensor."""
+
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        unique_id: str,
+        sector_id: int,
+        config: ConfigEntry,
+        name: str,
+        coordinator: DataUpdateCoordinator,
+        device: AlarmDevice,
+        sensor_type: int,
+    ) -> None:
+        """Construct."""
+        super().__init__(coordinator)
+        self.entity_id = generate_entity_id(config, name)
+        self._name = name
+        self._device = device
+        self._unique_id = unique_id
+        self._sector_id = sector_id
+        self._sensor_type = sensor_type
+
+    @property
+    def unique_id(self) -> str:
+        """Return the unique identifier."""
+        return self._unique_id
+
+    @property
+    def name(self) -> str:
+        """Return the name of this entity."""
+        return self._name
+
+    @property
+    def icon(self) -> str:
+        """Return the icon used by this entity."""
+        return "hass:shield-home-outline"
+
+    @property
+    def is_on(self) -> bool:
+        """Return the binary sensor status (on/off)."""
+        # TODO: evaluate to expose a device API to get the status of a sensor
+        # instead of duplicating this sensor_type check
+        return self._device.sectors_armed.get(self._sector_id) is not None
