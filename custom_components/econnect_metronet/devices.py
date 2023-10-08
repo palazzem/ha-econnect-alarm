@@ -58,6 +58,7 @@ class AlarmDevice:
         self.sectors_disarmed = {}
         self.inputs_alerted = {}
         self.inputs_wait = {}
+        self._inventory = {}
 
     def connect(self, username, password):
         """Establish a connection with the E-connect backend, to retrieve an access
@@ -153,6 +154,11 @@ class AlarmDevice:
         except (HTTPError, ParseError) as err:
             _LOGGER.error(f"Device | Error while checking if there are updates: {err}")
             raise
+
+        # Update the _inventory
+        self._inventory.update({"inputs": inputs["inputs"]})
+        self._inventory.update({"sectors": sectors["sectors"]})
+        self._inventory.update({"alerts": alerts})
 
         # Filter sectors and inputs
         self.sectors_armed = _filter_data(sectors, "sectors", True)
