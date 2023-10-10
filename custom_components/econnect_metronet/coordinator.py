@@ -49,9 +49,8 @@ class AlarmCoordinator(DataUpdateCoordinator):
         username = self.config_entry.data[CONF_USERNAME]
         password = self.config_entry.data[CONF_PASSWORD]
         await self.hass.async_add_executor_job(self.device.connect, username, password)
-        _LOGGER.debug("Coordinator | First authentication successful")
         await self.hass.async_add_executor_job(self.device.update)
-        return await super().async_config_entry_first_refresh()
+        _LOGGER.debug("Coordinator | First authentication and update are successful")
 
     async def _async_update_data(self):
         try:
@@ -59,6 +58,7 @@ class AlarmCoordinator(DataUpdateCoordinator):
             # action blocks the thread for 15 seconds, or when the backend publishes an update
             # POLLING_TIMEOUT ensures an upper bound regardless of the underlying implementation.
             async with async_timeout.timeout(POLLING_TIMEOUT):
+                _LOGGER.debug("Coordinator | Waiting for changes (long-polling)")
                 status = await self.hass.async_add_executor_job(self.device.has_updates)
                 if status["has_changes"]:
                     _LOGGER.debug("Coordinator | Changes detected, sending an update")
