@@ -117,3 +117,15 @@ async def test_coordinator_first_refresh_auth(mocker, coordinator):
     # Test
     await coordinator.async_config_entry_first_refresh()
     coordinator.device.connect.assert_called_once_with("test_user", "test_password")
+
+
+@pytest.mark.asyncio
+async def test_coordinator_first_refresh_update(mocker, coordinator):
+    # Ensure the first refresh updates before joining the scheduler
+    # This is required to avoid registering entities without a proper state
+    mocker.patch.object(coordinator.device, "has_updates")
+    coordinator.device.has_updates.return_value = {"has_changes": False}
+    mocker.spy(coordinator.device, "update")
+    # Test
+    await coordinator.async_config_entry_first_refresh()
+    assert coordinator.device.update.call_count == 1
