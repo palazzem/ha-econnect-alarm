@@ -6,6 +6,7 @@ from elmo.api.client import ElmoClient
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from custom_components.econnect_metronet.alarm_control_panel import EconnectAlarm
+from custom_components.econnect_metronet.coordinator import AlarmCoordinator
 from custom_components.econnect_metronet.devices import AlarmDevice
 
 from .fixtures import responses as r
@@ -56,6 +57,27 @@ def alarm_entity(hass, client, config_entry):
     entity = EconnectAlarm(unique_id="test_id", config=config_entry, device=device, coordinator=coordinator)
     entity.hass = hass
     yield entity
+
+
+@pytest.fixture(scope="function")
+def coordinator(hass, config_entry, alarm_device):
+    """Fixture to provide a test instance of the AlarmCoordinator.
+
+    This sets up an AlarmDevice and its corresponding DataUpdateCoordinator.
+
+    Args:
+        hass: Mock Home Assistant instance.
+        config_entry: Mock config entry.
+
+    Yields:
+        AlarmCoordinator: Initialized test instance of the AlarmCoordinator.
+    """
+    coordinator = AlarmCoordinator(hass, config_entry)
+    # Override Configuration and Device with mocked versions
+    coordinator.config_entry = config_entry
+    coordinator.device = alarm_device
+    coordinator.device._connection._session_id = "test_token"
+    yield coordinator
 
 
 @pytest.fixture(scope="function")
