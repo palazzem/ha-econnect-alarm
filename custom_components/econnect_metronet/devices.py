@@ -40,10 +40,9 @@ class AlarmDevice:
         self._sectors_home = []
         self._sectors_night = []
         self._sectors_vacation = []
-        self._lastIds = {
-            q.SECTORS: 0,
-            q.INPUTS: 0,
-        }
+
+        # Set last known IDs used for the long-polling API
+        self.reset()
 
         # Load user configuration
         if config is not None:
@@ -59,6 +58,15 @@ class AlarmDevice:
         self.inputs_alerted = {}
         self.inputs_wait = {}
         self._inventory = {}
+
+    def reset(self):
+        """Simulates a connection reset where IDs are set to the same value when
+        a reset happens.
+        """
+        self._lastIds = {
+            q.SECTORS: 0,
+            q.INPUTS: 0,
+        }
 
     def connect(self, username, password):
         """Establish a connection with the E-connect backend, to retrieve an access
