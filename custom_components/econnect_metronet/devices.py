@@ -187,17 +187,17 @@ class AlarmDevice:
 
     @property
     def inputs(self):
-        for input_id, item in self._inventory.get("inputs").items():
+        for input_id, item in self._inventory.get("inputs", {}).items():
             yield input_id, item["name"]
 
     @property
     def sectors(self):
-        for sector_id, item in self._inventory.get("sectors").items():
+        for sector_id, item in self._inventory.get("sectors", {}).items():
             yield sector_id, item["name"]
 
     @property
-    def alert(self):
-        yield from self._inventory.get("alerts").items()
+    def alerts_v2(self):
+        yield from self._inventory.get("alerts", {}).items()
 
     def arm(self, code, sectors=None):
         try:
