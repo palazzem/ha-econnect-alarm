@@ -118,8 +118,15 @@ def config_entry():
 
     class MockConfigEntry:
         def __init__(self):
+            # Config at install-time
             self.data = {
                 "username": "test_user",
+                "password": "test_password",
+                "system_base_url": "https://example.com",
+                "domain": "econnect_metronet",
             }
+
+            # Options at configuration-time
+            self.options = {}
 
     return MockConfigEntry()
