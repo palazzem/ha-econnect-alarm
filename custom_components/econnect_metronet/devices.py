@@ -185,6 +185,20 @@ class AlarmDevice:
         # Update the internal state machine (mapping state)
         self.state = self.get_state()
 
+    @property
+    def inputs(self):
+        for input_id, item in self._inventory.get("inputs").items():
+            yield input_id, item["name"]
+
+    @property
+    def sectors(self):
+        for sector_id, item in self._inventory.get("sectors").items():
+            yield sector_id, item["name"]
+
+    @property
+    def alert(self):
+        yield from self._inventory.get("alerts").items()
+
     def arm(self, code, sectors=None):
         try:
             with self._connection.lock(code):

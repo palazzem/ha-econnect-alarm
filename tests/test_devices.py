@@ -259,6 +259,80 @@ def test_device_inventory_update_success(client, mocker):
     assert device._inventory == inventory
 
 
+def test_device_property_happy_path(client, mocker):
+    """Should check if the device property are correctly populated"""
+    device = AlarmDevice(client)
+    mocker.spy(device._connection, "query")
+    device.connect("username", "password")
+    sectors = {
+        0: "S1 Living Room",
+        1: "S2 Bedroom",
+        2: "S3 Outdoor",
+    }
+    inputs = {
+        0: "Entryway Sensor",
+        1: "Outdoor Sensor 1",
+        2: "Outdoor Sensor 2",
+    }
+    alerts = {
+        "alarm_led": 0,
+        "anomalies_led": 1,
+        "device_failure": 0,
+        "device_low_battery": 0,
+        "device_no_power": 0,
+        "device_no_supervision": 0,
+        "device_system_block": 0,
+        "device_tamper": 0,
+        "gsm_anomaly": 0,
+        "gsm_low_balance": 0,
+        "has_anomaly": False,
+        "input_alarm": 0,
+        "input_bypass": 0,
+        "input_failure": 0,
+        "input_low_battery": 0,
+        "input_no_supervision": 0,
+        "inputs_led": 2,
+        "module_registration": 0,
+        "panel_low_battery": 0,
+        "panel_no_power": 0,
+        "panel_tamper": 0,
+        "pstn_anomaly": 0,
+        "rf_interference": 0,
+        "system_test": 0,
+        "tamper_led": 0,
+    }
+    # Test
+    device.update()
+    device_inputs = {}
+    device_sectors = {}
+    device_alerts = {}
+    for input_id, name in device.inputs:
+        device_inputs.update({input_id: name})
+    for sector_id, name in device.sectors:
+        device_sectors.update({sector_id: name})
+    for alert_id, name in device.alert:
+        device_alerts.update({alert_id: name})
+    assert device_inputs == inputs
+    assert device_sectors == sectors
+    assert device_alerts == alerts
+
+
+def test_device_property_unhappy_path_1(client, mocker):
+    """Should check store the e-connect System status in the inventory device object."""
+    device = AlarmDevice(client)
+    mocker.spy(device._connection, "query")
+    device.connect("username", "password")
+    # Test
+    device.update()
+    device._inventory = {}
+    device_inputs = list(device.inputs)
+    device_sectors = list(device.sectors)
+    device_alerts = list(device.alerts)
+    assert not device_inputs
+    assert not device_sectors
+    assert not device_alerts
+
+
 def test_device_update_http_error(client, mocker):
     """Tests if device's update method raises HTTPError when querying."""
     device = AlarmDevice(client)
