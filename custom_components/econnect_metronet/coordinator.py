@@ -39,6 +39,20 @@ class AlarmCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=scan_interval),
         )
 
+    async def async_config_entry_first_refresh(self) -> None:
+        """Refresh data for the first time when a config entry is setup.
+
+        Will automatically raise ConfigEntryNotReady if the refresh
+        fails. Additionally logging is handled by config entry setup
+        to ensure that multiple retries do not cause log spam.
+        """
+        _LOGGER.debug("Coordinator | First authentication")
+        username = self.config_entry.data[CONF_USERNAME]
+        password = self.config_entry.data[CONF_PASSWORD]
+        await self.hass.async_add_executor_job(self.device.connect, username, password)
+        _LOGGER.debug("Coordinator | Authentication successful")
+        return await super().async_config_entry_first_refresh()
+
     async def _async_update_data(self):
         try:
             # `device.has_updates` implements e-Connect long-polling API. This
