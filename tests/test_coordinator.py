@@ -77,6 +77,7 @@ async def test_coordinator_async_update_with_data(mocker, coordinator):
 @pytest.mark.asyncio
 async def test_coordinator_async_update_invalid_token(mocker, coordinator):
     # Ensure a new connection is established when the token is invalid
+    # No exceptions must be raised as this is a normal condition
     mocker.patch.object(coordinator.device, "has_updates")
     coordinator.device.has_updates.side_effect = InvalidToken()
     mocker.spy(coordinator.device, "connect")
@@ -100,7 +101,8 @@ async def test_coordinator_async_update_failed(mocker, coordinator):
         10: 42,
     }
     # Test
-    await coordinator._async_update_data()
+    with pytest.raises(UpdateFailed):
+        await coordinator._async_update_data()
     assert coordinator.device.reset.call_count == 1
     assert coordinator.device._lastIds == {
         9: 0,

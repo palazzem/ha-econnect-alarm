@@ -69,3 +69,4 @@ class AlarmCoordinator(DataUpdateCoordinator):
                 "Coordinator | Update failed, resetting IDs to force a full update when the connection is stable"
             )
             self.device.reset()
+            raise
