@@ -259,6 +259,118 @@ def test_device_inventory_update_success(client, mocker):
     assert device._inventory == inventory
 
 
+class TestInputsView:
+    def test_property_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        alarm_device.connect("username", "password")
+        inputs = {
+            0: "Entryway Sensor",
+            1: "Outdoor Sensor 1",
+            2: "Outdoor Sensor 2",
+        }
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.inputs) == inputs
+
+    def test_inventory_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if _inventory is empty"""
+        alarm_device.connect("username", "password")
+        # Test
+        alarm_device.update()
+        alarm_device._inventory = {}
+        assert dict(alarm_device.inputs) == {}
+
+    def test_input_property_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if inputs key is not in _inventory"""
+        alarm_device.connect("username", "password")
+        # Test
+        alarm_device.update()
+        alarm_device._inventory = {"inputs": {}}
+        assert dict(alarm_device.inputs) == {}
+
+
+class TestSectorsView:
+    def test_property_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        alarm_device.connect("username", "password")
+        sectors = {
+            0: "S1 Living Room",
+            1: "S2 Bedroom",
+            2: "S3 Outdoor",
+        }
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.sectors) == sectors
+
+    def test_inventory_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if _inventory is empty"""
+        alarm_device.connect("username", "password")
+        # Test
+        alarm_device.update()
+        alarm_device._inventory = {}
+        assert dict(alarm_device.sectors) == {}
+
+    def test_sectors_property_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if outputs key is not in _inventory"""
+        alarm_device.connect("username", "password")
+        # Test
+        alarm_device.update()
+        alarm_device._inventory = {"outputs": {}}
+        assert dict(alarm_device.sectors) == {}
+
+
+class TestAlertsView:
+    def test_property_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        alarm_device.connect("username", "password")
+        alerts = {
+            "alarm_led": 0,
+            "anomalies_led": 1,
+            "device_failure": 0,
+            "device_low_battery": 0,
+            "device_no_power": 0,
+            "device_no_supervision": 0,
+            "device_system_block": 0,
+            "device_tamper": 0,
+            "gsm_anomaly": 0,
+            "gsm_low_balance": 0,
+            "has_anomaly": False,
+            "input_alarm": 0,
+            "input_bypass": 0,
+            "input_failure": 0,
+            "input_low_battery": 0,
+            "input_no_supervision": 0,
+            "inputs_led": 2,
+            "module_registration": 0,
+            "panel_low_battery": 0,
+            "panel_no_power": 0,
+            "panel_tamper": 0,
+            "pstn_anomaly": 0,
+            "rf_interference": 0,
+            "system_test": 0,
+            "tamper_led": 0,
+        }
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.alerts_v2) == alerts
+
+    def test_inventory_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if _inventory is empty"""
+        alarm_device.connect("username", "password")
+        # Test
+        alarm_device.update()
+        alarm_device._inventory = {}
+        assert dict(alarm_device.alerts_v2) == {}
+
+    def test_alerts_property_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if alerts key is not in _inventory"""
+        alarm_device.connect("username", "password")
+        # Test
+        alarm_device.update()
+        alarm_device._inventory = {"alerts": {}}
+        assert dict(alarm_device.alerts_v2) == {}
+
+
 def test_device_update_http_error(client, mocker):
     """Tests if device's update method raises HTTPError when querying."""
     device = AlarmDevice(client)
