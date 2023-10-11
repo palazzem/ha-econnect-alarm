@@ -1,16 +1,11 @@
 """The E-connect Alarm integration."""
 import asyncio
 import logging
-from datetime import timedelta
 
-import async_timeout
 from elmo.api.client import ElmoClient
-from elmo.api.exceptions import InvalidToken
 from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
     CONF_DOMAIN,
@@ -20,9 +15,9 @@ from .const import (
     KEY_COORDINATOR,
     KEY_DEVICE,
     KEY_UNSUBSCRIBER,
-    POLLING_TIMEOUT,
     SCAN_INTERVAL_DEFAULT,
 )
+from .coordinator import AlarmCoordinator
 from .devices import AlarmDevice
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,19 +25,19 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["alarm_control_panel", "binary_sensor"]
 
 
-async def async_migrate_entry(hass, config_entry: ConfigEntry):
+async def async_migrate_entry(hass, config: ConfigEntry):
     """Config flow migrations."""
-    _LOGGER.info(f"Migrating from version {config_entry.version}")
+    _LOGGER.info(f"Migrating from version {config.version}")
 
-    if config_entry.version == 1:
+    if config.version == 1:
         # Config initialization
-        migrated_config = {**config_entry.data}
+        migrated_config = {**config.data}
         # Migration
         migrated_config[CONF_SYSTEM_URL] = E_CONNECT_DEFAULT
-        config_entry.version = 2
-        hass.config_entries.async_update_entry(config_entry, data=migrated_config)
+        config.version = 2
+        hass.config_entries.async_update_entry(config, data=migrated_config)
 
-    _LOGGER.info(f"Migration to version {config_entry.version} successful")
+    _LOGGER.info(f"Migration to version {config.version} successful")
     return True
 
 
@@ -52,7 +47,7 @@ async def async_setup(hass: HomeAssistant, config: dict):
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry) -> bool:
     """Set up a configuration entry for the alarm device in Home Assistant.
 
     This asynchronous method initializes an AlarmDevice instance to access the cloud service.
@@ -61,7 +56,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     Args:
         hass (HomeAssistant): The Home Assistant instance.
-        entry (ConfigEntry): The configuration entry containing the setup details for the alarm device.
+        config (ConfigEntry): The configuration entry containing the setup details for the alarm device.
 
     Returns:
         bool: True if the setup was successful, False otherwise.
@@ -69,93 +64,45 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     Raises:
         Any exceptions raised by the coordinator or the setup process will be propagated up to the caller.
     """
-    # Initialize the device with an API endpoint and a vendor.
-    # Calling `device.connect` authenticates the device via an access token
-    # and asks for the first update, hence why in `async_setup_entry` there is no need
-    # to call `coordinator.async_refresh()`.
-    client = ElmoClient(entry.data[CONF_SYSTEM_URL], entry.data[CONF_DOMAIN])
-    device = AlarmDevice(client, entry.options)
-    await hass.async_add_executor_job(device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
-
-    # Execute device update in a thread pool
-    await hass.async_add_executor_job(device.update)
-
-    async def async_update_data():
-        """Fetch data from API endpoint.
-
-        This is the place to pre-process the data to lookup tables
-        so entities can quickly look up their data.
-        """
-        try:
-            # `device.has_updates` implements e-Connect long-polling API. This
-            # action blocks the thread for 15 seconds, or when the backend publishes an update
-            # POLLING_TIMEOUT ensures an upper bound regardless of the underlying implementation.
-            async with async_timeout.timeout(POLLING_TIMEOUT):
-                _LOGGER.debug("Coordinator | Waiting for changes (long-polling)")
-                coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
-                if not coordinator.last_update_success:
-                    # Force an update if at least one failed. This is required to prevent
-                    # a misalignment between the `AlarmDevice` and backend IDs, needed to implement
-                    # the long-polling strategy. If IDs are misaligned, then no updates happen and
-                    # the integration remains stuck.
-                    # See: https://github.com/palazzem/ha-econnect-alarm/issues/51
-                    _LOGGER.debug("Coordinator | Resetting IDs due to a failed update")
-                    return await hass.async_add_executor_job(device.update)
-                status = await hass.async_add_executor_job(device.has_updates)
-                if status["has_changes"]:
-                    _LOGGER.debug("Coordinator | Changes detected, sending an update")
-                    # State machine is in `device.state`
-                    return await hass.async_add_executor_job(device.update)
-                else:
-                    _LOGGER.debug("Coordinator | No changes detected")
-        except InvalidToken:
-            _LOGGER.debug("Coordinator | Invalid token detected, authenticating")
-            await hass.async_add_executor_job(device.connect, entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
-            _LOGGER.debug("Coordinator | Authentication completed with success")
-            return await hass.async_add_executor_job(device.update)
-
-    scan_interval = entry.options.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL_DEFAULT)
-    coordinator = DataUpdateCoordinator(
-        hass,
-        _LOGGER,
-        name="econnect_metronet",
-        update_interval=timedelta(seconds=scan_interval),
-        update_method=async_update_data,
-    )
+    scan_interval = config.options.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL_DEFAULT)
+    client = ElmoClient(config.data[CONF_SYSTEM_URL], config.data[CONF_DOMAIN])
+    device = AlarmDevice(client, config.options)
+    coordinator = AlarmCoordinator(hass, device, scan_interval)
+    await coordinator.async_config_entry_first_refresh()
 
     # Store an AlarmDevice instance to access the cloud service.
     # It includes a DataUpdateCoordinator shared across entities to get a full
     # status update with a single request.
-    hass.data[DOMAIN][entry.entry_id] = {
+    hass.data[DOMAIN][config.entry_id] = {
         KEY_DEVICE: device,
         KEY_COORDINATOR: coordinator,
     }
 
     # Register a listener when option changes
-    unsub = entry.add_update_listener(options_update_listener)
-    hass.data[DOMAIN][entry.entry_id][KEY_UNSUBSCRIBER] = unsub
+    unsub = config.add_update_listener(options_update_listener)
+    hass.data[DOMAIN][config.entry_id][KEY_UNSUBSCRIBER] = unsub
 
     for component in PLATFORMS:
-        hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, component))
+        hass.async_create_task(hass.config_entries.async_forward_entry_setup(config, component))
 
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_unload_entry(hass: HomeAssistant, config: ConfigEntry):
     """Unload a config entry."""
     unload_ok = all(
         await asyncio.gather(
-            *[hass.config_entries.async_forward_entry_unload(entry, component) for component in PLATFORMS]
+            *[hass.config_entries.async_forward_entry_unload(config, component) for component in PLATFORMS]
         )
     )
     if unload_ok:
         # Call the options unsubscriber and remove the configuration
-        hass.data[DOMAIN][entry.entry_id][KEY_UNSUBSCRIBER]()
-        hass.data[DOMAIN].pop(entry.entry_id)
+        hass.data[DOMAIN][config.entry_id][KEY_UNSUBSCRIBER]()
+        hass.data[DOMAIN].pop(config.entry_id)
 
     return unload_ok
 
 
-async def options_update_listener(hass: HomeAssistant, config_entry: ConfigEntry):
+async def options_update_listener(hass: HomeAssistant, config: ConfigEntry):
     """Handle options update."""
-    await hass.config_entries.async_reload(config_entry.entry_id)
+    await hass.config_entries.async_reload(config.entry_id)
