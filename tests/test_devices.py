@@ -272,7 +272,7 @@ class TestInputsView:
         alarm_device.update()
         assert dict(alarm_device.inputs) == inputs
 
-    def test_inventory_empty(client, alarm_device):
+    def test_inventory_empty(self, alarm_device):
         """Ensure the property returns an empty dict if _inventory is empty"""
         alarm_device.connect("username", "password")
         # Test
@@ -280,7 +280,7 @@ class TestInputsView:
         alarm_device._inventory = {}
         assert dict(alarm_device.inputs) == {}
 
-    def test_input_property_empty(client, alarm_device):
+    def test_input_property_empty(self, alarm_device):
         """Ensure the property returns an empty dict if inputs key is not in _inventory"""
         alarm_device.connect("username", "password")
         # Test
@@ -302,7 +302,7 @@ class TestSectorsView:
         alarm_device.update()
         assert dict(alarm_device.sectors) == sectors
 
-    def test_inventory_empty(client, alarm_device):
+    def test_inventory_empty(self, alarm_device):
         """Ensure the property returns an empty dict if _inventory is empty"""
         alarm_device.connect("username", "password")
         # Test
@@ -310,7 +310,7 @@ class TestSectorsView:
         alarm_device._inventory = {}
         assert dict(alarm_device.sectors) == {}
 
-    def test_sectors_property_empty(client, alarm_device):
+    def test_sectors_property_empty(self, alarm_device):
         """Ensure the property returns an empty dict if outputs key is not in _inventory"""
         alarm_device.connect("username", "password")
         # Test
@@ -354,7 +354,7 @@ class TestAlertsView:
         alarm_device.update()
         assert dict(alarm_device.alerts_v2) == alerts
 
-    def test_inventory_empty(client, alarm_device):
+    def test_inventory_empty(self, alarm_device):
         """Ensure the property returns an empty dict if _inventory is empty"""
         alarm_device.connect("username", "password")
         # Test
@@ -362,7 +362,7 @@ class TestAlertsView:
         alarm_device._inventory = {}
         assert dict(alarm_device.alerts_v2) == {}
 
-    def test_alerts_property_empty(client, alarm_device):
+    def test_alerts_property_empty(self, alarm_device):
         """Ensure the property returns an empty dict if alerts key is not in _inventory"""
         alarm_device.connect("username", "password")
         # Test

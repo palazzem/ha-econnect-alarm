@@ -60,6 +60,20 @@ class AlarmDevice:
         self.inputs_wait = {}
         self._inventory = {}
 
+    @property
+    def inputs(self):
+        for input_id, item in self._inventory.get("inputs", {}).items():
+            yield input_id, item["name"]
+
+    @property
+    def sectors(self):
+        for sector_id, item in self._inventory.get("sectors", {}).items():
+            yield sector_id, item["name"]
+
+    @property
+    def alerts_v2(self):
+        yield from self._inventory.get("alerts", {}).items()
+
     def connect(self, username, password):
         """Establish a connection with the E-connect backend, to retrieve an access
         token. This method stores the `session_id` within the `ElmoClient` object
@@ -184,20 +198,6 @@ class AlarmDevice:
 
         # Update the internal state machine (mapping state)
         self.state = self.get_state()
-
-    @property
-    def inputs(self):
-        for input_id, item in self._inventory.get("inputs", {}).items():
-            yield input_id, item["name"]
-
-    @property
-    def sectors(self):
-        for sector_id, item in self._inventory.get("sectors", {}).items():
-            yield sector_id, item["name"]
-
-    @property
-    def alerts_v2(self):
-        yield from self._inventory.get("alerts", {}).items()
 
     def arm(self, code, sectors=None):
         try:
