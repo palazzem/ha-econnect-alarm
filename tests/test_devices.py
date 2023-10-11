@@ -259,95 +259,70 @@ def test_device_inventory_update_success(client, mocker):
     assert device._inventory == inventory
 
 
-class test_inputs:
-    def test_property_populated(client, mocker):
-        """Should check if the device property are correctly populated"""
-        device = AlarmDevice(client)
-        mocker.spy(device._connection, "query")
-        device.connect("username", "password")
+class TestInputsView:
+    def test_property_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        alarm_device.connect("username", "password")
         inputs = {
             0: "Entryway Sensor",
             1: "Outdoor Sensor 1",
             2: "Outdoor Sensor 2",
         }
         # Test
-        device.update()
-        device_inputs = {}
-        for input_id, name in device.inputs:
-            device_inputs.update({input_id: name})
-        assert device_inputs == inputs
+        alarm_device.update()
+        assert dict(alarm_device.inputs) == inputs
 
-    def test_all_properties_empty(client, mocker):
-        """Should check store the e-connect System status in the inventory device object."""
-        device = AlarmDevice(client)
-        mocker.spy(device._connection, "query")
-        device.connect("username", "password")
+    def test_inventory_empty(client, alarm_device):
+        """Ensure the property returns an empty dict if _inventory is empty"""
+        alarm_device.connect("username", "password")
         # Test
-        device.update()
-        device._inventory = {}
-        device_inputs = list(device.inputs)
-        assert not device_inputs
+        alarm_device.update()
+        alarm_device._inventory = {}
+        assert dict(alarm_device.inputs) == {}
 
-    def test_input_property_empty(client, mocker):
-        """Should check store the e-connect System status in the inventory device object."""
-        device = AlarmDevice(client)
-        mocker.spy(device._connection, "query")
-        device.connect("username", "password")
+    def test_input_property_empty(client, alarm_device):
+        """Ensure the property returns an empty dict if inputs key is not in _inventory"""
+        alarm_device.connect("username", "password")
         # Test
-        device.update()
-        device._inventory.update({"inputs": {}})
-        device_inputs = {}
-        device_inputs = list(device.inputs)
-        assert not device_inputs
+        alarm_device.update()
+        alarm_device._inventory = {"inputs": {}}
+        assert dict(alarm_device.inputs) == {}
 
 
-class test_sectors:
-    def test_property_populated(client, mocker):
-        """Should check if the device property are correctly populated"""
-        device = AlarmDevice(client)
-        mocker.spy(device._connection, "query")
-        device.connect("username", "password")
+class TestSectorsView:
+    def test_property_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        alarm_device.connect("username", "password")
         sectors = {
             0: "S1 Living Room",
             1: "S2 Bedroom",
             2: "S3 Outdoor",
         }
         # Test
-        device.update()
-        device_sectors = {}
-        for sector_id, name in device.sectors:
-            device_sectors.update({sector_id: name})
-        assert device_sectors == sectors
+        alarm_device.update()
+        assert dict(alarm_device.sectors) == sectors
 
-    def test_all_properties_empty(client, mocker):
-        """Should check store the e-connect System status in the inventory device object."""
-        device = AlarmDevice(client)
-        mocker.spy(device._connection, "query")
-        device.connect("username", "password")
+    def test_inventory_empty(client, alarm_device):
+        """Ensure the property returns an empty dict if _inventory is empty"""
+        alarm_device.connect("username", "password")
         # Test
-        device.update()
-        device._inventory = {}
-        device_sectors = list(device.sectors)
-        assert not device_sectors
+        alarm_device.update()
+        alarm_device._inventory = {}
+        assert dict(alarm_device.sectors) == {}
 
-    def test_sectors_property_empty(client, mocker):
-        """Should check store the e-connect System status in the inventory device object."""
-        device = AlarmDevice(client)
-        mocker.spy(device._connection, "query")
-        device.connect("username", "password")
+    def test_sectors_property_empty(client, alarm_device):
+        """Ensure the property returns an empty dict if outputs key is not in _inventory"""
+        alarm_device.connect("username", "password")
         # Test
-        device.update()
-        device._inventory.update({"sectors": {}})
-        device_sectors = list(device.sectors)
-        assert not device_sectors
+        alarm_device.update()
+        alarm_device._inventory = {"outputs": {}}
+        assert dict(alarm_device.sectors) == {}
 
 
-class test_alerts_v2:
-    def test_property_populated(client, mocker):
-        """Should check if the device property are correctly populated"""
-        device = AlarmDevice(client)
-        mocker.spy(device._connection, "query")
-        device.connect("username", "password")
+class TestAlertsView:
+    def test_property_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        alarm_device.connect("username", "password")
         alerts = {
             "alarm_led": 0,
             "anomalies_led": 1,
@@ -376,33 +351,24 @@ class test_alerts_v2:
             "tamper_led": 0,
         }
         # Test
-        device.update()
-        device_alerts = {}
-        for alert_id, name in device.alerts_v2:
-            device_alerts.update({alert_id: name})
-        assert device_alerts == alerts
+        alarm_device.update()
+        assert dict(alarm_device.alerts_v2) == alerts
 
-    def test_all_properties_empty(client, mocker):
-        """Should check store the e-connect System status in the inventory device object."""
-        device = AlarmDevice(client)
-        mocker.spy(device._connection, "query")
-        device.connect("username", "password")
+    def test_inventory_empty(client, alarm_device):
+        """Ensure the property returns an empty dict if _inventory is empty"""
+        alarm_device.connect("username", "password")
         # Test
-        device.update()
-        device._inventory = {}
-        device_alerts = list(device.alerts_v2)
-        assert not device_alerts
+        alarm_device.update()
+        alarm_device._inventory = {}
+        assert dict(alarm_device.alerts_v2) == {}
 
-    def test_alerts_property_empty(client, mocker):
-        """Should check store the e-connect System status in the inventory device object."""
-        device = AlarmDevice(client)
-        mocker.spy(device._connection, "query")
-        device.connect("username", "password")
+    def test_alerts_property_empty(client, alarm_device):
+        """Ensure the property returns an empty dict if alerts key is not in _inventory"""
+        alarm_device.connect("username", "password")
         # Test
-        device.update()
-        device._inventory.update({"alerts": {}})
-        device_alerts = list(device.alerts_v2)
-        assert not device_alerts
+        alarm_device.update()
+        alarm_device._inventory = {"alerts": {}}
+        assert dict(alarm_device.alerts_v2) == {}
 
 
 def test_device_update_http_error(client, mocker):
