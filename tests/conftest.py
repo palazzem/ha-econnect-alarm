@@ -6,6 +6,7 @@ from elmo.api.client import ElmoClient
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from custom_components.econnect_metronet.alarm_control_panel import EconnectAlarm
+from custom_components.econnect_metronet.coordinator import AlarmCoordinator
 from custom_components.econnect_metronet.devices import AlarmDevice
 
 from .fixtures import responses as r
@@ -59,6 +60,28 @@ def alarm_entity(hass, client, config_entry):
 
 
 @pytest.fixture(scope="function")
+def coordinator(hass, config_entry, alarm_device):
+    """Fixture to provide a test instance of the AlarmCoordinator.
+
+    This sets up an AlarmDevice and its corresponding DataUpdateCoordinator.
+
+    Args:
+        hass: Mock Home Assistant instance.
+        config_entry: Mock config entry.
+
+    Yields:
+        AlarmCoordinator: Initialized test instance of the AlarmCoordinator.
+    """
+    coordinator = AlarmCoordinator(hass, alarm_device, 5)
+    # Override Configuration and Device with mocked versions
+    coordinator.config_entry = config_entry
+    coordinator._device._connection._session_id = "test_token"
+    # Initializes the Coordinator to skip the first setup
+    coordinator.data = {}
+    yield coordinator
+
+
+@pytest.fixture(scope="function")
 def client():
     """Creates an instance of `ElmoClient` which emulates the behavior of a real client for
     testing purposes.
@@ -96,8 +119,15 @@ def config_entry():
 
     class MockConfigEntry:
         def __init__(self):
+            # Config at install-time
             self.data = {
                 "username": "test_user",
+                "password": "test_password",
+                "system_base_url": "https://example.com",
+                "domain": "econnect_metronet",
             }
+
+            # Options at configuration-time
+            self.options = {}
 
     return MockConfigEntry()
