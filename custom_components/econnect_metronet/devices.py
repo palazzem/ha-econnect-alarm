@@ -199,6 +199,8 @@ class AlarmDevice:
         # Update the internal state machine (mapping state)
         self.state = self.get_state()
 
+        return self._inventory
+
     def arm(self, code, sectors=None):
         try:
             with self._connection.lock(code):
