@@ -26,7 +26,7 @@ def test_device_constructor(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
-    assert device._lastIds == {q.SECTORS: 0, q.INPUTS: 0}
+    assert device._last_ids == {q.SECTORS: 0, q.INPUTS: 0}
     assert device._sectors_home == []
     assert device._sectors_night == []
     assert device._sectors_vacation == []
@@ -49,7 +49,7 @@ def test_device_constructor_with_config(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
-    assert device._lastIds == {q.SECTORS: 0, q.INPUTS: 0}
+    assert device._last_ids == {q.SECTORS: 0, q.INPUTS: 0}
     assert device._sectors_home == [3, 4]
     assert device._sectors_night == [1, 2, 3]
     assert device._sectors_vacation == [5, 3]
@@ -97,8 +97,8 @@ def test_device_has_updates(client, mocker):
     """Should call the client polling system passing the internal state."""
     device = AlarmDevice(client)
     device.connect("username", "password")
-    device._lastIds[q.SECTORS] = 20
-    device._lastIds[q.INPUTS] = 20
+    device._last_ids[q.SECTORS] = 20
+    device._last_ids[q.INPUTS] = 20
     mocker.spy(device._connection, "poll")
     # Test
     device.has_updates()
@@ -115,13 +115,13 @@ def test_device_has_updates_ids_immutable(client, mocker):
 
     device = AlarmDevice(client)
     device.connect("username", "password")
-    device._lastIds = {q.SECTORS: 4, q.INPUTS: 42}
+    device._last_ids = {q.SECTORS: 4, q.INPUTS: 42}
     mocker.patch.object(device._connection, "poll")
     device._connection.poll.side_effect = bad_poll
     # Test
     device.has_updates()
     assert device._connection.poll.call_count == 1
-    assert {9: 4, 10: 42} == device._lastIds
+    assert {9: 4, 10: 42} == device._last_ids
 
 
 def test_device_has_updates_errors(client, mocker):
@@ -134,7 +134,7 @@ def test_device_has_updates_errors(client, mocker):
     with pytest.raises(HTTPError):
         device.has_updates()
     assert device._connection.poll.call_count == 1
-    assert {9: 0, 10: 0} == device._lastIds
+    assert {9: 0, 10: 0} == device._last_ids
 
 
 def test_device_has_updates_parse_errors(client, mocker):
@@ -147,7 +147,7 @@ def test_device_has_updates_parse_errors(client, mocker):
     with pytest.raises(ParseError):
         device.has_updates()
     assert device._connection.poll.call_count == 1
-    assert {9: 0, 10: 0} == device._lastIds
+    assert {9: 0, 10: 0} == device._last_ids
 
 
 def test_device_update_success(client, mocker):
@@ -204,7 +204,7 @@ def test_device_update_success(client, mocker):
     assert device.inputs_alerted == inputs_alerted
     assert device.inputs_wait == inputs_wait
     assert device.alerts == alerts
-    assert device._lastIds == {
+    assert device._last_ids == {
         q.SECTORS: 4,
         q.INPUTS: 42,
     }

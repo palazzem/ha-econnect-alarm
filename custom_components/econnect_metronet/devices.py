@@ -40,7 +40,7 @@ class AlarmDevice:
         self._sectors_home = []
         self._sectors_night = []
         self._sectors_vacation = []
-        self._lastIds = {
+        self._last_ids = {
             q.SECTORS: 0,
             q.INPUTS: 0,
         }
@@ -108,7 +108,7 @@ class AlarmDevice:
         """
         try:
             self._connection.get_status()
-            return self._connection.poll({key: value for key, value in self._lastIds.items()})
+            return self._connection.poll({key: value for key, value in self._last_ids.items()})
         except HTTPError as err:
             _LOGGER.error(f"Device | Error while polling for updates: {err.response.text}")
             raise err
@@ -155,6 +155,9 @@ class AlarmDevice:
         3. Updates the last known IDs for sectors and inputs.
         4. Updates internal state for sectors' and inputs' statuses.
 
+        Returns:
+            dict: A dictionary containing the latest retrieved inventory.
+
         Raises:
             HTTPError: If there's an error while making the HTTP request.
             ParseError: If there's an error while parsing the response.
@@ -164,7 +167,7 @@ class AlarmDevice:
             sectors_disarmed (dict): A dictionary of sectors that are disarmed.
             inputs_alerted (dict): A dictionary of inputs that are in an alerted state.
             inputs_wait (dict): A dictionary of inputs that are in a wait state.
-            _lastIds (dict): Updated last known IDs for sectors and inputs.
+            _last_ids (dict): Updated last known IDs for sectors and inputs.
             state (str): Updated internal state of the device.
         """
         # Retrieve sectors and inputs
@@ -190,14 +193,16 @@ class AlarmDevice:
         self.inputs_alerted = _filter_data(inputs, "inputs", True)
         self.inputs_wait = _filter_data(inputs, "inputs", False)
 
-        self._lastIds[q.SECTORS] = sectors.get("last_id", 0)
-        self._lastIds[q.INPUTS] = inputs.get("last_id", 0)
+        self._last_ids[q.SECTORS] = sectors.get("last_id", 0)
+        self._last_ids[q.INPUTS] = inputs.get("last_id", 0)
 
         # Update system alerts
         self.alerts = alerts
 
         # Update the internal state machine (mapping state)
         self.state = self.get_state()
+
+        return self._inventory
 
     def arm(self, code, sectors=None):
         try:
