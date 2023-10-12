@@ -155,6 +155,9 @@ class AlarmDevice:
         3. Updates the last known IDs for sectors and inputs.
         4. Updates internal state for sectors' and inputs' statuses.
 
+        Returns:
+            dict: A dictionary containing the latest retrieved inventory.
+
         Raises:
             HTTPError: If there's an error while making the HTTP request.
             ParseError: If there's an error while parsing the response.
