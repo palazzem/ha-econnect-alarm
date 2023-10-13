@@ -160,7 +160,7 @@ class AlarmDevice:
         """
         try:
             self._connection.query(q.ALERTS)
-            return self._connection.poll({key: value for key, value in self._lastIds.items()})
+            return self._connection.poll({key: value for key, value in self._last_ids.items()})
         except HTTPError as err:
             _LOGGER.error(f"Device | Error while polling for updates: {err.response.text}")
             raise err

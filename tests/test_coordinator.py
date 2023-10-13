@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 import pytest
+from elmo import query as q
 from elmo.api.exceptions import CredentialError, InvalidToken
 from homeassistant.exceptions import ConfigEntryNotReady
 from requests.exceptions import HTTPError
@@ -34,7 +35,7 @@ async def test_coordinator_async_update_with_data(mocker, coordinator):
     # Test
     await coordinator.async_refresh()
     assert coordinator.data == {
-        "alerts": {
+        q.ALERTS: {
             "alarm_led": 0,
             "anomalies_led": 1,
             "device_failure": 0,
@@ -61,12 +62,12 @@ async def test_coordinator_async_update_with_data(mocker, coordinator):
             "system_test": 0,
             "tamper_led": 0,
         },
-        "inputs": {
+        q.INPUTS: {
             0: {"element": 1, "excluded": False, "id": 1, "index": 0, "name": "Entryway Sensor", "status": True},
             1: {"element": 2, "excluded": False, "id": 2, "index": 1, "name": "Outdoor Sensor 1", "status": True},
             2: {"element": 3, "excluded": True, "id": 3, "index": 2, "name": "Outdoor Sensor 2", "status": False},
         },
-        "sectors": {
+        q.SECTORS: {
             0: {"element": 1, "excluded": False, "id": 1, "index": 0, "name": "S1 Living Room", "status": True},
             1: {"element": 2, "excluded": False, "id": 2, "index": 1, "name": "S2 Bedroom", "status": True},
             2: {"element": 3, "excluded": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False},
