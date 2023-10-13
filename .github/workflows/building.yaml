@@ -38,9 +38,6 @@ jobs:
       - name: Build test package
         run: hatch -v build -t sdist
 
-      - name: Build the release candidate package
-        run: hatch -v build -t zipped-directory
-
       - name: Log package content
         run: tar -tvf dist/econnect_metronet-$PKG_VERSION.tar.gz
 

@@ -1,7 +1,6 @@
 [build-system]
 requires = [
   "hatchling",
-  "hatch-zipped-directory",
 ]
 build-backend = "hatchling.build"
 
@@ -81,7 +80,4 @@ allow-direct-references = true
 asyncio_mode = "auto"
 
 [tool.hatch.build.targets.sdist]
-only-include = ["custom_components/econnect_metronet"]
-
-[tool.hatch.build.targets.zipped-directory]
 only-include = ["custom_components/econnect_metronet"]
