@@ -3,8 +3,9 @@ name: 'Building release package'
 on:
   workflow_dispatch:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
+  pull_request:
 
 permissions:
   contents: read
