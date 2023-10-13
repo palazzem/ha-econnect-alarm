@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release_zip_file:
+  release:
     name: HACS release
     runs-on: ubuntu-latest
     permissions:
