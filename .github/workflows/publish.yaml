@@ -10,33 +10,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release_zip_file:
-    name: Publish integration zip file asset
+  release:
+    name: HACS release
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Upgrade pip and install required tools
-        run: |
-          pip install --upgrade pip
-          pip install hatch
-
-      - name: Detect package version
-        run: echo "PKG_VERSION=$(hatch version)" >> "$GITHUB_ENV"
-
-      - name: Build release package (tar)
-        run: hatch -v build -t sdist
-
-      - name: Build release package (zip)
-        run: hatch -v build -t zipped-directory
+        uses: actions/checkout@v4
 
       - name: Build release package (HACS)
         run: |
@@ -47,6 +28,4 @@ jobs:
         uses: softprops/action-gh-release@v0.1.15
         with:
           files: |
-            ${{ github.workspace }}/dist/econnect_metronet-$PKG_VERSION.tar.gz
-            ${{ github.workspace }}/dist/econnect_metronet-$PKG_VERSION.zip
             ${{ github.workspace }}/custom_components/econnect_metronet/hacs_econnect_metronet.zip
