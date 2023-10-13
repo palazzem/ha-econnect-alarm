@@ -60,6 +60,36 @@ def test_device_constructor_with_config(client):
     assert device.inputs_wait == {}
 
 
+def test_item_query_without_status(alarm_device):
+    """Verify that querying items without specifying a status works correctly"""
+    alarm_device.connect("username", "password")
+    # Test
+    alarm_device.update()
+    assert dict(alarm_device.items(q.SECTORS)) == alarm_device._inventory.get(q.SECTORS)
+
+
+def test_item_query_with_status(alarm_device):
+    """Verify that querying items with specifying a status works correctly"""
+    alarm_device.connect("username", "password")
+    # Test
+    alarm_device.update()
+    items = {2: {"element": 3, "excluded": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False}}
+    assert dict(alarm_device.items(q.SECTORS, status=False)) == items
+
+
+def test_item_query_without_inventory(alarm_device):
+    """Verify that querying items without inventory populated works correctly"""
+    alarm_device._inventory = {q.SECTORS: {}, q.INPUTS: {}, q.ALERTS: {}}
+    assert dict(alarm_device.items(q.SECTORS, status=False)) == {}
+
+
+def test_item_with_empty_query(alarm_device):
+    """Verify that querying items with empty query works correctly"""
+    alarm_device._inventory = {q.SECTORS: {}}
+    # Test
+    assert dict(alarm_device.items(q.SECTORS, status=False)) == {}
+
+
 def test_device_connect(client, mocker):
     """Should call authentication endpoints and update internal state."""
     device = AlarmDevice(client)
@@ -198,7 +228,7 @@ def test_device_update_success(client, mocker):
     device.connect("username", "password")
     # Test
     device.update()
-    assert device._connection.query.call_count == 2
+    assert device._connection.query.call_count == 3
     assert device.sectors_armed == sectors_armed
     assert device.sectors_disarmed == sectors_disarmed
     assert device.inputs_alerted == inputs_alerted
@@ -215,17 +245,17 @@ def test_device_inventory_update_success(client, mocker):
     device = AlarmDevice(client)
     mocker.spy(device._connection, "query")
     inventory = {
-        "sectors": {
+        q.SECTORS: {
             0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
             1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
             2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": False, "name": "S3 Outdoor"},
         },
-        "inputs": {
+        q.INPUTS: {
             0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "Entryway Sensor"},
             1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "Outdoor Sensor 1"},
             2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"},
         },
-        "alerts": {
+        q.ALERTS: {
             "alarm_led": 0,
             "anomalies_led": 1,
             "device_failure": 0,
@@ -409,6 +439,36 @@ def test_device_update_state_machine_armed(client, mocker):
                 2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"},
             },
         },
+        {
+            "last_id": 3,
+            "alerts": {
+                "alarm_led": 0,
+                "anomalies_led": 1,
+                "device_failure": 0,
+                "device_low_battery": 0,
+                "device_no_power": 0,
+                "device_no_supervision": 0,
+                "device_system_block": 0,
+                "device_tamper": 0,
+                "gsm_anomaly": 0,
+                "gsm_low_balance": 0,
+                "has_anomaly": False,
+                "input_alarm": 0,
+                "input_bypass": 0,
+                "input_failure": 0,
+                "input_low_battery": 0,
+                "input_no_supervision": 0,
+                "inputs_led": 2,
+                "module_registration": 0,
+                "panel_low_battery": 0,
+                "panel_no_power": 0,
+                "panel_tamper": 0,
+                "pstn_anomaly": 0,
+                "rf_interference": 0,
+                "system_test": 0,
+                "tamper_led": 0,
+            },
+        },
     ]
     # Test
     device.update()
@@ -435,6 +495,36 @@ def test_device_update_state_machine_disarmed(client, mocker):
                 0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "Entryway Sensor"},
                 1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "Outdoor Sensor 1"},
                 2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"},
+            },
+        },
+        {
+            "last_id": 3,
+            "alerts": {
+                "alarm_led": 0,
+                "anomalies_led": 1,
+                "device_failure": 0,
+                "device_low_battery": 0,
+                "device_no_power": 0,
+                "device_no_supervision": 0,
+                "device_system_block": 0,
+                "device_tamper": 0,
+                "gsm_anomaly": 0,
+                "gsm_low_balance": 0,
+                "has_anomaly": False,
+                "input_alarm": 0,
+                "input_bypass": 0,
+                "input_failure": 0,
+                "input_low_battery": 0,
+                "input_no_supervision": 0,
+                "inputs_led": 2,
+                "module_registration": 0,
+                "panel_low_battery": 0,
+                "panel_no_power": 0,
+                "panel_tamper": 0,
+                "pstn_anomaly": 0,
+                "rf_interference": 0,
+                "system_test": 0,
+                "tamper_led": 0,
             },
         },
     ]
