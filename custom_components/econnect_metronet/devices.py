@@ -53,7 +53,6 @@ class AlarmDevice:
 
         # Alarm state
         self.state = STATE_UNAVAILABLE
-        self.alerts = {}
         self.sectors_armed = {}
         self.sectors_disarmed = {}
         self.inputs_alerted = {}
@@ -81,7 +80,7 @@ class AlarmDevice:
         This property provides an iterator over the device's inventory, where each item is a tuple
         containing the sectors's ID and its name.
         Yields:
-            tuple: A tuple where the first item is the sector ID and the second item is the input name.
+            tuple: A tuple where the first item is the sector ID and the second item is the sector name.
         Example:
             >>> device = AlarmDevice()
             >>> list(device.sectors)
@@ -91,20 +90,20 @@ class AlarmDevice:
             yield sector_id, item["name"]
 
     @property
-    def alerts_v2(self):
-        """Generate a sequence of alerts from the device's inventory.
-
-        This function yields key-value pairs representing alerts obtained from the device's inventory.
-
+    def alerts(self):
+        """Iterate over the device's inventory of alerts.
+        This property provides an iterator over the device's inventory, where each item is a tuple
+        containing the alerts's ID and its name.
         Yields:
-            tuple: A tuple where the first item is the alert name and the second item is the alert status.
-
+            tuple: A tuple where the first item is the alert ID and the second item is the alert name.
         Example:
             >>> device = AlarmDevice()
-            >>> list(device.alerts_v2)
-            [{"alarm_led": 0, "anomalies_led": 1}]
+            >>> list(device.alerts)
+            [{1: "alarm_led", 2: "anomalies_led"}]
         """
-        yield from self._inventory.get(q.ALERTS, {}).items()
+        # yield from self._inventory.get(q.ALERTS, {}).items()
+        for alert_id, item in self._inventory.get(q.ALERTS, {}).items():
+            yield alert_id, item["name"]
 
     def items(self, query, status=None):
         """Iterate over items from the device's inventory based on a query and optional status filter.
@@ -122,7 +121,7 @@ class AlarmDevice:
             >>> list(device.items('door', status=True))
             [(1, {'name': 'Front Door', 'status': True, ...})]
         """
-        for item_id, item in self._inventory.get(query).items():
+        for item_id, item in self._inventory.get(query, {}).items():
             if status is None or item.get("status") == status:
                 yield item_id, item
 
@@ -247,9 +246,6 @@ class AlarmDevice:
 
         self._last_ids[q.SECTORS] = sectors.get("last_id", 0)
         self._last_ids[q.INPUTS] = inputs.get("last_id", 0)
-
-        # Update system alerts
-        self.alerts = alerts
 
         # Update the internal state machine (mapping state)
         self.state = self.get_state()

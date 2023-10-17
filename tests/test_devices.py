@@ -35,7 +35,6 @@ def test_device_constructor(client):
     assert device.sectors_disarmed == {}
     assert device.inputs_alerted == {}
     assert device.inputs_wait == {}
-    assert device.alerts == {}
 
 
 def test_device_constructor_with_config(client):
@@ -60,34 +59,133 @@ def test_device_constructor_with_config(client):
     assert device.inputs_wait == {}
 
 
-def test_item_query_without_status(alarm_device):
-    """Verify that querying items without specifying a status works correctly"""
-    alarm_device.connect("username", "password")
-    # Test
-    alarm_device.update()
-    assert dict(alarm_device.items(q.SECTORS)) == alarm_device._inventory.get(q.SECTORS)
+class TestItemInputs:
+    def test_without_status(self, alarm_device):
+        """Verify that querying items without specifying a status works correctly"""
+        alarm_device.connect("username", "password")
+        inputs = {
+            0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "Entryway Sensor"},
+            1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "Outdoor Sensor 1"},
+            2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"},
+        }
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.items(q.INPUTS)) == inputs
+
+    def test_with_status(self, alarm_device):
+        """Verify that querying items with specifying a status works correctly"""
+        alarm_device.connect("username", "password")
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.items(q.INPUTS, status=False)) == {
+            2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"}
+        }
+
+    def test_without_inventory(self, alarm_device):
+        """Verify that querying items without inventory populated works correctly"""
+        alarm_device._inventory = {}
+        # Test
+        assert dict(alarm_device.items(q.INPUTS, status=False)) == {}
+
+    def test_with_empty_query(self, alarm_device):
+        """Verify that querying items with empty query works correctly"""
+        alarm_device._inventory = {q.INPUTS: {}}
+        # Test
+        assert dict(alarm_device.items(q.INPUTS, status=False)) == {}
 
 
-def test_item_query_with_status(alarm_device):
-    """Verify that querying items with specifying a status works correctly"""
-    alarm_device.connect("username", "password")
-    # Test
-    alarm_device.update()
-    items = {2: {"element": 3, "excluded": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False}}
-    assert dict(alarm_device.items(q.SECTORS, status=False)) == items
+class TestItemSectors:
+    def test_without_status(self, alarm_device):
+        """Verify that querying items without specifying a status works correctly"""
+        alarm_device.connect("username", "password")
+        sectors = {
+            0: {"element": 1, "excluded": False, "id": 1, "index": 0, "name": "S1 Living Room", "status": True},
+            1: {"element": 2, "excluded": False, "id": 2, "index": 1, "name": "S2 Bedroom", "status": True},
+            2: {"element": 3, "excluded": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False},
+        }
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.items(q.SECTORS)) == sectors
+
+    def test_with_status(self, alarm_device):
+        """Verify that querying items with specifying a status works correctly"""
+        alarm_device.connect("username", "password")
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.items(q.SECTORS, status=False)) == {
+            2: {"element": 3, "excluded": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False}
+        }
+
+    def test_without_inventory(self, alarm_device):
+        """Verify that querying items without inventory populated works correctly"""
+        alarm_device._inventory = {}
+        # Test
+        assert dict(alarm_device.items(q.SECTORS, status=False)) == {}
+
+    def test_with_empty_query(self, alarm_device):
+        """Verify that querying items with empty query works correctly"""
+        alarm_device._inventory = {q.SECTORS: {}}
+        # Test
+        assert dict(alarm_device.items(q.SECTORS, status=False)) == {}
 
 
-def test_item_query_without_inventory(alarm_device):
-    """Verify that querying items without inventory populated works correctly"""
-    alarm_device._inventory = {q.SECTORS: {}, q.INPUTS: {}, q.ALERTS: {}}
-    assert dict(alarm_device.items(q.SECTORS, status=False)) == {}
+class TestItemAlerts:
+    def test_without_status(self, alarm_device):
+        """Verify that querying items without specifying a status works correctly"""
+        alarm_device.connect("username", "password")
+        alerts = {
+            0: {"name": "alarm_led", "status": 0},
+            1: {"name": "anomalies_led", "status": 1},
+            2: {"name": "device_failure", "status": 0},
+            3: {"name": "device_low_battery", "status": 0},
+            4: {"name": "device_no_power", "status": 0},
+            5: {"name": "device_no_supervision", "status": 0},
+            6: {"name": "device_system_block", "status": 0},
+            7: {"name": "device_tamper", "status": 1},
+            8: {"name": "gsm_anomaly", "status": 0},
+            9: {"name": "gsm_low_balance", "status": 0},
+            10: {"name": "has_anomaly", "status": False},
+            11: {"name": "input_alarm", "status": 0},
+            12: {"name": "input_bypass", "status": 0},
+            13: {"name": "input_failure", "status": 0},
+            14: {"name": "input_low_battery", "status": 0},
+            15: {"name": "input_no_supervision", "status": 0},
+            16: {"name": "inputs_led", "status": 2},
+            17: {"name": "module_registration", "status": 0},
+            18: {"name": "panel_low_battery", "status": 0},
+            19: {"name": "panel_no_power", "status": 0},
+            20: {"name": "panel_tamper", "status": 0},
+            21: {"name": "pstn_anomaly", "status": 0},
+            22: {"name": "rf_interference", "status": 0},
+            23: {"name": "system_test", "status": 0},
+            24: {"name": "tamper_led", "status": 0},
+        }
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.items(q.ALERTS)) == alerts
 
+    def test_with_status(self, alarm_device):
+        """Verify that querying items with specifying a status works correctly"""
+        alarm_device.connect("username", "password")
+        alerts_1 = {
+            1: {"name": "anomalies_led", "status": 1},
+            7: {"name": "device_tamper", "status": 1},
+        }
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.items(q.ALERTS, status=1)) == alerts_1
 
-def test_item_with_empty_query(alarm_device):
-    """Verify that querying items with empty query works correctly"""
-    alarm_device._inventory = {q.SECTORS: {}}
-    # Test
-    assert dict(alarm_device.items(q.SECTORS, status=False)) == {}
+    def test_without_inventory(self, alarm_device):
+        """Verify that querying items without inventory populated works correctly"""
+        alarm_device._inventory = {}
+        # Test
+        assert dict(alarm_device.items(q.ALERTS, status=False)) == {}
+
+    def test_with_empty_query(self, alarm_device):
+        """Verify that querying items with empty query works correctly"""
+        alarm_device._inventory = {q.ALERTS: {}}
+        # Test
+        assert dict(alarm_device.items(q.ALERTS, status=False)) == {}
 
 
 def test_device_connect(client, mocker):
@@ -198,33 +296,6 @@ def test_device_update_success(client, mocker):
     inputs_wait = {
         2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"}
     }
-    alerts = {
-        "alarm_led": 0,
-        "anomalies_led": 1,
-        "device_failure": 0,
-        "device_low_battery": 0,
-        "device_no_power": 0,
-        "device_no_supervision": 0,
-        "device_system_block": 0,
-        "device_tamper": 0,
-        "gsm_anomaly": 0,
-        "gsm_low_balance": 0,
-        "has_anomaly": False,
-        "input_alarm": 0,
-        "input_bypass": 0,
-        "input_failure": 0,
-        "input_low_battery": 0,
-        "input_no_supervision": 0,
-        "inputs_led": 2,
-        "module_registration": 0,
-        "panel_low_battery": 0,
-        "panel_no_power": 0,
-        "panel_tamper": 0,
-        "pstn_anomaly": 0,
-        "rf_interference": 0,
-        "system_test": 0,
-        "tamper_led": 0,
-    }
     device.connect("username", "password")
     # Test
     device.update()
@@ -233,7 +304,6 @@ def test_device_update_success(client, mocker):
     assert device.sectors_disarmed == sectors_disarmed
     assert device.inputs_alerted == inputs_alerted
     assert device.inputs_wait == inputs_wait
-    assert device.alerts == alerts
     assert device._last_ids == {
         q.SECTORS: 4,
         q.INPUTS: 42,
@@ -256,31 +326,31 @@ def test_device_inventory_update_success(client, mocker):
             2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"},
         },
         q.ALERTS: {
-            "alarm_led": 0,
-            "anomalies_led": 1,
-            "device_failure": 0,
-            "device_low_battery": 0,
-            "device_no_power": 0,
-            "device_no_supervision": 0,
-            "device_system_block": 0,
-            "device_tamper": 0,
-            "gsm_anomaly": 0,
-            "gsm_low_balance": 0,
-            "has_anomaly": False,
-            "input_alarm": 0,
-            "input_bypass": 0,
-            "input_failure": 0,
-            "input_low_battery": 0,
-            "input_no_supervision": 0,
-            "inputs_led": 2,
-            "module_registration": 0,
-            "panel_low_battery": 0,
-            "panel_no_power": 0,
-            "panel_tamper": 0,
-            "pstn_anomaly": 0,
-            "rf_interference": 0,
-            "system_test": 0,
-            "tamper_led": 0,
+            0: {"name": "alarm_led", "status": 0},
+            1: {"name": "anomalies_led", "status": 1},
+            2: {"name": "device_failure", "status": 0},
+            3: {"name": "device_low_battery", "status": 0},
+            4: {"name": "device_no_power", "status": 0},
+            5: {"name": "device_no_supervision", "status": 0},
+            6: {"name": "device_system_block", "status": 0},
+            7: {"name": "device_tamper", "status": 1},
+            8: {"name": "gsm_anomaly", "status": 0},
+            9: {"name": "gsm_low_balance", "status": 0},
+            10: {"name": "has_anomaly", "status": False},
+            11: {"name": "input_alarm", "status": 0},
+            12: {"name": "input_bypass", "status": 0},
+            13: {"name": "input_failure", "status": 0},
+            14: {"name": "input_low_battery", "status": 0},
+            15: {"name": "input_no_supervision", "status": 0},
+            16: {"name": "inputs_led", "status": 2},
+            17: {"name": "module_registration", "status": 0},
+            18: {"name": "panel_low_battery", "status": 0},
+            19: {"name": "panel_no_power", "status": 0},
+            20: {"name": "panel_tamper", "status": 0},
+            21: {"name": "pstn_anomaly", "status": 0},
+            22: {"name": "rf_interference", "status": 0},
+            23: {"name": "system_test", "status": 0},
+            24: {"name": "tamper_led", "status": 0},
         },
     }
     device.connect("username", "password")
@@ -354,35 +424,35 @@ class TestAlertsView:
         """Should check if the device property is correctly populated"""
         alarm_device.connect("username", "password")
         alerts = {
-            "alarm_led": 0,
-            "anomalies_led": 1,
-            "device_failure": 0,
-            "device_low_battery": 0,
-            "device_no_power": 0,
-            "device_no_supervision": 0,
-            "device_system_block": 0,
-            "device_tamper": 0,
-            "gsm_anomaly": 0,
-            "gsm_low_balance": 0,
-            "has_anomaly": False,
-            "input_alarm": 0,
-            "input_bypass": 0,
-            "input_failure": 0,
-            "input_low_battery": 0,
-            "input_no_supervision": 0,
-            "inputs_led": 2,
-            "module_registration": 0,
-            "panel_low_battery": 0,
-            "panel_no_power": 0,
-            "panel_tamper": 0,
-            "pstn_anomaly": 0,
-            "rf_interference": 0,
-            "system_test": 0,
-            "tamper_led": 0,
+            0: "alarm_led",
+            1: "anomalies_led",
+            2: "device_failure",
+            3: "device_low_battery",
+            4: "device_no_power",
+            5: "device_no_supervision",
+            6: "device_system_block",
+            7: "device_tamper",
+            8: "gsm_anomaly",
+            9: "gsm_low_balance",
+            10: "has_anomaly",
+            11: "input_alarm",
+            12: "input_bypass",
+            13: "input_failure",
+            14: "input_low_battery",
+            15: "input_no_supervision",
+            16: "inputs_led",
+            17: "module_registration",
+            18: "panel_low_battery",
+            19: "panel_no_power",
+            20: "panel_tamper",
+            21: "pstn_anomaly",
+            22: "rf_interference",
+            23: "system_test",
+            24: "tamper_led",
         }
         # Test
         alarm_device.update()
-        assert dict(alarm_device.alerts_v2) == alerts
+        assert dict(alarm_device.alerts) == alerts
 
     def test_inventory_empty(self, alarm_device):
         """Ensure the property returns an empty dict if _inventory is empty"""
@@ -390,7 +460,7 @@ class TestAlertsView:
         # Test
         alarm_device.update()
         alarm_device._inventory = {}
-        assert dict(alarm_device.alerts_v2) == {}
+        assert dict(alarm_device.alerts) == {}
 
     def test_alerts_property_empty(self, alarm_device):
         """Ensure the property returns an empty dict if alerts key is not in _inventory"""
@@ -398,7 +468,7 @@ class TestAlertsView:
         # Test
         alarm_device.update()
         alarm_device._inventory = {"alerts": {}}
-        assert dict(alarm_device.alerts_v2) == {}
+        assert dict(alarm_device.alerts) == {}
 
 
 def test_device_update_http_error(client, mocker):

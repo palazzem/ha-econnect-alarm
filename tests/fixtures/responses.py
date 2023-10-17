@@ -265,7 +265,7 @@ STATUS = """
             "InputBypass": 0,
             "InputLowBattery": 0,
             "InputNoSupervision": 0,
-            "DeviceTamper": 0,
+            "DeviceTamper": 1,
             "DeviceFailure": 0,
             "DeviceNoPower": 0,
             "DeviceLowBattery": 0,

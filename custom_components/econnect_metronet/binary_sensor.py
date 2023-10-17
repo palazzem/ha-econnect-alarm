@@ -38,11 +38,10 @@ async def async_setup_entry(
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{sensor_id}"
         sensors.append(InputSensor(unique_id, sensor_id, entry, name, coordinator, device))
 
-    # Retrieve alarm system global status
-    alerts = await hass.async_add_executor_job(device._connection.get_status)
-    for alert_id, _ in alerts.items():
-        unique_id = f"{entry.entry_id}_{DOMAIN}_{alert_id}"
-        sensors.append(AlertSensor(unique_id, alert_id, entry, coordinator, device))
+    # Iterate through the alerts of the provided device and create AlertSensor objects
+    for alert_id, name in device.alerts:
+        unique_id = f"{entry.entry_id}_{DOMAIN}_{query.ALERTS}_{alert_id}"
+        sensors.append(AlertSensor(unique_id, alert_id, entry, name, coordinator, device))
 
     async_add_entities(sensors)
 
@@ -55,17 +54,19 @@ class AlertSensor(CoordinatorEntity, BinarySensorEntity):
     def __init__(
         self,
         unique_id: str,
-        alert_id: str,
+        alert_id: int,
         config: ConfigEntry,
+        name: str,
         coordinator: DataUpdateCoordinator,
         device: AlarmDevice,
     ) -> None:
         """Construct."""
         super().__init__(coordinator)
-        self.entity_id = generate_entity_id(config, alert_id)
+        self.entity_id = generate_entity_id(config, name)
+        self._name = name
+        self._device = device
         self._unique_id = unique_id
         self._alert_id = alert_id
-        self._device = device
 
     @property
     def unique_id(self) -> str:
@@ -75,7 +76,7 @@ class AlertSensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def translation_key(self) -> str:
         """Return the translation key to translate the entity's name and states."""
-        return self._alert_id
+        return self._name
 
     @property
     def icon(self) -> str:
@@ -89,9 +90,11 @@ class AlertSensor(CoordinatorEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool:
-        """Return the sensor status (on/off)."""
-        state = self._device.alerts.get(self._alert_id)
-        return state > 1 if self._alert_id == "anomalies_led" else state > 0
+        """Return the binary sensor status (on/off)."""
+        for item_id, item in self._device.items(query.ALERTS):
+            if item_id == self._alert_id:
+                return bool(item.get("status", False))
+        return False
 
 
 class InputSensor(CoordinatorEntity, BinarySensorEntity):
