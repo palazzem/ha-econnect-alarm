@@ -119,7 +119,7 @@ class TestInputSensor:
         # Ensure the sensor attribute is_on has the right status True
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = InputSensor("test_id", 1, config_entry, "Outdoor Sensor 1", coordinator, alarm_device)
-        alarm_device.inputs_alerted.update({entity._sensor_id: {}})
+        # alarm_device.inputs_alerted.update({entity._sensor_id: {}})
         assert entity.is_on is True
 
 
