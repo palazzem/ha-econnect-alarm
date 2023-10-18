@@ -4,7 +4,7 @@ import logging
 
 from elmo.api.client import ElmoClient
 from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, ConfigType
 from homeassistant.core import HomeAssistant
 
 from .const import (
@@ -41,9 +41,14 @@ async def async_migrate_entry(hass, config: ConfigEntry):
     return True
 
 
-async def async_setup(hass: HomeAssistant, config: dict):
-    """Set up the E-connect Alarm component."""
-    hass.data[DOMAIN] = {}
+async def async_setup(hass: HomeAssistant, config: ConfigType):
+    """Initialize the E-connect Alarm integration.
+
+    This method exposes eventual YAML configuration options under the DOMAIN key.
+    Use YAML configurations only to expose experimental settings, otherwise use
+    the configuration flow.
+    """
+    hass.data[DOMAIN] = config.get(DOMAIN, {})
     return True
 
 
