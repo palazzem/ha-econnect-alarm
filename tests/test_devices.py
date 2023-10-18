@@ -194,7 +194,7 @@ class TestItemAlerts:
 
     def test_with_empty_query(self, alarm_device):
         """Verify that querying items with empty query works correctly"""
-        alarm_device._inventory = {q.ALERTS: {}}
+        alarm_device._inventory = {11: {}}
         # Test
         assert dict(alarm_device.items(q.ALERTS, status=False)) == {}
 
@@ -326,17 +326,17 @@ def test_device_inventory_update_success(client, mocker):
     device = AlarmDevice(client)
     mocker.spy(device._connection, "query")
     inventory = {
-        q.SECTORS: {
+        9: {
             0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
             1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
             2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": False, "name": "S3 Outdoor"},
         },
-        q.INPUTS: {
+        10: {
             0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "Entryway Sensor"},
             1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "Outdoor Sensor 1"},
             2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"},
         },
-        q.ALERTS: {
+        11: {
             0: {"name": "alarm_led", "status": 0},
             1: {"name": "anomalies_led", "status": 1},
             2: {"name": "device_failure", "status": 0},
