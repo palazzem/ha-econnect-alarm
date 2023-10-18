@@ -26,7 +26,7 @@ def test_device_constructor(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
-    assert device._last_ids == {q.SECTORS: 0, q.INPUTS: 0}
+    assert device._last_ids == {10: 0, 9: 0}
     assert device._sectors_home == []
     assert device._sectors_night == []
     assert device._sectors_vacation == []
@@ -48,7 +48,7 @@ def test_device_constructor_with_config(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
-    assert device._last_ids == {q.SECTORS: 0, q.INPUTS: 0}
+    assert device._last_ids == {10: 0, 9: 0}
     assert device._sectors_home == [3, 4]
     assert device._sectors_night == [1, 2, 3]
     assert device._sectors_vacation == [5, 3]
@@ -89,7 +89,7 @@ class TestItemInputs:
 
     def test_with_empty_query(self, alarm_device):
         """Verify that querying items with empty query works correctly"""
-        alarm_device._inventory = {q.INPUTS: {}}
+        alarm_device._inventory = {10: {}}
         # Test
         assert dict(alarm_device.items(q.INPUTS, status=False)) == {}
 
@@ -124,7 +124,7 @@ class TestItemSectors:
 
     def test_with_empty_query(self, alarm_device):
         """Verify that querying items with empty query works correctly"""
-        alarm_device._inventory = {q.SECTORS: {}}
+        alarm_device._inventory = {10: {}}
         # Test
         assert dict(alarm_device.items(q.SECTORS, status=False)) == {}
 
@@ -316,8 +316,8 @@ def test_device_update_success(client, mocker):
     assert device.inputs_alerted == inputs_alerted
     assert device.inputs_wait == inputs_wait
     assert device._last_ids == {
-        q.SECTORS: 4,
-        q.INPUTS: 42,
+        9: 4,
+        10: 42,
     }
 
 
