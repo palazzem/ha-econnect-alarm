@@ -33,8 +33,6 @@ def test_device_constructor(client):
     assert device.state == STATE_UNAVAILABLE
     assert device.sectors_armed == {}
     assert device.sectors_disarmed == {}
-    assert device.inputs_alerted == {}
-    assert device.inputs_wait == {}
 
 
 def test_device_constructor_with_config(client):
@@ -55,8 +53,6 @@ def test_device_constructor_with_config(client):
     assert device.state == STATE_UNAVAILABLE
     assert device.sectors_armed == {}
     assert device.sectors_disarmed == {}
-    assert device.inputs_alerted == {}
-    assert device.inputs_wait == {}
 
 
 class TestItemInputs:
@@ -300,21 +296,12 @@ def test_device_update_success(client, mocker):
     sectors_disarmed = {
         2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": False, "name": "S3 Outdoor"}
     }
-    inputs_alerted = {
-        0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "Entryway Sensor"},
-        1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "Outdoor Sensor 1"},
-    }
-    inputs_wait = {
-        2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"}
-    }
     device.connect("username", "password")
     # Test
     device.update()
     assert device._connection.query.call_count == 3
     assert device.sectors_armed == sectors_armed
     assert device.sectors_disarmed == sectors_disarmed
-    assert device.inputs_alerted == inputs_alerted
-    assert device.inputs_wait == inputs_wait
     assert device._last_ids == {
         9: 4,
         10: 42,
@@ -464,21 +451,42 @@ class TestAlertsView:
         assert dict(alarm_device.alerts) == {}
 
 
-class TestGetStatus:
+class TestGetStatusInputs:
+    def test_get_status_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        # Test
+        assert alarm_device.get_status(q.INPUTS, 2) is False
+
+    def test_inventory_empty(self, alarm_device):
+        """Ensure the property returns a KeyError if _inventory is empty"""
+        # Test
+        alarm_device._inventory = {}
+        with pytest.raises(KeyError):
+            assert alarm_device.get_status(q.INPUTS, 2)
+
+    def test_alerts_property_empty(self, alarm_device):
+        """Ensure the property returns a KeyError if inputs key is not in _inventory"""
+        # Test
+        alarm_device._inventory = {10: {}}
+        with pytest.raises(KeyError):
+            assert alarm_device.get_status(q.INPUTS, 2)
+
+
+class TestGetStatusAlerts:
     def test_get_status_populated(self, alarm_device):
         """Should check if the device property is correctly populated"""
         # Test
         assert alarm_device.get_status(q.ALERTS, 2) == 0
 
     def test_inventory_empty(self, alarm_device):
-        """Ensure the property returns an empty dict if _inventory is empty"""
+        """Ensure the property returns a KeyError if _inventory is empty"""
         # Test
         alarm_device._inventory = {}
         with pytest.raises(KeyError):
             assert alarm_device.get_status(q.ALERTS, 2)
 
     def test_alerts_property_empty(self, alarm_device):
-        """Ensure the property returns an empty dict if alerts key is not in _inventory"""
+        """Ensure the property returns a KeyError if alerts key is not in _inventory"""
         # Test
         alarm_device._inventory = {11: {}}
         with pytest.raises(KeyError):
