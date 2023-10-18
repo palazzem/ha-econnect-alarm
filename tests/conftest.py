@@ -5,6 +5,7 @@ import responses
 from elmo.api.client import ElmoClient
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
+from custom_components.econnect_metronet import async_setup
 from custom_components.econnect_metronet.alarm_control_panel import EconnectAlarm
 from custom_components.econnect_metronet.coordinator import AlarmCoordinator
 from custom_components.econnect_metronet.devices import AlarmDevice
@@ -16,6 +17,13 @@ pytest_plugins = ["tests.hass.fixtures"]
 
 @pytest.fixture
 async def hass(hass):
+    """Create a Home Assistant instance for testing.
+
+    This fixture forces some settings to simulate a bootstrap process:
+    - `custom_components` is reset to properly test the integration
+    - `async_setup()` method is called
+    """
+    await async_setup(hass, {})
     hass.data["custom_components"] = None
     yield hass
 

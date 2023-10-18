@@ -61,6 +61,9 @@ class AlertSensor(CoordinatorEntity, BinarySensorEntity):
         device: AlarmDevice,
     ) -> None:
         """Construct."""
+        # Enable experimental settings from the configuration file
+        self._attr_force_update = coordinator.hass.data[DOMAIN].get("force_update", False)
+
         super().__init__(coordinator)
         self.entity_id = generate_entity_id(config, name)
         self._name = name
@@ -113,6 +116,9 @@ class InputSensor(CoordinatorEntity, BinarySensorEntity):
         device: AlarmDevice,
     ) -> None:
         """Construct."""
+        # Enable experimental settings from the configuration file
+        self._attr_force_update = coordinator.hass.data[DOMAIN].get("force_update", False)
+
         super().__init__(coordinator)
         self.entity_id = generate_entity_id(config, name)
         self._name = name
@@ -156,6 +162,9 @@ class SectorSensor(CoordinatorEntity, BinarySensorEntity):
         device: AlarmDevice,
     ) -> None:
         """Construct."""
+        # Enable experimental settings from the configuration file
+        self._attr_force_update = coordinator.hass.data[DOMAIN].get("force_update", False)
+
         super().__init__(coordinator)
         self.entity_id = generate_entity_id(config, name)
         self._name = name
