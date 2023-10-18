@@ -12,7 +12,13 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
 
-from .const import DOMAIN, KEY_COORDINATOR, KEY_DEVICE
+from .const import (
+    CONF_EXPERIMENTAL,
+    CONF_FORCE_UPDATE,
+    DOMAIN,
+    KEY_COORDINATOR,
+    KEY_DEVICE,
+)
 from .devices import AlarmDevice
 from .helpers import generate_entity_id
 
@@ -62,7 +68,8 @@ class AlertSensor(CoordinatorEntity, BinarySensorEntity):
     ) -> None:
         """Construct."""
         # Enable experimental settings from the configuration file
-        self._attr_force_update = coordinator.hass.data[DOMAIN].get("force_update", False)
+        experimental = coordinator.hass.data[DOMAIN].get(CONF_EXPERIMENTAL, {})
+        self._attr_force_update = experimental.get(CONF_FORCE_UPDATE, False)
 
         super().__init__(coordinator)
         self.entity_id = generate_entity_id(config, name)
@@ -117,7 +124,8 @@ class InputSensor(CoordinatorEntity, BinarySensorEntity):
     ) -> None:
         """Construct."""
         # Enable experimental settings from the configuration file
-        self._attr_force_update = coordinator.hass.data[DOMAIN].get("force_update", False)
+        experimental = coordinator.hass.data[DOMAIN].get(CONF_EXPERIMENTAL, {})
+        self._attr_force_update = experimental.get(CONF_FORCE_UPDATE, False)
 
         super().__init__(coordinator)
         self.entity_id = generate_entity_id(config, name)
@@ -163,7 +171,8 @@ class SectorSensor(CoordinatorEntity, BinarySensorEntity):
     ) -> None:
         """Construct."""
         # Enable experimental settings from the configuration file
-        self._attr_force_update = coordinator.hass.data[DOMAIN].get("force_update", False)
+        experimental = coordinator.hass.data[DOMAIN].get(CONF_EXPERIMENTAL, {})
+        self._attr_force_update = experimental.get(CONF_FORCE_UPDATE, False)
 
         super().__init__(coordinator)
         self.entity_id = generate_entity_id(config, name)

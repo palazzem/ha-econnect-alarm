@@ -20,3 +20,7 @@ KEY_UNSUBSCRIBER = "options_unsubscriber"
 # Fast scanning is required for real-time updates of the alarm state.
 SCAN_INTERVAL_DEFAULT = 5
 POLLING_TIMEOUT = 20
+
+# Experimental Settings
+CONF_EXPERIMENTAL = "experimental"
+CONF_FORCE_UPDATE = "force_update"
