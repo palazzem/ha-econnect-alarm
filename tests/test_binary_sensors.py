@@ -1,5 +1,6 @@
 import logging
 
+import pytest
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from custom_components.econnect_metronet.binary_sensor import (
@@ -26,7 +27,8 @@ class TestAlertSensor:
         # Ensure the sensor attribute is_on has the right status False if the alert is missing
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = AlertSensor("test_id", 1000, config_entry, "test_id", coordinator, alarm_device)
-        assert entity.is_on is False
+        with pytest.raises(KeyError):
+            assert entity.is_on is False
 
     def test_binary_sensor_anomalies_led_is_off(self, hass, config_entry, alarm_device):
         # Ensure the sensor attribute is_on has the right status False

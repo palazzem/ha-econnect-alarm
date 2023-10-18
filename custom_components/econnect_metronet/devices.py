@@ -196,6 +196,9 @@ class AlarmDevice:
 
         return STATE_ALARM_ARMED_AWAY
 
+    def get_status(self, query, id):
+        return self._inventory[query][id]["status"]
+
     def update(self):
         """Updates the internal state of the device based on the latest data.
 

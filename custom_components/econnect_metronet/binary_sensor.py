@@ -91,13 +91,12 @@ class AlertSensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         """Return the binary sensor status (on/off)."""
-        for item_id, item in self._device.items(query.ALERTS):
-            if item_id == self._alert_id:
-                if item.get("name") == "anomalies_led":
-                    return True if item.get("status") > 1 else False
-                else:
-                    return bool(item.get("status", False))
-        return False
+        # status = bool(self._device.items(query.ALERTS))[self._alert_id].get("status")
+        status = self._device.get_status(query.ALERTS, self._alert_id)
+        if self._name == "anomalies_led":
+            return status > 1
+        else:
+            return bool(status)
 
 
 class InputSensor(CoordinatorEntity, BinarySensorEntity):
