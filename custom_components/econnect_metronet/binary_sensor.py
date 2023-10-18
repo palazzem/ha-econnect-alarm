@@ -93,7 +93,7 @@ class AlertSensor(CoordinatorEntity, BinarySensorEntity):
         """Return the binary sensor status (on/off)."""
         for item_id, item in self._device.items(query.ALERTS):
             if item_id == self._alert_id:
-                if item_id == 1:
+                if item.get("name") == "anomalies_led":
                     return True if item.get("status") > 1 else False
                 else:
                     return bool(item.get("status", False))

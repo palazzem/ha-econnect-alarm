@@ -101,7 +101,6 @@ class AlarmDevice:
             >>> list(device.alerts)
             [{1: "alarm_led", 2: "anomalies_led"}]
         """
-        # yield from self._inventory.get(q.ALERTS, {}).items()
         for alert_id, item in self._inventory.get(q.ALERTS, {}).items():
             yield alert_id, item["name"]
 

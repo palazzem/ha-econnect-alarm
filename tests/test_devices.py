@@ -164,7 +164,7 @@ class TestItemAlerts:
         alarm_device.update()
         assert dict(alarm_device.items(q.ALERTS)) == alerts
 
-    def test_with_status(self, alarm_device):
+    def test_with_status_1(self, alarm_device):
         """Verify that querying items with specifying a status works correctly"""
         alarm_device.connect("username", "password")
         alerts_1 = {
@@ -174,6 +174,17 @@ class TestItemAlerts:
         # Test
         alarm_device.update()
         assert dict(alarm_device.items(q.ALERTS, status=1)) == alerts_1
+
+    def test_with_status_true(self, alarm_device):
+        """Verify that querying items with specifying a status works correctly"""
+        alarm_device.connect("username", "password")
+        alerts_true = {
+            1: {"name": "anomalies_led", "status": True},
+            7: {"name": "device_tamper", "status": True},
+        }
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.items(q.ALERTS, status=1)) == alerts_true
 
     def test_without_inventory(self, alarm_device):
         """Verify that querying items without inventory populated works correctly"""

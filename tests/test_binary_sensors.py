@@ -38,6 +38,14 @@ class TestAlertSensor:
         entity = AlertSensor("anomalies_led", 1, config_entry, "anomalies_led", coordinator, alarm_device)
         assert entity.is_on is False
 
+    def test_binary_sensor_anomalies_led_is_on(self, hass, config_entry, alarm_device):
+        alarm_device.connect("username", "password")
+        alarm_device.update()
+        alarm_device._inventory[11][1]["status"] = 2
+        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        entity = AlertSensor("anomalies_led", 1, config_entry, "anomalies_led", coordinator, alarm_device)
+        assert entity.is_on is True
+
     def test_binary_sensor_name(hass, config_entry, alarm_device):
         # Ensure the alert has the right translation key
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
