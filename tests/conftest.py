@@ -26,6 +26,7 @@ def alarm_device(client):
 
     This fixture provides a scoped instance of AlarmDevice initialized with
     the provided client.
+    The device is connected and updated with mocked data
 
     Args:
         client: The client used to initialize the AlarmDevice.
@@ -34,6 +35,8 @@ def alarm_device(client):
         An instance of AlarmDevice.
     """
     device = AlarmDevice(client)
+    device.connect("username", "password")
+    device.update()
     yield device
 
 
