@@ -10,36 +10,72 @@ from custom_components.econnect_metronet.binary_sensor import (
 
 
 class TestAlertSensor:
+    def test_binary_sensor_is_on(self, hass, config_entry, alarm_device):
+        alarm_device.connect("username", "password")
+        alarm_device.update()
+        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        entity = AlertSensor("device_tamper", 7, config_entry, "device_tamper", coordinator, alarm_device)
+        assert entity.is_on is True
+
+    def test_binary_sensor_is_off(self, hass, config_entry, alarm_device):
+        alarm_device.connect("username", "password")
+        alarm_device.update()
+        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        entity = AlertSensor("device_failure", 2, config_entry, "device_failure", coordinator, alarm_device)
+        assert entity.is_on is False
+
+    def test_binary_sensor_missing(self, hass, config_entry, alarm_device):
+        alarm_device.connect("username", "password")
+        alarm_device.update()
+        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        entity = AlertSensor("test_id", 1000, config_entry, "test_id", coordinator, alarm_device)
+        assert entity.is_on is False
+
+    def test_binary_sensor_anomalies_led_is_off(self, hass, config_entry, alarm_device):
+        alarm_device.connect("username", "password")
+        alarm_device.update()
+        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        entity = AlertSensor("anomalies_led", 1, config_entry, "anomalies_led", coordinator, alarm_device)
+        assert entity.is_on is False
+
+    def test_binary_sensor_anomalies_led_is_on(self, hass, config_entry, alarm_device):
+        alarm_device.connect("username", "password")
+        alarm_device.update()
+        alarm_device._inventory[11][1]["status"] = 2
+        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        entity = AlertSensor("anomalies_led", 1, config_entry, "anomalies_led", coordinator, alarm_device)
+        assert entity.is_on is True
+
     def test_binary_sensor_name(hass, config_entry, alarm_device):
         # Ensure the alert has the right translation key
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
-        entity = AlertSensor("test_id", "has_anomalies", config_entry, coordinator, alarm_device)
+        entity = AlertSensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
         assert entity.translation_key == "has_anomalies"
 
     def test_binary_sensor_name_with_system_name(hass, config_entry, alarm_device):
         # The system name doesn't change the translation key
         config_entry.data["system_name"] = "Home"
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
-        entity = AlertSensor("test_id", "has_anomalies", config_entry, coordinator, alarm_device)
+        entity = AlertSensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
         assert entity.translation_key == "has_anomalies"
 
     def test_binary_sensor_entity_id(hass, config_entry, alarm_device):
         # Ensure the alert has a valid Entity ID
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
-        entity = AlertSensor("test_id", "has_anomalies", config_entry, coordinator, alarm_device)
+        entity = AlertSensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
         assert entity.entity_id == "econnect_metronet.econnect_metronet_test_user_has_anomalies"
 
     def test_binary_sensor_entity_id_with_system_name(hass, config_entry, alarm_device):
         # Ensure the Entity ID takes into consideration the system name
         config_entry.data["system_name"] = "Home"
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
-        entity = AlertSensor("test_id", "has_anomalies", config_entry, coordinator, alarm_device)
+        entity = AlertSensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
         assert entity.entity_id == "econnect_metronet.econnect_metronet_home_has_anomalies"
 
     def test_binary_sensor_icon(hass, config_entry, alarm_device):
         # Ensure the sensor has the right icon
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
-        entity = AlertSensor("test_id", "has_anomalies", config_entry, coordinator, alarm_device)
+        entity = AlertSensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
         assert entity.icon == "hass:alarm-light"
 
 
