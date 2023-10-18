@@ -1,4 +1,5 @@
 import logging
+from typing import Union
 
 from elmo import query as q
 from elmo.api.exceptions import CodeError, CredentialError, LockError, ParseError
@@ -196,7 +197,16 @@ class AlarmDevice:
 
         return STATE_ALARM_ARMED_AWAY
 
-    def get_status(self, query, id):
+    def get_status(self, query: int, id: int) -> Union[bool, int]:
+        """Get the status of an item in the device inventory specified by query and id.
+
+        Parameters:
+            query (int): The query index.
+            id (int): The item ID.
+
+        Returns:
+            int: The status of the item.
+        """
         return self._inventory[query][id]["status"]
 
     def update(self):
