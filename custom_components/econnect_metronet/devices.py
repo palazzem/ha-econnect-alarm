@@ -56,8 +56,6 @@ class AlarmDevice:
         self.state = STATE_UNAVAILABLE
         self.sectors_armed = {}
         self.sectors_disarmed = {}
-        self.inputs_alerted = {}
-        self.inputs_wait = {}
         self._inventory = {}
 
     @property
@@ -250,11 +248,9 @@ class AlarmDevice:
         self._inventory.update({q.INPUTS: inputs["inputs"]})
         self._inventory.update({q.ALERTS: alerts})
 
-        # Filter sectors and inputs
+        # Filter sectors
         self.sectors_armed = _filter_data(sectors, "sectors", True)
         self.sectors_disarmed = _filter_data(sectors, "sectors", False)
-        self.inputs_alerted = _filter_data(inputs, "inputs", True)
-        self.inputs_wait = _filter_data(inputs, "inputs", False)
 
         self._last_ids[q.SECTORS] = sectors.get("last_id", 0)
         self._last_ids[q.INPUTS] = inputs.get("last_id", 0)

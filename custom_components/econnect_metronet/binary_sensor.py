@@ -40,9 +40,10 @@ async def async_setup_entry(
         unique_id = f"{entry.entry_id}_{DOMAIN}_{query.SECTORS}_{sector_id}"
         sensors.append(SectorSensor(unique_id, sector_id, entry, name, coordinator, device))
 
-    for sensor_id, name in inventory[query.INPUTS].items():
-        unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{sensor_id}"
-        sensors.append(InputSensor(unique_id, sensor_id, entry, name, coordinator, device))
+    # Iterate through the inputs of the provided device and create InputSensor objects
+    for input_id, name in device.inputs:
+        unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{input_id}"
+        sensors.append(InputSensor(unique_id, input_id, entry, name, coordinator, device))
 
     # Iterate through the alerts of the provided device and create AlertSensor objects
     for alert_id, name in device.alerts:
@@ -116,7 +117,7 @@ class InputSensor(CoordinatorEntity, BinarySensorEntity):
     def __init__(
         self,
         unique_id: str,
-        sensor_id: int,
+        input_id: int,
         config: ConfigEntry,
         name: str,
         coordinator: DataUpdateCoordinator,
@@ -132,7 +133,7 @@ class InputSensor(CoordinatorEntity, BinarySensorEntity):
         self._name = name
         self._device = device
         self._unique_id = unique_id
-        self._sensor_id = sensor_id
+        self._input_id = input_id
 
     @property
     def unique_id(self) -> str:
@@ -152,7 +153,7 @@ class InputSensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         """Return the binary sensor status (on/off)."""
-        return self._device.inputs_alerted.get(self._sensor_id) is not None
+        return bool(self._device.get_status(query.INPUTS, self._input_id))
 
 
 class SectorSensor(CoordinatorEntity, BinarySensorEntity):
