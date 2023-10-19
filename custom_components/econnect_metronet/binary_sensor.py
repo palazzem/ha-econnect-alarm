@@ -1,5 +1,5 @@
 """Module for e-connect binary sensors (sectors, inputs and alert)."""
-from elmo import query
+from elmo import query as q
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
@@ -32,22 +32,22 @@ async def async_setup_entry(
     device = hass.data[DOMAIN][entry.entry_id][KEY_DEVICE]
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
     # Load all entities and register sectors and inputs
-    # TODO: use a public API (change in econnect-python)
-    # TODO: check why I can't use directly the device (maybe it's not loaded at this time)
+
     sensors = []
-    inventory = await hass.async_add_executor_job(device._connection._get_descriptions)
-    for sector_id, name in inventory[query.SECTORS].items():
-        unique_id = f"{entry.entry_id}_{DOMAIN}_{query.SECTORS}_{sector_id}"
+
+    # Iterate through the sectors of the provided device and create InputSensor objects
+    for sector_id, name in device.sectors:
+        unique_id = f"{entry.entry_id}_{DOMAIN}_{q.SECTORS}_{sector_id}"
         sensors.append(SectorSensor(unique_id, sector_id, entry, name, coordinator, device))
 
     # Iterate through the inputs of the provided device and create InputSensor objects
     for input_id, name in device.inputs:
-        unique_id = f"{entry.entry_id}_{DOMAIN}_{query.INPUTS}_{input_id}"
+        unique_id = f"{entry.entry_id}_{DOMAIN}_{q.INPUTS}_{input_id}"
         sensors.append(InputSensor(unique_id, input_id, entry, name, coordinator, device))
 
     # Iterate through the alerts of the provided device and create AlertSensor objects
     for alert_id, name in device.alerts:
-        unique_id = f"{entry.entry_id}_{DOMAIN}_{query.ALERTS}_{alert_id}"
+        unique_id = f"{entry.entry_id}_{DOMAIN}_{q.ALERTS}_{alert_id}"
         sensors.append(AlertSensor(unique_id, alert_id, entry, name, coordinator, device))
 
     async_add_entities(sensors)
@@ -102,7 +102,7 @@ class AlertSensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         """Return the binary sensor status (on/off)."""
-        status = self._device.get_status(query.ALERTS, self._alert_id)
+        status = self._device.get_status(q.ALERTS, self._alert_id)
         if self._name == "anomalies_led":
             return status > 1
         else:
@@ -153,7 +153,7 @@ class InputSensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         """Return the binary sensor status (on/off)."""
-        return bool(self._device.get_status(query.INPUTS, self._input_id))
+        return bool(self._device.get_status(q.INPUTS, self._input_id))
 
 
 class SectorSensor(CoordinatorEntity, BinarySensorEntity):
@@ -200,4 +200,4 @@ class SectorSensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         """Return the binary sensor status (on/off)."""
-        return self._device.sectors_armed.get(self._sector_id) is not None
+        return bool(self._device.get_status(q.SECTORS, self._sector_id))

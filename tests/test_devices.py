@@ -31,8 +31,6 @@ def test_device_constructor(client):
     assert device._sectors_night == []
     assert device._sectors_vacation == []
     assert device.state == STATE_UNAVAILABLE
-    assert device.sectors_armed == {}
-    assert device.sectors_disarmed == {}
 
 
 def test_device_constructor_with_config(client):
@@ -51,8 +49,6 @@ def test_device_constructor_with_config(client):
     assert device._sectors_night == [1, 2, 3]
     assert device._sectors_vacation == [5, 3]
     assert device.state == STATE_UNAVAILABLE
-    assert device.sectors_armed == {}
-    assert device.sectors_disarmed == {}
 
 
 class TestItemInputs:
@@ -289,19 +285,10 @@ def test_device_update_success(client, mocker):
     """Should check store the e-connect System status in the device object."""
     device = AlarmDevice(client)
     mocker.spy(device._connection, "query")
-    sectors_armed = {
-        0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
-        1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
-    }
-    sectors_disarmed = {
-        2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": False, "name": "S3 Outdoor"}
-    }
     device.connect("username", "password")
     # Test
     device.update()
     assert device._connection.query.call_count == 3
-    assert device.sectors_armed == sectors_armed
-    assert device.sectors_disarmed == sectors_disarmed
     assert device._last_ids == {
         9: 4,
         10: 42,
@@ -377,7 +364,7 @@ class TestInputsView:
     def test_input_property_empty(self, alarm_device):
         """Ensure the property returns an empty dict if inputs key is not in _inventory"""
         # Test
-        alarm_device._inventory = {"inputs": {}}
+        alarm_device._inventory = {10: {}}
         assert dict(alarm_device.inputs) == {}
 
 
@@ -401,7 +388,7 @@ class TestSectorsView:
     def test_sectors_property_empty(self, alarm_device):
         """Ensure the property returns an empty dict if outputs key is not in _inventory"""
         # Test
-        alarm_device._inventory = {"outputs": {}}
+        alarm_device._inventory = {9: {}}
         assert dict(alarm_device.sectors) == {}
 
 
@@ -447,7 +434,7 @@ class TestAlertsView:
     def test_alerts_property_empty(self, alarm_device):
         """Ensure the property returns an empty dict if alerts key is not in _inventory"""
         # Test
-        alarm_device._inventory = {"alerts": {}}
+        alarm_device._inventory = {11: {}}
         assert dict(alarm_device.alerts) == {}
 
 
@@ -470,6 +457,27 @@ class TestGetStatusInputs:
         alarm_device._inventory = {10: {}}
         with pytest.raises(KeyError):
             assert alarm_device.get_status(q.INPUTS, 2)
+
+
+class TestGetStatusSectors:
+    def test_get_status_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        # Test
+        assert alarm_device.get_status(q.SECTORS, 2) is False
+
+    def test_inventory_empty(self, alarm_device):
+        """Ensure the property returns a KeyError if _inventory is empty"""
+        # Test
+        alarm_device._inventory = {}
+        with pytest.raises(KeyError):
+            assert alarm_device.get_status(q.SECTORS, 2)
+
+    def test_alerts_property_empty(self, alarm_device):
+        """Ensure the property returns a KeyError if sectors key is not in _inventory"""
+        # Test
+        alarm_device._inventory = {9: {}}
+        with pytest.raises(KeyError):
+            assert alarm_device.get_status(q.SECTORS, 2)
 
 
 class TestGetStatusAlerts:
@@ -748,119 +756,126 @@ def test_device_disarm_code_error(client, mocker):
     assert device._connection.disarm.call_count == 0
 
 
-def test_get_state_no_sectors_armed(client):
+def test_get_state_no_sectors_armed(alarm_device):
     """Test when no sectors are armed."""
-    device = AlarmDevice(client)
-    device._sectors_home = []
-    device._sectors_night = []
-    device.sectors_armed = {}
+    alarm_device._sectors_home = []
+    alarm_device._sectors_night = []
+    alarm_device._inventory = {9: {}}
     # Test
-    assert device.get_state() == STATE_ALARM_DISARMED
+    assert alarm_device.get_state() == STATE_ALARM_DISARMED
 
 
-def test_get_state_armed_home(client):
+def test_get_state_armed_home(alarm_device):
     """Test when sectors are armed for home."""
-    device = AlarmDevice(client)
-    device._sectors_home = [1, 2, 3]
-    device.sectors_armed = {
-        0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
-        1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
-        2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    alarm_device._sectors_home = [1, 2, 3]
+    alarm_device._inventory = {
+        9: {
+            0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
+            1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
+            2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": True, "name": "S3 Outdoor"},
+        }
     }
     # Test
-    assert device.get_state() == STATE_ALARM_ARMED_HOME
+    assert alarm_device.get_state() == STATE_ALARM_ARMED_HOME
 
 
-def test_get_state_armed_home_out_of_order(client):
+def test_get_state_armed_home_out_of_order(alarm_device):
     """Test when sectors are armed for home (out of order)."""
-    device = AlarmDevice(client)
-    device._sectors_home = [2, 1, 3]
-    device.sectors_armed = {
-        0: {"id": 1, "index": 0, "element": 3, "excluded": False, "status": True, "name": "S1 Living Room"},
-        1: {"id": 2, "index": 1, "element": 1, "excluded": False, "status": True, "name": "S2 Bedroom"},
-        2: {"id": 3, "index": 2, "element": 2, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    alarm_device._sectors_home = [2, 1, 3]
+    alarm_device._inventory = {
+        9: {
+            0: {"id": 1, "index": 0, "element": 3, "excluded": False, "status": True, "name": "S1 Living Room"},
+            1: {"id": 2, "index": 1, "element": 1, "excluded": False, "status": True, "name": "S2 Bedroom"},
+            2: {"id": 3, "index": 2, "element": 2, "excluded": False, "status": True, "name": "S3 Outdoor"},
+        }
     }
     # Test
-    assert device.get_state() == STATE_ALARM_ARMED_HOME
+    assert alarm_device.get_state() == STATE_ALARM_ARMED_HOME
 
 
-def test_get_state_armed_night(client):
+def test_get_state_armed_night(alarm_device):
     """Test when sectors are armed for night."""
-    device = AlarmDevice(client)
-    device._sectors_night = [4, 5, 6]
-    device.sectors_armed = {
-        0: {"id": 1, "index": 0, "element": 4, "excluded": False, "status": True, "name": "S1 Living Room"},
-        1: {"id": 2, "index": 1, "element": 5, "excluded": False, "status": True, "name": "S2 Bedroom"},
-        2: {"id": 3, "index": 2, "element": 6, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    alarm_device._sectors_night = [4, 5, 6]
+    alarm_device._inventory = {
+        9: {
+            0: {"id": 1, "index": 0, "element": 4, "excluded": False, "status": True, "name": "S1 Living Room"},
+            1: {"id": 2, "index": 1, "element": 5, "excluded": False, "status": True, "name": "S2 Bedroom"},
+            2: {"id": 3, "index": 2, "element": 6, "excluded": False, "status": True, "name": "S3 Outdoor"},
+        }
     }
     # Test (out of order keys to test sorting)
-    assert device.get_state() == STATE_ALARM_ARMED_NIGHT
+    assert alarm_device.get_state() == STATE_ALARM_ARMED_NIGHT
 
 
-def test_get_state_armed_night_out_of_order(client):
+def test_get_state_armed_night_out_of_order(alarm_device):
     """Test when sectors are armed for night (out of order)."""
-    device = AlarmDevice(client)
-    device._sectors_night = [5, 6, 4]
-    device.sectors_armed = {
-        0: {"id": 1, "index": 0, "element": 6, "excluded": False, "status": True, "name": "S1 Living Room"},
-        1: {"id": 2, "index": 1, "element": 4, "excluded": False, "status": True, "name": "S2 Bedroom"},
-        2: {"id": 3, "index": 2, "element": 5, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    alarm_device._sectors_night = [5, 6, 4]
+    alarm_device._inventory = {
+        9: {
+            0: {"id": 1, "index": 0, "element": 6, "excluded": False, "status": True, "name": "S1 Living Room"},
+            1: {"id": 2, "index": 1, "element": 4, "excluded": False, "status": True, "name": "S2 Bedroom"},
+            2: {"id": 3, "index": 2, "element": 5, "excluded": False, "status": True, "name": "S3 Outdoor"},
+        }
     }
     # Test
-    assert device.get_state() == STATE_ALARM_ARMED_NIGHT
+    assert alarm_device.get_state() == STATE_ALARM_ARMED_NIGHT
 
 
-def test_get_state_armed_vacation(client):
+def test_get_state_armed_vacation(alarm_device):
     """Test when sectors are armed for vacation."""
-    device = AlarmDevice(client)
-    device._sectors_vacation = [4, 5, 6]
-    device.sectors_armed = {
-        0: {"id": 1, "index": 0, "element": 4, "excluded": False, "status": True, "name": "S1 Living Room"},
-        1: {"id": 2, "index": 1, "element": 5, "excluded": False, "status": True, "name": "S2 Bedroom"},
-        2: {"id": 3, "index": 2, "element": 6, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    alarm_device._sectors_vacation = [4, 5, 6]
+    alarm_device._inventory = {
+        9: {
+            0: {"id": 1, "index": 0, "element": 4, "excluded": False, "status": True, "name": "S1 Living Room"},
+            1: {"id": 2, "index": 1, "element": 5, "excluded": False, "status": True, "name": "S2 Bedroom"},
+            2: {"id": 3, "index": 2, "element": 6, "excluded": False, "status": True, "name": "S3 Outdoor"},
+        }
     }
     # Test (out of order keys to test sorting)
-    assert device.get_state() == STATE_ALARM_ARMED_VACATION
+    assert alarm_device.get_state() == STATE_ALARM_ARMED_VACATION
 
 
-def test_get_state_armed_vacation_out_of_order(client):
+def test_get_state_armed_vacation_out_of_order(alarm_device):
     """Test when sectors are armed for vacation (out of order)."""
-    device = AlarmDevice(client)
-    device._sectors_vacation = [5, 6, 4]
-    device.sectors_armed = {
-        0: {"id": 1, "index": 0, "element": 6, "excluded": False, "status": True, "name": "S1 Living Room"},
-        1: {"id": 2, "index": 1, "element": 4, "excluded": False, "status": True, "name": "S2 Bedroom"},
-        2: {"id": 3, "index": 2, "element": 5, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    alarm_device._sectors_vacation = [5, 6, 4]
+    alarm_device._inventory = {
+        9: {
+            0: {"id": 1, "index": 0, "element": 6, "excluded": False, "status": True, "name": "S1 Living Room"},
+            1: {"id": 2, "index": 1, "element": 4, "excluded": False, "status": True, "name": "S2 Bedroom"},
+            2: {"id": 3, "index": 2, "element": 5, "excluded": False, "status": True, "name": "S3 Outdoor"},
+        }
     }
     # Test
-    assert device.get_state() == STATE_ALARM_ARMED_VACATION
+    assert alarm_device.get_state() == STATE_ALARM_ARMED_VACATION
 
 
-def test_get_state_armed_away(client):
+def test_get_state_armed_away(alarm_device):
     """Test when sectors are armed but don't match home or night."""
-    device = AlarmDevice(client)
-    device._sectors_home = [1, 2, 3]
-    device._sectors_night = [4, 5, 6]
-    device._sectors_vacation = [4, 2]
-    device.sectors_armed = {
-        0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
-        1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
-        2: {"id": 3, "index": 2, "element": 4, "excluded": False, "status": True, "name": "S3 Outdoor"},
+    alarm_device._sectors_home = [1, 2, 3]
+    alarm_device._sectors_night = [4, 5, 6]
+    alarm_device._sectors_vacation = [4, 2]
+    alarm_device._inventory = {
+        9: {
+            0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
+            1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
+            2: {"id": 3, "index": 2, "element": 4, "excluded": False, "status": True, "name": "S3 Outdoor"},
+        }
     }
     # Test
-    assert device.get_state() == STATE_ALARM_ARMED_AWAY
+    assert alarm_device.get_state() == STATE_ALARM_ARMED_AWAY
 
 
-def test_get_state_armed_mixed(client):
+def test_get_state_armed_mixed(alarm_device):
     """Test when some sectors from home and night are armed."""
-    device = AlarmDevice(client)
-    device._sectors_home = [1, 2, 3]
-    device._sectors_night = [4, 5, 6]
-    device.sectors_armed = {
-        0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
-        1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
-        2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": True, "name": "S3 Outdoor"},
-        3: {"id": 4, "index": 3, "element": 5, "excluded": False, "status": True, "name": "S5 Perimeter"},
+    alarm_device._sectors_home = [1, 2, 3]
+    alarm_device._sectors_night = [4, 5, 6]
+    alarm_device._inventory = {
+        9: {
+            0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
+            1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
+            2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": True, "name": "S3 Outdoor"},
+            3: {"id": 4, "index": 3, "element": 5, "excluded": False, "status": True, "name": "S5 Perimeter"},
+        }
     }
     # Test
-    assert device.get_state() == STATE_ALARM_ARMED_AWAY
+    assert alarm_device.get_state() == STATE_ALARM_ARMED_AWAY

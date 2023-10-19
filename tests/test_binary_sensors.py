@@ -152,7 +152,7 @@ class TestSectorSensor:
     def test_binary_sensor_icon(self, hass, config_entry, alarm_device):
         # Ensure the sensor has the right icon
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
-        entity = SectorSensor("test_id", 1, config_entry, "1 Tamper Sirena", coordinator, alarm_device)
+        entity = SectorSensor("test_id", 1, config_entry, "S2 Bedroom", coordinator, alarm_device)
         assert entity.icon == "hass:shield-home-outline"
 
     def test_binary_sensor_off(self, hass, config_entry, alarm_device):
@@ -164,6 +164,5 @@ class TestSectorSensor:
     def test_binary_sensor_on(self, hass, config_entry, alarm_device):
         # Ensure the sensor attribute is_on has the right status True
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
-        entity = SectorSensor("test_id", 1, config_entry, "1 Tamper Sirena", coordinator, alarm_device)
-        alarm_device.sectors_armed.update({entity._sector_id: {}})
+        entity = SectorSensor("test_id", 1, config_entry, "S2 Bedroom", coordinator, alarm_device)
         assert entity.is_on is True
