@@ -32,7 +32,6 @@ async def async_setup_entry(
     device = hass.data[DOMAIN][entry.entry_id][KEY_DEVICE]
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
     # Load all entities and register sectors and inputs
-    # TODO: use a public API (change in econnect-python)
 
     sensors = []
 

@@ -364,7 +364,7 @@ class TestInputsView:
     def test_input_property_empty(self, alarm_device):
         """Ensure the property returns an empty dict if inputs key is not in _inventory"""
         # Test
-        alarm_device._inventory = {"inputs": {}}
+        alarm_device._inventory = {10: {}}
         assert dict(alarm_device.inputs) == {}
 
 
@@ -388,7 +388,7 @@ class TestSectorsView:
     def test_sectors_property_empty(self, alarm_device):
         """Ensure the property returns an empty dict if outputs key is not in _inventory"""
         # Test
-        alarm_device._inventory = {"outputs": {}}
+        alarm_device._inventory = {9: {}}
         assert dict(alarm_device.sectors) == {}
 
 
@@ -434,7 +434,7 @@ class TestAlertsView:
     def test_alerts_property_empty(self, alarm_device):
         """Ensure the property returns an empty dict if alerts key is not in _inventory"""
         # Test
-        alarm_device._inventory = {"alerts": {}}
+        alarm_device._inventory = {11: {}}
         assert dict(alarm_device.alerts) == {}
 
 
