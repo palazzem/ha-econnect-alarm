@@ -3,7 +3,6 @@ from typing import Union
 
 from elmo import query as q
 from elmo.api.exceptions import CodeError, CredentialError, LockError, ParseError
-from elmo.utils import _filter_data
 from homeassistant.const import (
     STATE_ALARM_ARMED_AWAY,
     STATE_ALARM_ARMED_HOME,
@@ -54,8 +53,6 @@ class AlarmDevice:
 
         # Alarm state
         self.state = STATE_UNAVAILABLE
-        self.sectors_armed = {}
-        self.sectors_disarmed = {}
         self._inventory = {}
 
     @property
@@ -176,11 +173,12 @@ class AlarmDevice:
         Returns:
             str: One of the predefined HA alarm states.
         """
-        if not self.sectors_armed:
+        sectors_armed = dict(self.items(q.SECTORS, status=True))
+        if not sectors_armed:
             return STATE_ALARM_DISARMED
 
         # Note: `element` is the sector ID you use to arm/disarm the sector.
-        sectors = [sectors["element"] for sectors in self.sectors_armed.values()]
+        sectors = [sectors["element"] for sectors in sectors_armed.values()]
         # Sort lists here for robustness, ensuring accurate comparisons
         # regardless of whether the input lists were pre-sorted or not.
         sectors_armed_sorted = sorted(sectors)
@@ -224,10 +222,6 @@ class AlarmDevice:
             ParseError: If there's an error while parsing the response.
 
         Attributes updated:
-            sectors_armed (dict): A dictionary of sectors that are armed.
-            sectors_disarmed (dict): A dictionary of sectors that are disarmed.
-            inputs_alerted (dict): A dictionary of inputs that are in an alerted state.
-            inputs_wait (dict): A dictionary of inputs that are in a wait state.
             _last_ids (dict): Updated last known IDs for sectors and inputs.
             state (str): Updated internal state of the device.
         """
@@ -248,10 +242,7 @@ class AlarmDevice:
         self._inventory.update({q.INPUTS: inputs["inputs"]})
         self._inventory.update({q.ALERTS: alerts})
 
-        # Filter sectors
-        self.sectors_armed = _filter_data(sectors, "sectors", True)
-        self.sectors_disarmed = _filter_data(sectors, "sectors", False)
-
+        # Update the _last_ids
         self._last_ids[q.SECTORS] = sectors.get("last_id", 0)
         self._last_ids[q.INPUTS] = inputs.get("last_id", 0)
 
