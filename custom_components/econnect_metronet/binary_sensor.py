@@ -47,7 +47,7 @@ async def async_setup_entry(
 
     # Iterate through the alerts of the provided device and create AlertSensor objects
     for alert_id, name in device.alerts:
-        unique_id = f"{entry.entry_id}_{DOMAIN}_{q.ALERTS}_{alert_id}"
+        unique_id = f"{entry.entry_id}_{DOMAIN}_{name}"
         sensors.append(AlertSensor(unique_id, alert_id, entry, name, coordinator, device))
 
     async_add_entities(sensors)
