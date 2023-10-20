@@ -59,6 +59,21 @@ async def test_async_setup_entry_unused_sector(hass, config_entry, alarm_device,
     await async_setup_entry(hass, config_entry, ensure_unused_sectors)
 
 
+@pytest.mark.asyncio
+async def test_async_setup_entry_alerts_unique_id(hass, config_entry, alarm_device, coordinator):
+    # Regression test: changing this unique ID format is a breaking change
+    hass.data[DOMAIN][config_entry.entry_id] = {
+        "device": alarm_device,
+        "coordinator": coordinator,
+    }
+
+    # Test
+    def ensure_unused_sectors(sensors):
+        assert sensors[30].unique_id == "test_entry_id_econnect_metronet_tamper_led"
+
+    await async_setup_entry(hass, config_entry, ensure_unused_sectors)
+
+
 class TestAlertSensor:
     def test_binary_sensor_is_on(self, hass, config_entry, alarm_device):
         # Ensure the sensor attribute is_on has the right status True
