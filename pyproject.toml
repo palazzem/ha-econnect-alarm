@@ -81,3 +81,8 @@ asyncio_mode = "auto"
 
 [tool.hatch.build.targets.sdist]
 only-include = ["custom_components/econnect_metronet"]
+
+[tool.coverage.run]
+omit = [
+  "tests/*",
+]
