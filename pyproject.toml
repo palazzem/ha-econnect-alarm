@@ -31,7 +31,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
 ]
 dependencies = [
-  "econnect-python @ git+https://github.com/palazzem/econnect-python@26b4d8a01e0f29998d98d3f3dc28a509eebf44aa",
+  "econnect-python==0.8.0",
   "homeassistant",
 ]
 
