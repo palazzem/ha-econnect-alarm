@@ -7,6 +7,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from custom_components.econnect_metronet import async_setup
 from custom_components.econnect_metronet.alarm_control_panel import EconnectAlarm
+from custom_components.econnect_metronet.const import DOMAIN
 from custom_components.econnect_metronet.coordinator import AlarmCoordinator
 from custom_components.econnect_metronet.devices import AlarmDevice
 
@@ -25,6 +26,7 @@ async def hass(hass):
     """
     await async_setup(hass, {})
     hass.data["custom_components"] = None
+    hass.data[DOMAIN]["test_entry_id"] = {}
     yield hass
 
 
@@ -139,6 +141,7 @@ def config_entry():
             }
 
             # Options at configuration-time
+            self.entry_id = "test_entry_id"
             self.options = {}
 
     return MockConfigEntry()

@@ -7,7 +7,56 @@ from custom_components.econnect_metronet.binary_sensor import (
     AlertSensor,
     InputSensor,
     SectorSensor,
+    async_setup_entry,
 )
+from custom_components.econnect_metronet.const import DOMAIN
+
+
+@pytest.mark.asyncio
+async def test_async_setup_entry_in_use(hass, config_entry, alarm_device, coordinator):
+    # Ensure the async setup loads only sectors and sensors that are in use
+    hass.data[DOMAIN][config_entry.entry_id] = {
+        "device": alarm_device,
+        "coordinator": coordinator,
+    }
+
+    # Test
+    def ensure_only_in_use(sensors):
+        assert len(sensors) == 31
+
+    await async_setup_entry(hass, config_entry, ensure_only_in_use)
+
+
+@pytest.mark.asyncio
+async def test_async_setup_entry_unused_input(hass, config_entry, alarm_device, coordinator):
+    # Ensure the async setup don't load sensors that are not in use
+    hass.data[DOMAIN][config_entry.entry_id] = {
+        "device": alarm_device,
+        "coordinator": coordinator,
+    }
+
+    # Test
+    def ensure_unused_sensors(sensors):
+        for sensor in sensors:
+            assert sensor._name not in ["Outdoor Sensor 3"]
+
+    await async_setup_entry(hass, config_entry, ensure_unused_sensors)
+
+
+@pytest.mark.asyncio
+async def test_async_setup_entry_unused_sector(hass, config_entry, alarm_device, coordinator):
+    # Ensure the async setup don't load sectors that are not in use
+    hass.data[DOMAIN][config_entry.entry_id] = {
+        "device": alarm_device,
+        "coordinator": coordinator,
+    }
+
+    # Test
+    def ensure_unused_sectors(sensors):
+        for sensor in sensors:
+            assert sensor._name not in ["S4 Garage"]
+
+    await async_setup_entry(hass, config_entry, ensure_unused_sectors)
 
 
 class TestAlertSensor:
@@ -69,11 +118,23 @@ class TestAlertSensor:
         entity = AlertSensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
         assert entity.entity_id == "econnect_metronet.econnect_metronet_home_has_anomalies"
 
+    def test_binary_sensor_unique_id(self, hass, config_entry, alarm_device):
+        # Ensure the alert has the right unique ID
+        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        entity = AlertSensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
+        assert entity.unique_id == "test_id"
+
     def test_binary_sensor_icon(self, hass, config_entry, alarm_device):
         # Ensure the sensor has the right icon
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = AlertSensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
         assert entity.icon == "hass:alarm-light"
+
+    def test_binary_sensor_device_class(self, hass, config_entry, alarm_device):
+        # Ensure the sensor has the right device class
+        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        entity = AlertSensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
+        assert entity.device_class == "problem"
 
 
 class TestInputSensor:
@@ -102,6 +163,12 @@ class TestInputSensor:
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = InputSensor("test_id", 1, config_entry, "1 Tamper Sirena", coordinator, alarm_device)
         assert entity.entity_id == "econnect_metronet.econnect_metronet_home_1_tamper_sirena"
+
+    def test_binary_sensor_unique_id(self, hass, config_entry, alarm_device):
+        # Ensure the sensor has the right unique ID
+        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        entity = InputSensor("test_id", 1, config_entry, "1 Tamper Sirena", coordinator, alarm_device)
+        assert entity.unique_id == "test_id"
 
     def test_binary_sensor_icon(self, hass, config_entry, alarm_device):
         # Ensure the sensor has the right icon
@@ -148,6 +215,12 @@ class TestSectorSensor:
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = SectorSensor("test_id", 1, config_entry, "1 S1 Living Room", coordinator, alarm_device)
         assert entity.entity_id == "econnect_metronet.econnect_metronet_home_1_s1_living_room"
+
+    def test_binary_sensor_input_unique_id(self, hass, config_entry, alarm_device):
+        # Ensure the sensor has the right unique ID
+        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        entity = SectorSensor("test_id", 1, config_entry, "1 S1 Living Room", coordinator, alarm_device)
+        assert entity.unique_id == "test_id"
 
     def test_binary_sensor_icon(self, hass, config_entry, alarm_device):
         # Ensure the sensor has the right icon

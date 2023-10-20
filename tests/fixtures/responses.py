@@ -105,6 +105,14 @@ STRINGS = """[
     },
     {
         "AccountId": 1,
+        "Class": 9,
+        "Index": 3,
+        "Description": "S4 Garage",
+        "Created": "/Date(1546004147491+0100)/",
+        "Version": "AAAAAAAAgRt="
+    },
+    {
+        "AccountId": 1,
         "Class": 10,
         "Index": 0,
         "Description": "Entryway Sensor",
