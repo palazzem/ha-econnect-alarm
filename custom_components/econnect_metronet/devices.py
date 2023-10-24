@@ -43,6 +43,7 @@ class AlarmDevice:
         self._last_ids = {
             q.SECTORS: 0,
             q.INPUTS: 0,
+            q.ALERTS: 0,
         }
 
         # Load user configuration
@@ -240,11 +241,12 @@ class AlarmDevice:
         # Update the _inventory
         self._inventory.update({q.SECTORS: sectors["sectors"]})
         self._inventory.update({q.INPUTS: inputs["inputs"]})
-        self._inventory.update({q.ALERTS: alerts})
+        self._inventory.update({q.ALERTS: alerts["alerts"]})
 
         # Update the _last_ids
         self._last_ids[q.SECTORS] = sectors.get("last_id", 0)
         self._last_ids[q.INPUTS] = inputs.get("last_id", 0)
+        self._last_ids[q.ALERTS] = alerts.get("last_id", 0)
 
         # Update the internal state machine (mapping state)
         self.state = self.get_state()
