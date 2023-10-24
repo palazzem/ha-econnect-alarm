@@ -26,7 +26,7 @@ def test_device_constructor(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
-    assert device._last_ids == {10: 0, 9: 0}
+    assert device._last_ids == {10: 0, 9: 0, 11: 0}
     assert device._sectors_home == []
     assert device._sectors_night == []
     assert device._sectors_vacation == []
@@ -44,7 +44,7 @@ def test_device_constructor_with_config(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
-    assert device._last_ids == {10: 0, 9: 0}
+    assert device._last_ids == {10: 0, 9: 0, 11: 0}
     assert device._sectors_home == [3, 4]
     assert device._sectors_night == [1, 2, 3]
     assert device._sectors_vacation == [5, 3]
@@ -230,11 +230,12 @@ def test_device_has_updates(client, mocker):
     device.connect("username", "password")
     device._last_ids[q.SECTORS] = 20
     device._last_ids[q.INPUTS] = 20
+    device._last_ids[q.ALERTS] = 20
     mocker.spy(device._connection, "poll")
     # Test
     device.has_updates()
     assert device._connection.poll.call_count == 1
-    assert {9: 20, 10: 20} in device._connection.poll.call_args[0]
+    assert {9: 20, 10: 20, 11: 20} in device._connection.poll.call_args[0]
 
 
 def test_device_has_updates_ids_immutable(client, mocker):
@@ -265,7 +266,7 @@ def test_device_has_updates_errors(client, mocker):
     with pytest.raises(HTTPError):
         device.has_updates()
     assert device._connection.poll.call_count == 1
-    assert {9: 0, 10: 0} == device._last_ids
+    assert {9: 0, 10: 0, 11: 0} == device._last_ids
 
 
 def test_device_has_updates_parse_errors(client, mocker):
@@ -278,7 +279,7 @@ def test_device_has_updates_parse_errors(client, mocker):
     with pytest.raises(ParseError):
         device.has_updates()
     assert device._connection.poll.call_count == 1
-    assert {9: 0, 10: 0} == device._last_ids
+    assert {9: 0, 10: 0, 11: 0} == device._last_ids
 
 
 def test_device_update_success(client, mocker):
@@ -292,6 +293,7 @@ def test_device_update_success(client, mocker):
     assert device._last_ids == {
         9: 4,
         10: 42,
+        11: 1,
     }
 
 
