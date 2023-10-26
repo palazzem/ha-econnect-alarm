@@ -22,7 +22,7 @@ from .devices import AlarmDevice
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = ["alarm_control_panel", "binary_sensor"]
+PLATFORMS = ["alarm_control_panel", "binary_sensor", "sensor"]
 
 
 async def async_migrate_entry(hass, config: ConfigEntry):

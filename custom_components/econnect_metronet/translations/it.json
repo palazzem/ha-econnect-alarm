@@ -41,30 +41,35 @@
         }
     },
     "entity": {
-        "binary_sensor": {
-            "anomalies_led": {
-                "name": "Anomalia Generale",
-                "state": {
-                    "on": "On",
-                    "off": "Off"
-                }
-            },
+        "sensor": {
             "inputs_led": {
                 "name": "Stato Inseribilità Zone",
                 "state": {
-                    "on": "On",
-                    "off": "Off"
+                    "0": "Non pronto",
+                    "1": "Pronto",
+                    "2": "Parzialmente pronto"
                 }
             },
             "alarm_led": {
                 "name": "Allarme Generale",
                 "state": {
-                    "on": "On",
-                    "off": "Off"
+                    "0": "Nessun allarme",
+                    "1": "Allarme in corso",
+                    "2": "Memoria allarme"
                 }
             },
             "tamper_led": {
                 "name": "Manomissione Generale",
+                "state": {
+                    "0": "Nessuna manomissione",
+                    "1": "Manomissione in corso",
+                    "2": "Memoria manomissione"
+                }
+            }
+        },
+        "binary_sensor": {
+            "anomalies_led": {
+                "name": "Anomalia Generale",
                 "state": {
                     "on": "On",
                     "off": "Off"
