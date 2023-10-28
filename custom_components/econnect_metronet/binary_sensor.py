@@ -35,25 +35,27 @@ async def async_setup_entry(
 
     sensors = []
 
-    # Iterate through the sectors of the provided device and create InputSensor objects
+    # Iterate through the sectors of the provided device and create InputBinarySensor objects
     for sector_id, name in device.sectors:
         unique_id = f"{entry.entry_id}_{DOMAIN}_{q.SECTORS}_{sector_id}"
-        sensors.append(SectorSensor(unique_id, sector_id, entry, name, coordinator, device))
+        sensors.append(SectorBinarySensor(unique_id, sector_id, entry, name, coordinator, device))
 
-    # Iterate through the inputs of the provided device and create InputSensor objects
+    # Iterate through the inputs of the provided device and create InputBinarySensor objects
     for input_id, name in device.inputs:
         unique_id = f"{entry.entry_id}_{DOMAIN}_{q.INPUTS}_{input_id}"
-        sensors.append(InputSensor(unique_id, input_id, entry, name, coordinator, device))
+        sensors.append(InputBinarySensor(unique_id, input_id, entry, name, coordinator, device))
 
-    # Iterate through the alerts of the provided device and create AlertSensor objects
+    # Iterate through the alerts of the provided device and create AlertBinarySensor objects
+    # except for alarm_led, inputs_led and tamper_led as they have three states
     for alert_id, name in device.alerts:
-        unique_id = f"{entry.entry_id}_{DOMAIN}_{name}"
-        sensors.append(AlertSensor(unique_id, alert_id, entry, name, coordinator, device))
+        if name not in ["alarm_led", "inputs_led", "tamper_led"]:
+            unique_id = f"{entry.entry_id}_{DOMAIN}_{name}"
+            sensors.append(AlertBinarySensor(unique_id, alert_id, entry, name, coordinator, device))
 
     async_add_entities(sensors)
 
 
-class AlertSensor(CoordinatorEntity, BinarySensorEntity):
+class AlertBinarySensor(CoordinatorEntity, BinarySensorEntity):
     """Representation of a e-Connect alert binary sensor"""
 
     _attr_has_entity_name = True
@@ -109,7 +111,7 @@ class AlertSensor(CoordinatorEntity, BinarySensorEntity):
             return bool(status)
 
 
-class InputSensor(CoordinatorEntity, BinarySensorEntity):
+class InputBinarySensor(CoordinatorEntity, BinarySensorEntity):
     """Representation of a e-connect input binary sensor."""
 
     _attr_has_entity_name = True
@@ -156,7 +158,7 @@ class InputSensor(CoordinatorEntity, BinarySensorEntity):
         return bool(self._device.get_status(q.INPUTS, self._input_id))
 
 
-class SectorSensor(CoordinatorEntity, BinarySensorEntity):
+class SectorBinarySensor(CoordinatorEntity, BinarySensorEntity):
     """Representation of a e-connect sector binary sensor."""
 
     _attr_has_entity_name = True

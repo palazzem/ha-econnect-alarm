@@ -41,30 +41,35 @@
         }
     },
     "entity": {
-        "binary_sensor": {
-            "anomalies_led": {
-                "name": "General Anomaly",
-                "state": {
-                    "on": "On",
-                    "off": "Off"
-                }
-            },
+        "sensor": {
             "inputs_led": {
                 "name": "Zones Ready Status",
                 "state": {
-                    "on": "On",
-                    "off": "Off"
+                    "0": "Not ready",
+                    "1": "Ready",
+                    "2": "Partially ready"
                 }
             },
             "alarm_led": {
                 "name": "General Alarm",
                 "state": {
-                    "on": "On",
-                    "off": "Off"
+                    "0": "No alarms",
+                    "1": "Alarm in progress",
+                    "2": "Alarm memory"
                 }
             },
             "tamper_led": {
                 "name": "General Tamper",
+                "state": {
+                    "0": "No tampers",
+                    "1": "Tamper in progress",
+                    "2": "Tamper memory"
+                }
+            }
+        },
+        "binary_sensor": {
+            "anomalies_led": {
+                "name": "General Anomaly",
                 "state": {
                     "on": "On",
                     "off": "Off"
