@@ -46,7 +46,7 @@ async def async_setup_entry(
         sensors.append(InputBinarySensor(unique_id, input_id, entry, name, coordinator, device))
 
     # Iterate through the alerts of the provided device and create AlertBinarySensor objects
-    # except for alarm_led, inputs_led and tamper_led
+    # except for alarm_led, inputs_led and tamper_led as they have three states
     for alert_id, name in device.alerts:
         if name not in ["alarm_led", "inputs_led", "tamper_led"]:
             unique_id = f"{entry.entry_id}_{DOMAIN}_{name}"
