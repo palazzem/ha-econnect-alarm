@@ -11,42 +11,38 @@ from .exceptions import InvalidAreas
 
 
 def parse_areas_config(config: str, raises: bool = False):
-    """Parses a comma-separated string of area configurations into a list of integers.
+    """Extracts sector numbers from the provided configuration.
 
-    Takes a string containing comma-separated area IDs and converts it to a list of integers.
-    In case of any parsing errors, either raises a custom `InvalidAreas` exception or returns an empty list
-    based on the `raises` flag.
-
-    Args:
-        config (str): A comma-separated string of area IDs, e.g., "3,4".
-        raises (bool, optional): Determines the error handling behavior. If `True`, the function
-                                 raises the `InvalidAreas` exception upon encountering a parsing error.
-                                 If `False`, it suppresses the error and returns an empty list.
-                                 Defaults to `False`.
+    Parameters:
+        config (str or None): A string containing sector configurations in the format "number:name".
+            If empty or None, an empty list is returned.
+        raises (bool, optional): If True, raises an InvalidAreas exception if there's an error in parsing.
+            Defaults to True.
 
     Returns:
-        list[int]: A list of integers representing area IDs. If parsing fails and `raises` is `False`,
-                   returns an empty list.
+        list: A list of integers representing the extracted sector numbers.
 
     Raises:
-        InvalidAreas: If there's a parsing error and the `raises` flag is set to `True`.
+        InvalidAreas: If raises is set to True and there is an error in parsing.
 
-    Examples:
-        >>> parse_areas_config("3,4")
-        [3, 4]
-        >>> parse_areas_config("3,a")
-        []
+    Example:
+        >>> config = "1:sector1 2:sector2 3:sector3"
+        >>> parse_areas_config(config)
+        [1, 2, 3]
     """
     if config == "" or config is None:
         # Empty config is considered valid (no sectors configured)
         return []
-
-    try:
-        return [int(x) for x in config.split(",")]
-    except (ValueError, AttributeError):
-        if raises:
-            raise InvalidAreas
-        return []
+    result = []
+    for item in config:
+        try:
+            number = int(item.split(":")[0])
+            result.append(number)
+        except (ValueError, AttributeError):
+            if raises:
+                raise InvalidAreas
+            return []
+    return result
 
 
 async def validate_credentials(hass: core.HomeAssistant, config: dict):
