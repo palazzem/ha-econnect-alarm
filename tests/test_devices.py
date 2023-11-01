@@ -36,9 +36,9 @@ def test_device_constructor(client):
 def test_device_constructor_with_config(client):
     """Should initialize defaults attributes to run properly."""
     config = {
-        CONF_AREAS_ARM_HOME: "3, 4",
-        CONF_AREAS_ARM_NIGHT: "1, 2, 3",
-        CONF_AREAS_ARM_VACATION: "5, 3",
+        CONF_AREAS_ARM_HOME: ("3 : Casa\nRadar", "4 : Garage\nRadar"),
+        CONF_AREAS_ARM_NIGHT: ("1 : Casa\nFinestre", "2 : Casa\nPersiane", "3 : Casa\nRadar"),
+        CONF_AREAS_ARM_VACATION: ("5 : Garage\nCler", "3 : Casa\nRadar"),
     }
     device = AlarmDevice(client, config=config)
     # Test

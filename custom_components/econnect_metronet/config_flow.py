@@ -1,7 +1,9 @@
 import logging
 
+import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from elmo.api.client import ElmoClient
+from elmo import query as q
 from elmo.api.exceptions import CredentialError
 from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant import config_entries
@@ -18,6 +20,7 @@ from .const import (
     CONF_SYSTEM_NAME,
     CONF_SYSTEM_URL,
     DOMAIN,
+    KEY_DEVICE,
     SUPPORTED_SYSTEMS,
 )
 from .exceptions import InvalidAreas
@@ -130,28 +133,30 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         # Populate with latest changes or previous settings
         user_input = user_input or {}
-        suggest_arm_home = user_input.get(CONF_AREAS_ARM_HOME) or self.config_entry.options.get(CONF_AREAS_ARM_HOME)
-        suggest_arm_night = user_input.get(CONF_AREAS_ARM_NIGHT) or self.config_entry.options.get(CONF_AREAS_ARM_NIGHT)
-        suggest_arm_vacation = user_input.get(CONF_AREAS_ARM_VACATION) or self.config_entry.options.get(
-            CONF_AREAS_ARM_VACATION
-        )
         suggest_scan_interval = user_input.get(CONF_SCAN_INTERVAL) or self.config_entry.options.get(CONF_SCAN_INTERVAL)
+
+        # Generate sectors list for user config options
+        sectors_list = []
+        device = self.hass.data[DOMAIN][self.config_entry.entry_id][KEY_DEVICE]
+        for sector_id, item in device._inventory.get(q.SECTORS, {}).items():
+            sectors_list.append(f"{item['element']} : {item['name']}")
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
                 {
                     vol.Optional(
                         CONF_AREAS_ARM_HOME,
-                        description={"suggested_value": suggest_arm_home},
-                    ): str,
+                        default=self.config_entry.options.get(CONF_AREAS_ARM_HOME),
+                    ): cv.multi_select(sectors_list),
                     vol.Optional(
                         CONF_AREAS_ARM_NIGHT,
-                        description={"suggested_value": suggest_arm_night},
-                    ): str,
+                        default=self.config_entry.options.get(CONF_AREAS_ARM_NIGHT),
+                    ): cv.multi_select(sectors_list),
                     vol.Optional(
                         CONF_AREAS_ARM_VACATION,
-                        description={"suggested_value": suggest_arm_vacation},
-                    ): str,
+                        default=self.config_entry.options.get(CONF_AREAS_ARM_VACATION),
+                    ): cv.multi_select(sectors_list),
                     vol.Optional(
                         CONF_SCAN_INTERVAL,
                         description={"suggested_value": suggest_scan_interval},
