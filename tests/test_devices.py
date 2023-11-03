@@ -51,6 +51,24 @@ def test_device_constructor_with_config(client):
     assert device.state == STATE_UNAVAILABLE
 
 
+def test_device_constructor_with_config_empty(client):
+    """Should initialize defaults attributes to run properly."""
+    config = {
+        CONF_AREAS_ARM_HOME: None,
+        CONF_AREAS_ARM_NIGHT: None,
+        CONF_AREAS_ARM_VACATION: None,
+    }
+    device = AlarmDevice(client, config=config)
+    # Test
+    assert device._connection == client
+    assert device._inventory == {}
+    assert device._last_ids == {10: 0, 9: 0, 11: 0}
+    assert device._sectors_home == []
+    assert device._sectors_night == []
+    assert device._sectors_vacation == []
+    assert device.state == STATE_UNAVAILABLE
+
+
 class TestItemInputs:
     def test_without_status(self, alarm_device):
         """Verify that querying items without specifying a status works correctly"""

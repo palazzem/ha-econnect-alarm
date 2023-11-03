@@ -47,9 +47,9 @@ class AlarmDevice:
 
         # Load user configuration
         if config is not None:
-            self._sectors_home = config.get(CONF_AREAS_ARM_HOME)
-            self._sectors_night = config.get(CONF_AREAS_ARM_NIGHT)
-            self._sectors_vacation = config.get(CONF_AREAS_ARM_VACATION)
+            self._sectors_home = config.get(CONF_AREAS_ARM_HOME, [])
+            self._sectors_night = config.get(CONF_AREAS_ARM_NIGHT, [])
+            self._sectors_vacation = config.get(CONF_AREAS_ARM_VACATION, [])
 
         # Alarm state
         self.state = STATE_UNAVAILABLE
