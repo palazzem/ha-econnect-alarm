@@ -95,7 +95,7 @@ def coordinator(hass, config_entry, alarm_device):
 
 
 @pytest.fixture(scope="function")
-def client():
+def client(socket_enabled):
     """Creates an instance of `ElmoClient` which emulates the behavior of a real client for
     testing purposes.
 
@@ -105,6 +105,18 @@ def client():
 
     Use it for integration tests where a realistic interaction with the `ElmoClient` is required
     without actual external calls.
+
+    NOTE: `socket_enabled` fixture from `pytest-socket` is required for this fixture to work. After
+    a change in `responses` (https://github.com/getsentry/responses/pull/685) available from
+    release 0.24.0 onwards, any call to `ElmoClient` indirectly create a dummy socket:
+
+        >>> socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    forcing `pytest-socket` to fail with the following error:
+
+        >>> pytest_socket.SocketBlockedError: A test tried to use socket.socket.
+
+    Keep loading `socket_enabled` fixture until this issue is handled better in `responses` library.
     """
     client = ElmoClient(base_url="https://example.com", domain="domain")
     with responses.RequestsMock(assert_all_requests_are_fired=False) as server:
