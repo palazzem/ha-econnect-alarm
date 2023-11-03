@@ -14,7 +14,6 @@ from homeassistant.const import (
 from requests.exceptions import HTTPError
 
 from .const import CONF_AREAS_ARM_HOME, CONF_AREAS_ARM_NIGHT, CONF_AREAS_ARM_VACATION
-from .helpers import parse_areas_config
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,9 +47,9 @@ class AlarmDevice:
 
         # Load user configuration
         if config is not None:
-            self._sectors_home = parse_areas_config(config.get(CONF_AREAS_ARM_HOME))
-            self._sectors_night = parse_areas_config(config.get(CONF_AREAS_ARM_NIGHT))
-            self._sectors_vacation = parse_areas_config(config.get(CONF_AREAS_ARM_VACATION))
+            self._sectors_home = config.get(CONF_AREAS_ARM_HOME)
+            self._sectors_night = config.get(CONF_AREAS_ARM_NIGHT)
+            self._sectors_vacation = config.get(CONF_AREAS_ARM_VACATION)
 
         # Alarm state
         self.state = STATE_UNAVAILABLE
