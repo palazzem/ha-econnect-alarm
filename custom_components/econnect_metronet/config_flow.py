@@ -1,8 +1,8 @@
 import logging
 
 import voluptuous as vol
-from elmo.api.client import ElmoClient
 from elmo import query as q
+from elmo.api.client import ElmoClient
 from elmo.api.exceptions import CredentialError
 from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant import config_entries
