@@ -7,11 +7,13 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from custom_components.econnect_metronet import async_setup
 from custom_components.econnect_metronet.alarm_control_panel import EconnectAlarm
+from custom_components.econnect_metronet.config_flow import EconnectConfigFlow
 from custom_components.econnect_metronet.const import DOMAIN
 from custom_components.econnect_metronet.coordinator import AlarmCoordinator
 from custom_components.econnect_metronet.devices import AlarmDevice
 
 from .fixtures import responses as r
+from .helpers import MockConfigEntry
 
 pytest_plugins = ["tests.hass.fixtures"]
 
@@ -141,19 +143,15 @@ def config_entry():
     This config entry is designed to emulate the behavior of a real config entry for
     testing purposes.
     """
-
-    class MockConfigEntry:
-        def __init__(self):
-            # Config at install-time
-            self.data = {
-                "username": "test_user",
-                "password": "test_password",
-                "system_base_url": "https://example.com",
-                "domain": "econnect_metronet",
-            }
-
-            # Options at configuration-time
-            self.entry_id = "test_entry_id"
-            self.options = {}
-
-    return MockConfigEntry()
+    return MockConfigEntry(
+        version=EconnectConfigFlow.VERSION,
+        domain=DOMAIN,
+        entry_id="test_entry_id",
+        options={},
+        data={
+            "username": "test_user",
+            "password": "test_password",
+            "domain": "econnect_metronet",
+            "system_base_url": "https://example.com",
+        },
+    )

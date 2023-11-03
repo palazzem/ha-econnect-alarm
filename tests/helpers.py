@@ -1,3 +1,14 @@
+from .hass.common import MockConfigEntry as BaseMockConfigEntry
+
+
+class MockConfigEntry(BaseMockConfigEntry):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make settings overridable
+        self.data = kwargs.get("data", {})
+        self.options = kwargs.get("options", {})
+
+
 def _(mock_path: str) -> str:
     """Helper to simplify Mock path strings.
 
