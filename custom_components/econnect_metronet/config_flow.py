@@ -1,6 +1,5 @@
 import logging
 
-import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from elmo.api.client import ElmoClient
 from elmo import query as q
@@ -9,6 +8,7 @@ from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant import config_entries
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import callback
+from homeassistant.helpers.config_validation import multi_select
 from requests.exceptions import ConnectionError, HTTPError
 
 from .const import (
@@ -136,10 +136,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         suggest_scan_interval = user_input.get(CONF_SCAN_INTERVAL) or self.config_entry.options.get(CONF_SCAN_INTERVAL)
 
         # Generate sectors list for user config options
-        sectors_list = []
         device = self.hass.data[DOMAIN][self.config_entry.entry_id][KEY_DEVICE]
-        for sector_id, item in device._inventory.get(q.SECTORS, {}).items():
-            sectors_list.append(f"{item['element']} : {item['name']}")
+        sectors_list = {f"{item['element']} : {item['name']}" for sector_id, item in device.items(q.SECTORS)}
 
         return self.async_show_form(
             step_id="init",
@@ -148,15 +146,15 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     vol.Optional(
                         CONF_AREAS_ARM_HOME,
                         default=self.config_entry.options.get(CONF_AREAS_ARM_HOME),
-                    ): cv.multi_select(sectors_list),
+                    ): multi_select(sectors_list),
                     vol.Optional(
                         CONF_AREAS_ARM_NIGHT,
                         default=self.config_entry.options.get(CONF_AREAS_ARM_NIGHT),
-                    ): cv.multi_select(sectors_list),
+                    ): multi_select(sectors_list),
                     vol.Optional(
                         CONF_AREAS_ARM_VACATION,
                         default=self.config_entry.options.get(CONF_AREAS_ARM_VACATION),
-                    ): cv.multi_select(sectors_list),
+                    ): multi_select(sectors_list),
                     vol.Optional(
                         CONF_SCAN_INTERVAL,
                         description={"suggested_value": suggest_scan_interval},

@@ -18,7 +18,7 @@
                     "system_name": "Nome dell'impianto (opzionale)"
                 },
                 "description": "Fornisci le tue credenziali e il dominio utilizzato per accedere alla tua pagina di login via web.\n\nAd esempio, se accedi a `https://connect.elmospa.com/installatore/`, devi impostare il dominio su `installatore`. Nel caso in cui non hai un installatore definito, impostalo su `default`.\n\nPuoi configurare il sistema selezionando \"Opzioni\" dopo aver installato l'integrazione.",
-                "title": "Configura il tuo sistema eConnect/Metronet"
+                "title": "Configura il tuo sistema e-Connect/Metronet"
             }
         }
     },
@@ -36,7 +36,7 @@
                     "scan_interval": "Intervallo di scansione (es. 120 - opzionale)"
                 },
                 "description": "Scegli, tra quelli proposti, i settori che desideri armare nelle diverse modalità.\n\nImposta il valore 'Intervallo di scansione' solo se desideri ridurre l'utilizzo dei dati, nel caso in cui il sistema sia connesso tramite una rete mobile (SIM). Lascialo vuoto per aggiornamenti in tempo reale, oppure imposta un valore in secondi (es. 120 per un aggiornamento ogni 2 minuti)",
-                "title": "Configura il tuo sistema eConnect/Metronet"
+                "title": "Configura il tuo sistema e-Connect/Metronet"
             }
         }
     },

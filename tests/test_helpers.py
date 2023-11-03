@@ -9,10 +9,13 @@ from custom_components.econnect_metronet.helpers import (
 
 
 def test_parse_areas_config_valid_input():
-    input = ("4 : Garage\nCler", "5 : Garage\nRadar")
-    input2 = ("2 : Casa\nFinestre", "3 : Casa\nRadar", "4 : Garage\nCler", "5 : Garage\nRadar")
-    assert parse_areas_config(input) == [4, 5]
-    assert parse_areas_config(input2) == [2, 3, 4, 5]
+    assert parse_areas_config(("4 : Garage\nCler", "5 : Garage\nRadar")) == [4, 5]
+    assert parse_areas_config(("2 : Casa\nFinestre", "3 : Casa\nRadar", "4 : Garage\nCler", "5 : Garage\nRadar")) == [
+        2,
+        3,
+        4,
+        5,
+    ]
     assert parse_areas_config("") == []
 
 

@@ -24,7 +24,7 @@ def parse_areas_config(config: str, raises: bool = False):
         InvalidAreas: If raises is set to True and there is an error in parsing.
 
     Example:
-        >>> config = "1:sector1 2:sector2 3:sector3"
+        >>> config = (1 : sector1, 2 : sector2, 3 : sector3)
         >>> parse_areas_config(config)
         [1, 2, 3]
     """
