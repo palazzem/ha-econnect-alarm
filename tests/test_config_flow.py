@@ -212,3 +212,53 @@ async def test_form_server_errors(mock_setup_entry, mock_setup, hass):
 
             assert result["type"] == "form"
             assert result["errors"]["base"] == "server_error"
+
+
+@patch("custom_components.econnect_metronet.async_setup", return_value=True)
+@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
+async def test_form_unknown_errors(mock_setup_entry, mock_setup, hass):
+    # Ensure we catch unexpected status codes
+    form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+
+    # Check non-error status codes
+    r = Response()
+    r.status_code = 300
+    err = HTTPError(response=r)
+
+    with patch("custom_components.econnect_metronet.helpers.ElmoClient.auth", side_effect=err):
+        result = await hass.config_entries.flow.async_configure(
+            form["flow_id"],
+            {
+                "username": "test-username",
+                "password": "test-password",
+                "domain": "test-domain",
+            },
+        )
+        await hass.async_block_till_done()
+
+        assert result["type"] == "form"
+        assert result["errors"]["base"] == "unknown"
+
+
+@patch("custom_components.econnect_metronet.async_setup", return_value=True)
+@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
+async def test_form_generic_exception(mock_setup_entry, mock_setup, hass):
+    # Ensure we catch unexpected exceptions
+    form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+
+    # Check exceptions
+    err = Exception("Random Exception")
+
+    with patch("custom_components.econnect_metronet.helpers.ElmoClient.auth", side_effect=err):
+        result = await hass.config_entries.flow.async_configure(
+            form["flow_id"],
+            {
+                "username": "test-username",
+                "password": "test-password",
+                "domain": "test-domain",
+            },
+        )
+        await hass.async_block_till_done()
+
+        assert result["type"] == "form"
+        assert result["errors"]["base"] == "unknown"
