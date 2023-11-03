@@ -1,12 +1,10 @@
 from typing import Union
 
-from elmo.api.client import ElmoClient
-from homeassistant import core
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import CONF_USERNAME
 from homeassistant.util import slugify
 
-from .const import CONF_DOMAIN, CONF_SYSTEM_NAME, CONF_SYSTEM_URL, DOMAIN
+from .const import CONF_SYSTEM_NAME, DOMAIN
 from .exceptions import InvalidAreas
 
 
@@ -47,29 +45,6 @@ def parse_areas_config(config: str, raises: bool = False):
         if raises:
             raise InvalidAreas
         return []
-
-
-async def validate_credentials(hass: core.HomeAssistant, config: dict):
-    """Validate if user input includes valid credentials to connect.
-
-    Initialize the client with an API endpoint and a vendor and authenticate
-    your connection to retrieve the access token.
-
-    Args:
-        hass: HomeAssistant instance.
-        data: data that needs validation (configured username/password).
-    Raises:
-        ConnectionError: if there is a connection error.
-        CredentialError: if given credentials are incorrect.
-        HTTPError: if the API backend answers with errors.
-    Returns:
-        `True` if given `data` includes valid credential checked with
-        e-connect backend.
-    """
-    # Check Credentials
-    client = ElmoClient(config.get(CONF_SYSTEM_URL), domain=config.get(CONF_DOMAIN))
-    await hass.async_add_executor_job(client.auth, config.get(CONF_USERNAME), config.get(CONF_PASSWORD))
-    return True
 
 
 def generate_entity_id(config: ConfigEntry, name: Union[str, None] = None) -> str:
