@@ -1,7 +1,7 @@
-"""Config flow for E-connect Alarm integration."""
 import logging
 
 import voluptuous as vol
+from elmo.api.client import ElmoClient
 from elmo.api.exceptions import CredentialError
 from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant import config_entries
@@ -21,7 +21,7 @@ from .const import (
     SUPPORTED_SYSTEMS,
 )
 from .exceptions import InvalidAreas
-from .helpers import parse_areas_config, validate_credentials
+from .helpers import parse_areas_config
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,8 +43,11 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
         errors = {}
         if user_input is not None:
             try:
-                # Validate submitted configuration
-                await validate_credentials(self.hass, user_input)
+                # Validate credentials
+                client = ElmoClient(user_input.get(CONF_SYSTEM_URL), domain=user_input.get(CONF_DOMAIN))
+                await self.hass.async_add_executor_job(
+                    client.auth, user_input.get(CONF_USERNAME), user_input.get(CONF_PASSWORD)
+                )
             except ConnectionError:
                 errors["base"] = "cannot_connect"
             except CredentialError:
