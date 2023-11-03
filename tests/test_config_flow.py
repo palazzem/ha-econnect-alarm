@@ -1,6 +1,3 @@
-"""Test the E-connect Alarm config flow."""
-from unittest.mock import patch
-
 import pytest
 from elmo.api.exceptions import CredentialError
 from homeassistant import config_entries
@@ -10,9 +7,11 @@ from voluptuous.error import MultipleInvalid
 
 from custom_components.econnect_metronet.const import DOMAIN
 
+from .helpers import _
+
 
 async def test_form_fields(hass):
-    """Test the form is properly generated with fields we expect."""
+    # Ensure the form is properly generated with fields we expect
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
     assert form["type"] == "form"
     assert form["step_id"] == "user"
@@ -22,50 +21,48 @@ async def test_form_fields(hass):
     assert form["data_schema"].schema["domain"] == str
 
 
-@patch("custom_components.econnect_metronet.async_setup", return_value=True)
-@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
-@patch("custom_components.econnect_metronet.helpers.ElmoClient")
-async def test_form_submit_successful(mock_client, mock_setup_entry, mock_setup, hass):
-    """Test a properly submitted form initializes an ElmoClient."""
+async def test_form_submit_successful_with_input(hass, mocker):
+    # Ensure a properly submitted form initializes an ElmoClient
+    m_client = mocker.patch(_("config_flow.ElmoClient"))
+    m_setup = mocker.patch(_("async_setup"), return_value=True)
+    m_setup_entry = mocker.patch(_("async_setup_entry"), return_value=True)
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
-
+    # Test
     result = await hass.config_entries.flow.async_configure(
         form["flow_id"],
         {
             "username": "test-username",
             "password": "test-password",
             "domain": "test-domain",
-            "system_base_url": "https://connect.elmospa.com",
+            "system_base_url": "https://metronet.iessonline.com",
         },
     )
     await hass.async_block_till_done()
-
+    # Check Client Authentication
+    assert m_client.call_args.args == ("https://metronet.iessonline.com",)
+    assert m_client.call_args.kwargs == {"domain": "test-domain"}
+    assert m_client().auth.call_count == 1
+    assert m_client().auth.call_args.args == ("test-username", "test-password")
+    # Check HA setup
+    assert len(m_setup.mock_calls) == 1
+    assert len(m_setup_entry.mock_calls) == 1
     assert result["type"] == "create_entry"
     assert result["title"] == "e-Connect/Metronet Alarm"
     assert result["data"] == {
         "username": "test-username",
         "password": "test-password",
         "domain": "test-domain",
-        "system_base_url": "https://connect.elmospa.com",
+        "system_base_url": "https://metronet.iessonline.com",
     }
-    # Check HA setup
-    assert len(mock_setup.mock_calls) == 1
-    assert len(mock_setup_entry.mock_calls) == 1
-    # Check Client initialization during validation
-    assert ("https://connect.elmospa.com",) == mock_client.call_args.args
-    assert {"domain": "test-domain"} == mock_client.call_args.kwargs
-    client = mock_client()
-    assert client.auth.call_count == 1
-    assert ("test-username", "test-password") == client.auth.call_args.args
 
 
-@patch("custom_components.econnect_metronet.async_setup", return_value=True)
-@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
-@patch("custom_components.econnect_metronet.helpers.ElmoClient")
-async def test_form_submit_with_defaults(mock_client, mock_setup_entry, mock_setup, hass):
-    """Test a properly submitted form with defaults."""
+async def test_form_submit_with_defaults(hass, mocker):
+    # Ensure a properly submitted form with defaults
+    m_client = mocker.patch(_("config_flow.ElmoClient"))
+    m_setup = mocker.patch(_("async_setup"), return_value=True)
+    m_setup_entry = mocker.patch(_("async_setup_entry"), return_value=True)
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
-
+    # Test
     result = await hass.config_entries.flow.async_configure(
         form["flow_id"],
         {
@@ -74,7 +71,6 @@ async def test_form_submit_with_defaults(mock_client, mock_setup_entry, mock_set
         },
     )
     await hass.async_block_till_done()
-
     assert result["type"] == "create_entry"
     assert result["title"] == "e-Connect/Metronet Alarm"
     assert result["data"] == {
@@ -82,11 +78,14 @@ async def test_form_submit_with_defaults(mock_client, mock_setup_entry, mock_set
         "password": "test-password",
         "system_base_url": "https://connect.elmospa.com",
     }
+    # Check Client Authentication
+    assert m_client.call_args.args == ("https://connect.elmospa.com",)
+    assert m_client.call_args.kwargs == {"domain": None}
+    assert m_client().auth.call_count == 1
+    assert m_client().auth.call_args.args == ("test-username", "test-password")
     # Check HA setup
-    assert len(mock_setup.mock_calls) == 1
-    assert len(mock_setup_entry.mock_calls) == 1
-    # Check Client defaults initialization during validation
-    assert ("https://connect.elmospa.com",) == mock_client.call_args.args
+    assert len(m_setup.mock_calls) == 1
+    assert len(m_setup_entry.mock_calls) == 1
 
 
 async def test_form_supported_systems(hass):
@@ -100,16 +99,15 @@ async def test_form_supported_systems(hass):
     }
 
 
-@patch("custom_components.econnect_metronet.async_setup", return_value=True)
-@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
-async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
-    """Test the form has the expected required fields."""
+async def test_form_submit_required_fields(hass, mocker):
+    # Ensure the form has the expected required fields
+    mocker.patch(_("async_setup"), return_value=True)
+    mocker.patch(_("async_setup_entry"), return_value=True)
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
-
+    # Test
     with pytest.raises(MultipleInvalid) as excinfo:
         await hass.config_entries.flow.async_configure(form["flow_id"], {})
     await hass.async_block_till_done()
-
     assert len(excinfo.value.errors) == 2
     errors = []
     errors.append(str(excinfo.value.errors[0]))
@@ -118,13 +116,13 @@ async def test_form_submit_required_fields(mock_setup_entry, mock_setup, hass):
     assert "required key not provided @ data['password']" in errors
 
 
-@patch("custom_components.econnect_metronet.async_setup", return_value=True)
-@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
-@patch("custom_components.econnect_metronet.helpers.ElmoClient.auth", side_effect=CredentialError)
-async def test_form_submit_wrong_credential(mock_client, mock_setup_entry, mock_setup, hass):
-    """Test the right error is raised for CredentialError exception."""
+async def test_form_submit_wrong_credential(hass, mocker):
+    # Ensure the right error is raised for CredentialError exception
+    mocker.patch(_("config_flow.ElmoClient"), side_effect=CredentialError)
+    mocker.patch(_("async_setup"), return_value=True)
+    mocker.patch(_("async_setup_entry"), return_value=True)
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
-
+    # Test
     result = await hass.config_entries.flow.async_configure(
         form["flow_id"],
         {
@@ -134,18 +132,17 @@ async def test_form_submit_wrong_credential(mock_client, mock_setup_entry, mock_
         },
     )
     await hass.async_block_till_done()
-
     assert result["type"] == "form"
     assert result["errors"]["base"] == "invalid_auth"
 
 
-@patch("custom_components.econnect_metronet.async_setup", return_value=True)
-@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
-@patch("custom_components.econnect_metronet.helpers.ElmoClient.auth", side_effect=ConnectionError)
-async def test_form_submit_connection_error(mock_client, mock_setup_entry, mock_setup, hass):
-    """Test the right error is raised for connection errors."""
+async def test_form_submit_connection_error(hass, mocker):
+    # Ensure the right error is raised for connection errors
+    mocker.patch(_("config_flow.ElmoClient"), side_effect=ConnectionError)
+    mocker.patch(_("async_setup"), return_value=True)
+    mocker.patch(_("async_setup_entry"), return_value=True)
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
-
+    # Test
     result = await hass.config_entries.flow.async_configure(
         form["flow_id"],
         {
@@ -155,110 +152,95 @@ async def test_form_submit_connection_error(mock_client, mock_setup_entry, mock_
         },
     )
     await hass.async_block_till_done()
-
     assert result["type"] == "form"
     assert result["errors"]["base"] == "cannot_connect"
 
 
-@patch("custom_components.econnect_metronet.async_setup", return_value=True)
-@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
-async def test_form_client_errors(mock_setup_entry, mock_setup, hass):
-    """Test the right error is raised for 4xx API errors."""
+async def test_form_client_errors(hass, mocker):
+    # Ensure the right error is raised for 4xx API errors
+    mocker.patch(_("async_setup"), return_value=True)
+    mocker.patch(_("async_setup_entry"), return_value=True)
+    m_client = mocker.patch(_("config_flow.ElmoClient.auth"))
+    err = HTTPError(response=Response())
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
-
-    # Check all 4xx errors
-    r = Response()
+    # Test 400-499 status codes
     for code in range(400, 500):
-        r.status_code = code
-        err = HTTPError(response=r)
-
-        with patch("custom_components.econnect_metronet.helpers.ElmoClient.auth", side_effect=err):
-            result = await hass.config_entries.flow.async_configure(
-                form["flow_id"],
-                {
-                    "username": "test-username",
-                    "password": "test-password",
-                    "domain": "test-domain",
-                },
-            )
-            await hass.async_block_till_done()
-
-            assert result["type"] == "form"
-            assert result["errors"]["base"] == "client_error"
+        err.response.status_code = code
+        m_client.side_effect = err
+        result = await hass.config_entries.flow.async_configure(
+            form["flow_id"],
+            {
+                "username": "test-username",
+                "password": "test-password",
+                "domain": "test-domain",
+            },
+        )
+        await hass.async_block_till_done()
+        assert result["type"] == "form"
+        assert result["errors"]["base"] == "client_error"
 
 
-@patch("custom_components.econnect_metronet.async_setup", return_value=True)
-@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
-async def test_form_server_errors(mock_setup_entry, mock_setup, hass):
-    """Test the right error is raised for 5xx API errors."""
+async def test_form_server_errors(hass, mocker):
+    # Ensure the right error is raised for 5xx API errors
+    mocker.patch(_("async_setup"), return_value=True)
+    mocker.patch(_("async_setup_entry"), return_value=True)
+    m_client = mocker.patch(_("config_flow.ElmoClient.auth"))
+    err = HTTPError(response=Response())
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
-
-    # Check all 5xx errors
-    r = Response()
+    # Test 500-599 status codes
     for code in range(500, 600):
-        r.status_code = code
-        err = HTTPError(response=r)
-
-        with patch("custom_components.econnect_metronet.helpers.ElmoClient.auth", side_effect=err):
-            result = await hass.config_entries.flow.async_configure(
-                form["flow_id"],
-                {
-                    "username": "test-username",
-                    "password": "test-password",
-                    "domain": "test-domain",
-                },
-            )
-            await hass.async_block_till_done()
-
-            assert result["type"] == "form"
-            assert result["errors"]["base"] == "server_error"
+        err.response.status_code = code
+        m_client.side_effect = err
+        result = await hass.config_entries.flow.async_configure(
+            form["flow_id"],
+            {
+                "username": "test-username",
+                "password": "test-password",
+                "domain": "test-domain",
+            },
+        )
+        await hass.async_block_till_done()
+        assert result["type"] == "form"
+        assert result["errors"]["base"] == "server_error"
 
 
-@patch("custom_components.econnect_metronet.async_setup", return_value=True)
-@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
-async def test_form_unknown_errors(mock_setup_entry, mock_setup, hass):
+async def test_form_unknown_errors(hass, mocker):
     # Ensure we catch unexpected status codes
+    mocker.patch(_("async_setup"), return_value=True)
+    mocker.patch(_("async_setup_entry"), return_value=True)
+    err = HTTPError(response=Response())
+    err.response.status_code = 999
+    mocker.patch(_("config_flow.ElmoClient.auth"), side_effect=err)
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
-
-    # Check non-error status codes
-    r = Response()
-    r.status_code = 300
-    err = HTTPError(response=r)
-
-    with patch("custom_components.econnect_metronet.helpers.ElmoClient.auth", side_effect=err):
-        result = await hass.config_entries.flow.async_configure(
-            form["flow_id"],
-            {
-                "username": "test-username",
-                "password": "test-password",
-                "domain": "test-domain",
-            },
-        )
-        await hass.async_block_till_done()
-
-        assert result["type"] == "form"
-        assert result["errors"]["base"] == "unknown"
+    # Test non-error status codes
+    result = await hass.config_entries.flow.async_configure(
+        form["flow_id"],
+        {
+            "username": "test-username",
+            "password": "test-password",
+            "domain": "test-domain",
+        },
+    )
+    await hass.async_block_till_done()
+    assert result["type"] == "form"
+    assert result["errors"]["base"] == "unknown"
 
 
-@patch("custom_components.econnect_metronet.async_setup", return_value=True)
-@patch("custom_components.econnect_metronet.async_setup_entry", return_value=True)
-async def test_form_generic_exception(mock_setup_entry, mock_setup, hass):
+async def test_form_generic_exception(hass, mocker):
     # Ensure we catch unexpected exceptions
+    mocker.patch(_("async_setup"), return_value=True)
+    mocker.patch(_("async_setup_entry"), return_value=True)
+    mocker.patch(_("config_flow.ElmoClient.auth"), side_effect=Exception("Random Exception"))
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
-
-    # Check exceptions
-    err = Exception("Random Exception")
-
-    with patch("custom_components.econnect_metronet.helpers.ElmoClient.auth", side_effect=err):
-        result = await hass.config_entries.flow.async_configure(
-            form["flow_id"],
-            {
-                "username": "test-username",
-                "password": "test-password",
-                "domain": "test-domain",
-            },
-        )
-        await hass.async_block_till_done()
-
-        assert result["type"] == "form"
-        assert result["errors"]["base"] == "unknown"
+    # Test
+    result = await hass.config_entries.flow.async_configure(
+        form["flow_id"],
+        {
+            "username": "test-username",
+            "password": "test-password",
+            "domain": "test-domain",
+        },
+    )
+    await hass.async_block_till_done()
+    assert result["type"] == "form"
+    assert result["errors"]["base"] == "unknown"
