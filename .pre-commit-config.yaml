@@ -58,5 +58,5 @@ repos:
   rev: v1.5.1
   hooks:
     - id: mypy
-      exclude: tests/hass/
+      exclude: tests/|tests/hass/
       additional_dependencies: [types-requests]
