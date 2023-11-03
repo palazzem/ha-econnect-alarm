@@ -1,72 +1,171 @@
 import pytest
+from homeassistant.helpers.config_validation import multi_select as select
 from voluptuous.error import MultipleInvalid
 
-
-async def test_form_fields(hass, config_entry):
-    config_entry.add_to_hass(hass)
-    # Test
-    form = await hass.config_entries.options.async_init(config_entry.entry_id, context={"show_advanced_options": False})
-    assert form["type"] == "form"
-    assert form["step_id"] == "init"
-    assert form["errors"] == {}
-    assert list(form["data_schema"].schema.keys()) == [
-        "areas_arm_home",
-        "areas_arm_night",
-        "areas_arm_vacation",
-        "scan_interval",
-    ]
-    assert form["data_schema"].schema["areas_arm_home"] == str
-    assert form["data_schema"].schema["areas_arm_night"] == str
-    assert form["data_schema"].schema["areas_arm_vacation"] == str
-    assert form["data_schema"].schema["scan_interval"] == int
+from custom_components.econnect_metronet.const import DOMAIN, KEY_DEVICE
 
 
-async def test_form_submit_successful_empty(hass, config_entry):
-    # Ensure an empty form can be submitted successfully
-    config_entry.add_to_hass(hass)
-    form = await hass.config_entries.options.async_init(config_entry.entry_id, context={"show_advanced_options": False})
-    # Test
-    result = await hass.config_entries.options.async_configure(
-        form["flow_id"],
-        user_input={},
-    )
-    await hass.async_block_till_done()
-    # Check HA setup
-    assert result["type"] == "create_entry"
-    assert result["title"] == "e-Connect/Metronet Alarm"
-    assert result["data"] == {}
+class TestOptionsFlowHandler:
+    """Available options: [(1, 'S1 Living Room'), (2, 'S2 Bedroom'), (3, 'S3 Outdoor')]"""
 
+    @pytest.fixture(autouse=True)
+    def setup(self, hass, config_entry, alarm_device):
+        self.hass = hass
+        self.config_entry = config_entry
+        # Mock integration setup
+        config_entry.add_to_hass(hass)
+        hass.data[DOMAIN][config_entry.entry_id] = {
+            KEY_DEVICE: alarm_device,
+        }
 
-async def test_form_submit_successful_with_input(hass, config_entry):
-    # Ensure a single field can be submitted successfully
-    config_entry.add_to_hass(hass)
-    form = await hass.config_entries.options.async_init(config_entry.entry_id, context={"show_advanced_options": False})
-    # Test
-    result = await hass.config_entries.options.async_configure(
-        form["flow_id"],
-        user_input={
-            "areas_arm_home": "1",
-        },
-    )
-    await hass.async_block_till_done()
-    # Check HA setup
-    assert result["type"] == "create_entry"
-    assert result["title"] == "e-Connect/Metronet Alarm"
-    assert result["data"] == {"areas_arm_home": "1"}
+    async def test_form_fields(self, hass, config_entry):
+        # Test
+        form = await hass.config_entries.options.async_init(
+            config_entry.entry_id, context={"show_advanced_options": False}
+        )
+        assert form["type"] == "form"
+        assert form["step_id"] == "init"
+        assert form["errors"] == {}
+        assert list(form["data_schema"].schema.keys()) == [
+            "areas_arm_home",
+            "areas_arm_night",
+            "areas_arm_vacation",
+            "scan_interval",
+        ]
+        assert isinstance(form["data_schema"].schema["areas_arm_home"], select)
+        assert isinstance(form["data_schema"].schema["areas_arm_night"], select)
+        assert isinstance(form["data_schema"].schema["areas_arm_vacation"], select)
+        assert form["data_schema"].schema["scan_interval"] == int
 
+    async def test_form_submit_successful_empty(self, hass, config_entry):
+        # Ensure an empty form can be submitted successfully
+        config_entry.add_to_hass(hass)
+        form = await hass.config_entries.options.async_init(
+            config_entry.entry_id, context={"show_advanced_options": False}
+        )
+        # Test
+        result = await hass.config_entries.options.async_configure(
+            form["flow_id"],
+            user_input={},
+        )
+        await hass.async_block_till_done()
+        # Check HA config
+        assert result["type"] == "create_entry"
+        assert result["title"] == "e-Connect/Metronet Alarm"
+        assert result["data"] == {"areas_arm_vacation": [], "areas_arm_home": [], "areas_arm_night": []}
 
-async def test_form_submit_fails_with_none(hass, config_entry):
-    # Ensure an expected error is raised when submitting an invalid type
-    config_entry.add_to_hass(hass)
-    form = await hass.config_entries.options.async_init(config_entry.entry_id, context={"show_advanced_options": False})
-    # Test
-    with pytest.raises(MultipleInvalid) as excinfo:
-        await hass.config_entries.options.async_configure(
+    async def test_form_submit_invalid_type(self, hass, config_entry):
+        # Ensure it fails if an option not in the list is submitted
+        config_entry.add_to_hass(hass)
+        form = await hass.config_entries.options.async_init(
+            config_entry.entry_id, context={"show_advanced_options": False}
+        )
+        # Test
+        with pytest.raises(MultipleInvalid) as excinfo:
+            await hass.config_entries.options.async_configure(
+                form["flow_id"],
+                user_input={
+                    "areas_arm_home": "1",
+                },
+            )
+            await hass.async_block_till_done()
+        assert excinfo.value.errors[0].msg == "Not a list"
+
+    async def test_form_submit_invalid_input(self, hass, config_entry):
+        # Ensure it fails if an option not in the list is submitted
+        config_entry.add_to_hass(hass)
+        form = await hass.config_entries.options.async_init(
+            config_entry.entry_id, context={"show_advanced_options": False}
+        )
+        # Test
+        with pytest.raises(MultipleInvalid) as excinfo:
+            await hass.config_entries.options.async_configure(
+                form["flow_id"],
+                user_input={
+                    "areas_arm_home": [
+                        (3, "Garden"),
+                    ],
+                },
+            )
+            await hass.async_block_till_done()
+        assert excinfo.value.errors[0].msg == "(3, 'Garden') is not a valid option"
+
+    async def test_form_submit_successful_with_identifier(self, hass, config_entry):
+        # Ensure a single field can be submitted successfully
+        config_entry.add_to_hass(hass)
+        form = await hass.config_entries.options.async_init(
+            config_entry.entry_id, context={"show_advanced_options": False}
+        )
+        # Test
+        result = await hass.config_entries.options.async_configure(
             form["flow_id"],
             user_input={
-                "areas_arm_home": None,
+                "areas_arm_home": [1],
             },
         )
         await hass.async_block_till_done()
+        # Check HA config
+        assert result["type"] == "create_entry"
+        assert result["title"] == "e-Connect/Metronet Alarm"
+        assert result["data"] == {
+            "areas_arm_home": [1],
+            "areas_arm_night": [],
+            "areas_arm_vacation": [],
+        }
+        assert result["result"] is True
 
-    assert excinfo.value.errors[0].msg == "expected str"
+    async def test_form_submit_successful_with_input(self, hass, config_entry):
+        # Ensure a single field can be submitted successfully
+        config_entry.add_to_hass(hass)
+        form = await hass.config_entries.options.async_init(
+            config_entry.entry_id, context={"show_advanced_options": False}
+        )
+        # Test
+        result = await hass.config_entries.options.async_configure(
+            form["flow_id"],
+            user_input={
+                "areas_arm_home": [
+                    (1, "S1 Living Room"),
+                ],
+            },
+        )
+        await hass.async_block_till_done()
+        # Check HA config
+        assert result["type"] == "create_entry"
+        assert result["title"] == "e-Connect/Metronet Alarm"
+        assert result["data"] == {
+            "areas_arm_home": [(1, "S1 Living Room")],
+            "areas_arm_night": [],
+            "areas_arm_vacation": [],
+        }
+        assert result["result"] is True
+
+    async def test_form_submit_successful_with_multiple_inputs(self, hass, config_entry):
+        # Ensure a single field can be submitted successfully
+        config_entry.add_to_hass(hass)
+        form = await hass.config_entries.options.async_init(
+            config_entry.entry_id, context={"show_advanced_options": False}
+        )
+        # Test
+        result = await hass.config_entries.options.async_configure(
+            form["flow_id"],
+            user_input={
+                "areas_arm_home": [
+                    (1, "S1 Living Room"),
+                ],
+                "areas_arm_night": [
+                    (1, "S1 Living Room"),
+                ],
+                "areas_arm_vacation": [(1, "S1 Living Room"), (2, "S2 Bedroom")],
+            },
+        )
+        await hass.async_block_till_done()
+        # Check HA config
+        assert result["type"] == "create_entry"
+        assert result["title"] == "e-Connect/Metronet Alarm"
+        assert result["data"] == {
+            "areas_arm_home": [(1, "S1 Living Room")],
+            "areas_arm_night": [(1, "S1 Living Room")],
+            "areas_arm_vacation": [(1, "S1 Living Room"), (2, "S2 Bedroom")],
+        }
+        assert result["result"] is True

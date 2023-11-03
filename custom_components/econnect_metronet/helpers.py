@@ -1,11 +1,56 @@
-from typing import Union
+from typing import List, Tuple, Union
 
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_USERNAME
+from homeassistant.helpers.config_validation import multi_select
 from homeassistant.util import slugify
 
 from .const import CONF_SYSTEM_NAME, DOMAIN
 from .exceptions import InvalidAreas
+
+
+class select(multi_select):
+    """Extension for the multi_select helper to handle selections of tuples.
+
+    This class extends a multi_select helper class to support tuple-based
+    selections, allowing for a more complex selection structure such as
+    pairing an identifier with a descriptive string.
+
+    Options are provided as a list of tuples with the following format:
+        [(1, 'S1 Living Room'), (2, 'S2 Bedroom'), (3, 'S3 Outdoor')]
+
+    Attributes:
+        options (List[Tuple]): A list of tuple options for the select.
+        allowed_values (set): A set of valid values (identifiers) that can be selected.
+    """
+
+    def __init__(self, options: List[Tuple]) -> None:
+        self.options = options
+        self.allowed_values = {option[0] for option in options}
+
+    def __call__(self, selected: list) -> list:
+        """Validates the input list against the allowed values for selection.
+
+        Args:
+            selected: A list of values that have been selected.
+
+        Returns:
+            The same list if all selected values are valid.
+
+        Raises:
+            vol.Invalid: If the input is not a list or if any of the selected values
+                         are not in the allowed values for selection.
+        """
+        if not isinstance(selected, list):
+            raise vol.Invalid("Not a list")
+
+        for value in selected:
+            # Reject the value if it's not an option or its identifier
+            if value not in self.allowed_values and value not in self.options:
+                raise vol.Invalid(f"{value} is not a valid option")
+
+        return selected
 
 
 def parse_areas_config(config: str, raises: bool = False):

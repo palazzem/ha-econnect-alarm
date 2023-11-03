@@ -8,7 +8,6 @@ from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant import config_entries
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import callback
-from homeassistant.helpers.config_validation import multi_select
 from requests.exceptions import ConnectionError, HTTPError
 
 from .const import (
@@ -23,8 +22,7 @@ from .const import (
     KEY_DEVICE,
     SUPPORTED_SYSTEMS,
 )
-from .exceptions import InvalidAreas
-from .helpers import parse_areas_config
+from .helpers import select
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -119,17 +117,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         """Manage the options."""
         errors = {}
         if user_input is not None:
-            try:
-                parse_areas_config(user_input.get(CONF_AREAS_ARM_HOME), raises=True)
-                parse_areas_config(user_input.get(CONF_AREAS_ARM_NIGHT), raises=True)
-                parse_areas_config(user_input.get(CONF_AREAS_ARM_VACATION), raises=True)
-            except InvalidAreas:
-                errors["base"] = "invalid_areas"
-            except Exception as err:  # pylint: disable=broad-except
-                _LOGGER.error("Unexpected exception %s", err)
-                errors["base"] = "unknown"
-            else:
-                return self.async_create_entry(title="e-Connect/Metronet Alarm", data=user_input)
+            return self.async_create_entry(title="e-Connect/Metronet Alarm", data=user_input)
 
         # Populate with latest changes or previous settings
         user_input = user_input or {}
@@ -137,7 +125,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         # Generate sectors list for user config options
         device = self.hass.data[DOMAIN][self.config_entry.entry_id][KEY_DEVICE]
-        sectors_list = {f"{item['element']} : {item['name']}" for sector_id, item in device.items(q.SECTORS)}
+        sectors = [(item["element"], item["name"]) for _, item in device.items(q.SECTORS)]
 
         return self.async_show_form(
             step_id="init",
@@ -145,16 +133,16 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 {
                     vol.Optional(
                         CONF_AREAS_ARM_HOME,
-                        default=self.config_entry.options.get(CONF_AREAS_ARM_HOME),
-                    ): multi_select(sectors_list),
+                        default=self.config_entry.options.get(CONF_AREAS_ARM_HOME, []),
+                    ): select(sectors),
                     vol.Optional(
                         CONF_AREAS_ARM_NIGHT,
-                        default=self.config_entry.options.get(CONF_AREAS_ARM_NIGHT),
-                    ): multi_select(sectors_list),
+                        default=self.config_entry.options.get(CONF_AREAS_ARM_NIGHT, []),
+                    ): select(sectors),
                     vol.Optional(
                         CONF_AREAS_ARM_VACATION,
-                        default=self.config_entry.options.get(CONF_AREAS_ARM_VACATION),
-                    ): multi_select(sectors_list),
+                        default=self.config_entry.options.get(CONF_AREAS_ARM_VACATION, []),
+                    ): select(sectors),
                     vol.Optional(
                         CONF_SCAN_INTERVAL,
                         description={"suggested_value": suggest_scan_interval},
