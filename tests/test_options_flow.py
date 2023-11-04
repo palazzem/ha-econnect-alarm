@@ -5,9 +5,7 @@ from voluptuous.error import MultipleInvalid
 from custom_components.econnect_metronet.const import DOMAIN, KEY_DEVICE
 
 
-class TestOptionsFlowHandler:
-    """Available options: [(1, 'S1 Living Room'), (2, 'S2 Bedroom'), (3, 'S3 Outdoor')]"""
-
+class TestOptionsFlow:
     @pytest.fixture(autouse=True)
     def setup(self, hass, config_entry, alarm_device):
         self.hass = hass
@@ -19,7 +17,7 @@ class TestOptionsFlowHandler:
         }
 
     async def test_form_fields(self, hass, config_entry):
-        # Test
+        # Ensure form is loaded with the correct fields
         form = await hass.config_entries.options.async_init(
             config_entry.entry_id, context={"show_advanced_options": False}
         )
@@ -39,7 +37,6 @@ class TestOptionsFlowHandler:
 
     async def test_form_submit_successful_empty(self, hass, config_entry):
         # Ensure an empty form can be submitted successfully
-        config_entry.add_to_hass(hass)
         form = await hass.config_entries.options.async_init(
             config_entry.entry_id, context={"show_advanced_options": False}
         )
@@ -55,8 +52,7 @@ class TestOptionsFlowHandler:
         assert result["data"] == {"areas_arm_vacation": [], "areas_arm_home": [], "areas_arm_night": []}
 
     async def test_form_submit_invalid_type(self, hass, config_entry):
-        # Ensure it fails if an option not in the list is submitted
-        config_entry.add_to_hass(hass)
+        # Ensure it fails if a user submits an option with an invalid type
         form = await hass.config_entries.options.async_init(
             config_entry.entry_id, context={"show_advanced_options": False}
         )
@@ -72,8 +68,7 @@ class TestOptionsFlowHandler:
         assert excinfo.value.errors[0].msg == "Not a list"
 
     async def test_form_submit_invalid_input(self, hass, config_entry):
-        # Ensure it fails if an option not in the list is submitted
-        config_entry.add_to_hass(hass)
+        # Ensure it fails if a user submits an option not in the allowed list
         form = await hass.config_entries.options.async_init(
             config_entry.entry_id, context={"show_advanced_options": False}
         )
@@ -91,8 +86,7 @@ class TestOptionsFlowHandler:
         assert excinfo.value.errors[0].msg == "(3, 'Garden') is not a valid option"
 
     async def test_form_submit_successful_with_identifier(self, hass, config_entry):
-        # Ensure a single field can be submitted successfully
-        config_entry.add_to_hass(hass)
+        # Ensure users can submit an option just by using the option ID
         form = await hass.config_entries.options.async_init(
             config_entry.entry_id, context={"show_advanced_options": False}
         )
@@ -115,8 +109,7 @@ class TestOptionsFlowHandler:
         assert result["result"] is True
 
     async def test_form_submit_successful_with_input(self, hass, config_entry):
-        # Ensure a single field can be submitted successfully
-        config_entry.add_to_hass(hass)
+        # Ensure users can submit an option that is available in the allowed list
         form = await hass.config_entries.options.async_init(
             config_entry.entry_id, context={"show_advanced_options": False}
         )
@@ -141,8 +134,7 @@ class TestOptionsFlowHandler:
         assert result["result"] is True
 
     async def test_form_submit_successful_with_multiple_inputs(self, hass, config_entry):
-        # Ensure a single field can be submitted successfully
-        config_entry.add_to_hass(hass)
+        # Ensure multiple options can be submitted at once
         form = await hass.config_entries.options.async_init(
             config_entry.entry_id, context={"show_advanced_options": False}
         )
