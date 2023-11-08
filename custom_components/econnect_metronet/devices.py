@@ -13,7 +13,12 @@ from homeassistant.const import (
 )
 from requests.exceptions import HTTPError
 
-from .const import CONF_AREAS_ARM_HOME, CONF_AREAS_ARM_NIGHT, CONF_AREAS_ARM_VACATION
+from .const import (
+    CONF_AREAS_ARM_AWAY,
+    CONF_AREAS_ARM_HOME,
+    CONF_AREAS_ARM_NIGHT,
+    CONF_AREAS_ARM_VACATION,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,6 +50,7 @@ class AlarmDevice:
 
         # Load user configuration
         config = config or {}
+        self._sectors_away = config.get(CONF_AREAS_ARM_AWAY) or []
         self._sectors_home = config.get(CONF_AREAS_ARM_HOME) or []
         self._sectors_night = config.get(CONF_AREAS_ARM_NIGHT) or []
         self._sectors_vacation = config.get(CONF_AREAS_ARM_VACATION) or []

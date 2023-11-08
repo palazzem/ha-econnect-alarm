@@ -1,5 +1,6 @@
 import logging
 
+import pytest
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from custom_components.econnect_metronet.alarm_control_panel import EconnectAlarm
@@ -38,3 +39,24 @@ def test_alarm_panel_entity_id_with_system_name(client, hass, config_entry):
     coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
     entity = EconnectAlarm("test_id", config_entry, device, coordinator)
     assert entity.entity_id == "econnect_metronet.econnect_metronet_home"
+
+
+@pytest.mark.asyncio
+async def test_alarm_panel_arm_away(mocker, panel):
+    # Ensure an empty AWAY config arms all sectors
+    arm = mocker.patch.object(panel._device._connection, "arm", autopsec=True)
+    # Test
+    await panel.async_alarm_arm_away(code=42)
+    assert arm.call_count == 1
+    assert arm.call_args.kwargs["sectors"] == []
+
+
+@pytest.mark.asyncio
+async def test_alarm_panel_arm_away_with_options(mocker, panel):
+    # Ensure an empty AWAY config arms all sectors
+    arm = mocker.patch.object(panel._device._connection, "arm", autopsec=True)
+    panel._device._sectors_away = [1, 2]
+    # Test
+    await panel.async_alarm_arm_away(code=42)
+    assert arm.call_count == 1
+    assert arm.call_args.kwargs["sectors"] == [1, 2]

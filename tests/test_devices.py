@@ -13,6 +13,7 @@ from requests.exceptions import HTTPError
 from requests.models import Response
 
 from custom_components.econnect_metronet.const import (
+    CONF_AREAS_ARM_AWAY,
     CONF_AREAS_ARM_HOME,
     CONF_AREAS_ARM_NIGHT,
     CONF_AREAS_ARM_VACATION,
@@ -27,6 +28,7 @@ def test_device_constructor(client):
     assert device._connection == client
     assert device._inventory == {}
     assert device._last_ids == {10: 0, 9: 0, 11: 0}
+    assert device._sectors_away == []
     assert device._sectors_home == []
     assert device._sectors_night == []
     assert device._sectors_vacation == []
@@ -36,6 +38,7 @@ def test_device_constructor(client):
 def test_device_constructor_with_config(client):
     """Should initialize defaults attributes to run properly."""
     config = {
+        CONF_AREAS_ARM_AWAY: [1, 2, 3, 4, 5],
         CONF_AREAS_ARM_HOME: [3, 4],
         CONF_AREAS_ARM_NIGHT: [1, 2, 3],
         CONF_AREAS_ARM_VACATION: [5, 3],
@@ -45,6 +48,7 @@ def test_device_constructor_with_config(client):
     assert device._connection == client
     assert device._inventory == {}
     assert device._last_ids == {10: 0, 9: 0, 11: 0}
+    assert device._sectors_away == [1, 2, 3, 4, 5]
     assert device._sectors_home == [3, 4]
     assert device._sectors_night == [1, 2, 3]
     assert device._sectors_vacation == [5, 3]
@@ -54,6 +58,7 @@ def test_device_constructor_with_config(client):
 def test_device_constructor_with_config_empty(client):
     """Should initialize defaults attributes to run properly."""
     config = {
+        CONF_AREAS_ARM_AWAY: None,
         CONF_AREAS_ARM_HOME: None,
         CONF_AREAS_ARM_NIGHT: None,
         CONF_AREAS_ARM_VACATION: None,
@@ -63,6 +68,7 @@ def test_device_constructor_with_config_empty(client):
     assert device._connection == client
     assert device._inventory == {}
     assert device._last_ids == {10: 0, 9: 0, 11: 0}
+    assert device._sectors_away == []
     assert device._sectors_home == []
     assert device._sectors_night == []
     assert device._sectors_vacation == []
@@ -871,6 +877,7 @@ def test_get_state_armed_vacation_out_of_order(alarm_device):
 
 def test_get_state_armed_away(alarm_device):
     """Test when sectors are armed but don't match home or night."""
+    alarm_device._sectors_away = []
     alarm_device._sectors_home = [1, 2, 3]
     alarm_device._sectors_night = [4, 5, 6]
     alarm_device._sectors_vacation = [4, 2]
@@ -887,6 +894,7 @@ def test_get_state_armed_away(alarm_device):
 
 def test_get_state_armed_mixed(alarm_device):
     """Test when some sectors from home and night are armed."""
+    alarm_device._sectors_away = []
     alarm_device._sectors_home = [1, 2, 3]
     alarm_device._sectors_night = [4, 5, 6]
     alarm_device._inventory = {
@@ -895,6 +903,23 @@ def test_get_state_armed_mixed(alarm_device):
             1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
             2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": True, "name": "S3 Outdoor"},
             3: {"id": 4, "index": 3, "element": 5, "excluded": False, "status": True, "name": "S5 Perimeter"},
+        }
+    }
+    # Test
+    assert alarm_device.get_state() == STATE_ALARM_ARMED_AWAY
+
+
+def test_get_state_armed_away_with_config(alarm_device):
+    # Ensure arm AWAY is set when it matches the config value
+    alarm_device._sectors_away = [4]
+    alarm_device._sectors_home = [1, 2, 3]
+    alarm_device._sectors_night = [4, 5, 6]
+    alarm_device._sectors_vacation = [4, 2]
+    alarm_device._inventory = {
+        9: {
+            0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": False, "name": "S1 Living Room"},
+            1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": False, "name": "S2 Bedroom"},
+            2: {"id": 3, "index": 2, "element": 4, "excluded": False, "status": True, "name": "S3 Outdoor"},
         }
     }
     # Test
