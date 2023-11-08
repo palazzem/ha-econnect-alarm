@@ -30,12 +30,13 @@
         "step": {
             "init": {
                 "data": {
+                    "areas_arm_away": "Settori armati mentre sei fuori casa (attiva tutti i settori se non configurato)",
                     "areas_arm_home": "Settori armati mentre sei a casa (opzionale)",
                     "areas_arm_night": "Settori armati di notte (opzionale)",
                     "areas_arm_vacation": "Settori armati quando sei in vacanza (opzionale)",
                     "scan_interval": "Intervallo di scansione (es. 120 - opzionale)"
                 },
-                "description": "Scegli, tra quelli proposti, i settori che desideri armare nelle diverse modalità.\n\nImposta il valore 'Intervallo di scansione' solo se desideri ridurre l'utilizzo dei dati, nel caso in cui il sistema sia connesso tramite una rete mobile (SIM). Lascialo vuoto per aggiornamenti in tempo reale, oppure imposta un valore in secondi (es. 120 per un aggiornamento ogni 2 minuti)",
+                "description": "Scegli, tra quelli proposti, i settori che desideri armare nelle diverse modalità. Se l'opzione FUORI CASA non venisse configurata, tutti i settori saranno attivati in allarme.\n\nImposta il valore 'Intervallo di scansione' solo se desideri ridurre l'utilizzo dei dati, nel caso in cui il sistema sia connesso tramite una rete mobile (SIM). Lascialo vuoto per aggiornamenti in tempo reale, oppure imposta un valore in secondi (es. 120 per un aggiornamento ogni 2 minuti)",
                 "title": "Configura il tuo sistema e-Connect/Metronet"
             }
         }
