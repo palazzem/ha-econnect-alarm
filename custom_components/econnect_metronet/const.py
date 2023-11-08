@@ -8,6 +8,7 @@ SUPPORTED_SYSTEMS = {
 CONF_DOMAIN = "domain"
 CONF_SYSTEM_URL = "system_base_url"
 CONF_SYSTEM_NAME = "system_name"
+CONF_AREAS_ARM_AWAY = "areas_arm_away"
 CONF_AREAS_ARM_HOME = "areas_arm_home"
 CONF_AREAS_ARM_NIGHT = "areas_arm_night"
 CONF_AREAS_ARM_VACATION = "areas_arm_vacation"

@@ -100,7 +100,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     @set_device_state(STATE_ALARM_ARMED_AWAY, STATE_ALARM_ARMING)
     async def async_alarm_arm_away(self, code=None):
         """Send arm away command."""
-        await self.hass.async_add_executor_job(self._device.arm, code)
+        await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_away)
 
     @set_device_state(STATE_ALARM_ARMED_HOME, STATE_ALARM_ARMING)
     async def async_alarm_arm_home(self, code=None):

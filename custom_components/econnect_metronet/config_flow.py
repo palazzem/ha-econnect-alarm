@@ -11,6 +11,7 @@ from homeassistant.core import callback
 from requests.exceptions import ConnectionError, HTTPError
 
 from .const import (
+    CONF_AREAS_ARM_AWAY,
     CONF_AREAS_ARM_HOME,
     CONF_AREAS_ARM_NIGHT,
     CONF_AREAS_ARM_VACATION,
@@ -104,7 +105,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     """Reconfigure integration options.
 
     Available options are:
-        * Areas armed in Arm Away state
+        * Areas armed in Arm Away state. If not set all sectors are armed.
+        * Areas armed in Arm Home state
         * Areas armed in Arm Night state
         * Areas armed in Arm Vacation state
     """
@@ -131,6 +133,10 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             step_id="init",
             data_schema=vol.Schema(
                 {
+                    vol.Optional(
+                        CONF_AREAS_ARM_AWAY,
+                        default=self.config_entry.options.get(CONF_AREAS_ARM_AWAY, []),
+                    ): select(sectors),
                     vol.Optional(
                         CONF_AREAS_ARM_HOME,
                         default=self.config_entry.options.get(CONF_AREAS_ARM_HOME, []),

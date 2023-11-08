@@ -25,11 +25,13 @@ class TestOptionsFlow:
         assert form["step_id"] == "init"
         assert form["errors"] == {}
         assert list(form["data_schema"].schema.keys()) == [
+            "areas_arm_away",
             "areas_arm_home",
             "areas_arm_night",
             "areas_arm_vacation",
             "scan_interval",
         ]
+        assert isinstance(form["data_schema"].schema["areas_arm_away"], select)
         assert isinstance(form["data_schema"].schema["areas_arm_home"], select)
         assert isinstance(form["data_schema"].schema["areas_arm_night"], select)
         assert isinstance(form["data_schema"].schema["areas_arm_vacation"], select)
@@ -49,7 +51,12 @@ class TestOptionsFlow:
         # Check HA config
         assert result["type"] == "create_entry"
         assert result["title"] == "e-Connect/Metronet Alarm"
-        assert result["data"] == {"areas_arm_vacation": [], "areas_arm_home": [], "areas_arm_night": []}
+        assert result["data"] == {
+            "areas_arm_vacation": [],
+            "areas_arm_home": [],
+            "areas_arm_night": [],
+            "areas_arm_away": [],
+        }
 
     async def test_form_submit_invalid_type(self, hass, config_entry):
         # Ensure it fails if a user submits an option with an invalid type
@@ -102,6 +109,7 @@ class TestOptionsFlow:
         assert result["type"] == "create_entry"
         assert result["title"] == "e-Connect/Metronet Alarm"
         assert result["data"] == {
+            "areas_arm_away": [],
             "areas_arm_home": [1],
             "areas_arm_night": [],
             "areas_arm_vacation": [],
@@ -127,6 +135,7 @@ class TestOptionsFlow:
         assert result["type"] == "create_entry"
         assert result["title"] == "e-Connect/Metronet Alarm"
         assert result["data"] == {
+            "areas_arm_away": [],
             "areas_arm_home": [(1, "S1 Living Room")],
             "areas_arm_night": [],
             "areas_arm_vacation": [],
@@ -142,6 +151,9 @@ class TestOptionsFlow:
         result = await hass.config_entries.options.async_configure(
             form["flow_id"],
             user_input={
+                "areas_arm_away": [
+                    (2, "S2 Bedroom"),
+                ],
                 "areas_arm_home": [
                     (1, "S1 Living Room"),
                 ],
@@ -156,6 +168,7 @@ class TestOptionsFlow:
         assert result["type"] == "create_entry"
         assert result["title"] == "e-Connect/Metronet Alarm"
         assert result["data"] == {
+            "areas_arm_away": [(2, "S2 Bedroom")],
             "areas_arm_home": [(1, "S1 Living Room")],
             "areas_arm_night": [(1, "S1 Living Room")],
             "areas_arm_vacation": [(1, "S1 Living Room"), (2, "S2 Bedroom")],
