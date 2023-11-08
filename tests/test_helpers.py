@@ -1,40 +1,6 @@
-import pytest
 from homeassistant.core import valid_entity_id
 
-from custom_components.econnect_metronet.exceptions import InvalidAreas
-from custom_components.econnect_metronet.helpers import (
-    generate_entity_id,
-    parse_areas_config,
-)
-
-
-def test_parse_areas_config_valid_input():
-    assert parse_areas_config("3,4") == [3, 4]
-    assert parse_areas_config("1,2,3,4,5") == [1, 2, 3, 4, 5]
-    assert parse_areas_config("10") == [10]
-    assert parse_areas_config("") == []
-
-
-def test_parse_areas_config_valid_empty_input():
-    assert parse_areas_config("", raises=True) == []
-    assert parse_areas_config(None, raises=True) == []
-
-
-def test_parse_areas_config_invalid_input():
-    assert parse_areas_config("3,a") == []
-    assert parse_areas_config("3.4") == []
-    assert parse_areas_config("3,") == []
-
-
-def test_parse_areas_config_raises_value_error():
-    with pytest.raises(InvalidAreas):
-        parse_areas_config("3,a", raises=True)
-    with pytest.raises(InvalidAreas):
-        parse_areas_config("3.4", raises=True)
-
-
-def test_parse_areas_config_whitespace():
-    assert parse_areas_config(" 3 , 4 ") == [3, 4]
+from custom_components.econnect_metronet.helpers import generate_entity_id
 
 
 def test_generate_entity_name_empty(config_entry):

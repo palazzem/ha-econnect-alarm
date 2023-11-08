@@ -1,50 +1,55 @@
-from typing import Union
+from typing import List, Tuple, Union
 
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_USERNAME
+from homeassistant.helpers.config_validation import multi_select
 from homeassistant.util import slugify
 
 from .const import CONF_SYSTEM_NAME, DOMAIN
-from .exceptions import InvalidAreas
 
 
-def parse_areas_config(config: str, raises: bool = False):
-    """Parses a comma-separated string of area configurations into a list of integers.
+class select(multi_select):
+    """Extension for the multi_select helper to handle selections of tuples.
 
-    Takes a string containing comma-separated area IDs and converts it to a list of integers.
-    In case of any parsing errors, either raises a custom `InvalidAreas` exception or returns an empty list
-    based on the `raises` flag.
+    This class extends a multi_select helper class to support tuple-based
+    selections, allowing for a more complex selection structure such as
+    pairing an identifier with a descriptive string.
 
-    Args:
-        config (str): A comma-separated string of area IDs, e.g., "3,4".
-        raises (bool, optional): Determines the error handling behavior. If `True`, the function
-                                 raises the `InvalidAreas` exception upon encountering a parsing error.
-                                 If `False`, it suppresses the error and returns an empty list.
-                                 Defaults to `False`.
+    Options are provided as a list of tuples with the following format:
+        [(1, 'S1 Living Room'), (2, 'S2 Bedroom'), (3, 'S3 Outdoor')]
 
-    Returns:
-        list[int]: A list of integers representing area IDs. If parsing fails and `raises` is `False`,
-                   returns an empty list.
-
-    Raises:
-        InvalidAreas: If there's a parsing error and the `raises` flag is set to `True`.
-
-    Examples:
-        >>> parse_areas_config("3,4")
-        [3, 4]
-        >>> parse_areas_config("3,a")
-        []
+    Attributes:
+        options (List[Tuple]): A list of tuple options for the select.
+        allowed_values (set): A set of valid values (identifiers) that can be selected.
     """
-    if config == "" or config is None:
-        # Empty config is considered valid (no sectors configured)
-        return []
 
-    try:
-        return [int(x) for x in config.split(",")]
-    except (ValueError, AttributeError):
-        if raises:
-            raise InvalidAreas
-        return []
+    def __init__(self, options: List[Tuple]) -> None:
+        self.options = options
+        self.allowed_values = {option[0] for option in options}
+
+    def __call__(self, selected: list) -> list:
+        """Validates the input list against the allowed values for selection.
+
+        Args:
+            selected: A list of values that have been selected.
+
+        Returns:
+            The same list if all selected values are valid.
+
+        Raises:
+            vol.Invalid: If the input is not a list or if any of the selected values
+                         are not in the allowed values for selection.
+        """
+        if not isinstance(selected, list):
+            raise vol.Invalid("Not a list")
+
+        for value in selected:
+            # Reject the value if it's not an option or its identifier
+            if value not in self.allowed_values and value not in self.options:
+                raise vol.Invalid(f"{value} is not a valid option")
+
+        return selected
 
 
 def generate_entity_id(config: ConfigEntry, name: Union[str, None] = None) -> str:

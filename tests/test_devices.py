@@ -36,9 +36,9 @@ def test_device_constructor(client):
 def test_device_constructor_with_config(client):
     """Should initialize defaults attributes to run properly."""
     config = {
-        CONF_AREAS_ARM_HOME: "3, 4",
-        CONF_AREAS_ARM_NIGHT: "1, 2, 3",
-        CONF_AREAS_ARM_VACATION: "5, 3",
+        CONF_AREAS_ARM_HOME: [3, 4],
+        CONF_AREAS_ARM_NIGHT: [1, 2, 3],
+        CONF_AREAS_ARM_VACATION: [5, 3],
     }
     device = AlarmDevice(client, config=config)
     # Test
@@ -48,6 +48,24 @@ def test_device_constructor_with_config(client):
     assert device._sectors_home == [3, 4]
     assert device._sectors_night == [1, 2, 3]
     assert device._sectors_vacation == [5, 3]
+    assert device.state == STATE_UNAVAILABLE
+
+
+def test_device_constructor_with_config_empty(client):
+    """Should initialize defaults attributes to run properly."""
+    config = {
+        CONF_AREAS_ARM_HOME: None,
+        CONF_AREAS_ARM_NIGHT: None,
+        CONF_AREAS_ARM_VACATION: None,
+    }
+    device = AlarmDevice(client, config=config)
+    # Test
+    assert device._connection == client
+    assert device._inventory == {}
+    assert device._last_ids == {10: 0, 9: 0, 11: 0}
+    assert device._sectors_home == []
+    assert device._sectors_night == []
+    assert device._sectors_vacation == []
     assert device.state == STATE_UNAVAILABLE
 
 

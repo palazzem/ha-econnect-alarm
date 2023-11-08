@@ -1,6 +1,7 @@
 import logging
 
 import voluptuous as vol
+from elmo import query as q
 from elmo.api.client import ElmoClient
 from elmo.api.exceptions import CredentialError
 from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
@@ -18,10 +19,10 @@ from .const import (
     CONF_SYSTEM_NAME,
     CONF_SYSTEM_URL,
     DOMAIN,
+    KEY_DEVICE,
     SUPPORTED_SYSTEMS,
 )
-from .exceptions import InvalidAreas
-from .helpers import parse_areas_config
+from .helpers import select
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ _LOGGER = logging.getLogger(__name__)
 class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore
     """Handle a config flow for E-connect Alarm."""
 
-    VERSION = 2
+    VERSION = 3
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
     @staticmethod
@@ -116,42 +117,32 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         """Manage the options."""
         errors = {}
         if user_input is not None:
-            try:
-                parse_areas_config(user_input.get(CONF_AREAS_ARM_HOME), raises=True)
-                parse_areas_config(user_input.get(CONF_AREAS_ARM_NIGHT), raises=True)
-                parse_areas_config(user_input.get(CONF_AREAS_ARM_VACATION), raises=True)
-            except InvalidAreas:
-                errors["base"] = "invalid_areas"
-            except Exception as err:  # pylint: disable=broad-except
-                _LOGGER.error("Unexpected exception %s", err)
-                errors["base"] = "unknown"
-            else:
-                return self.async_create_entry(title="e-Connect/Metronet Alarm", data=user_input)
+            return self.async_create_entry(title="e-Connect/Metronet Alarm", data=user_input)
 
         # Populate with latest changes or previous settings
         user_input = user_input or {}
-        suggest_arm_home = user_input.get(CONF_AREAS_ARM_HOME) or self.config_entry.options.get(CONF_AREAS_ARM_HOME)
-        suggest_arm_night = user_input.get(CONF_AREAS_ARM_NIGHT) or self.config_entry.options.get(CONF_AREAS_ARM_NIGHT)
-        suggest_arm_vacation = user_input.get(CONF_AREAS_ARM_VACATION) or self.config_entry.options.get(
-            CONF_AREAS_ARM_VACATION
-        )
         suggest_scan_interval = user_input.get(CONF_SCAN_INTERVAL) or self.config_entry.options.get(CONF_SCAN_INTERVAL)
+
+        # Generate sectors list for user config options
+        device = self.hass.data[DOMAIN][self.config_entry.entry_id][KEY_DEVICE]
+        sectors = [(item["element"], item["name"]) for _, item in device.items(q.SECTORS)]
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
                 {
                     vol.Optional(
                         CONF_AREAS_ARM_HOME,
-                        description={"suggested_value": suggest_arm_home},
-                    ): str,
+                        default=self.config_entry.options.get(CONF_AREAS_ARM_HOME, []),
+                    ): select(sectors),
                     vol.Optional(
                         CONF_AREAS_ARM_NIGHT,
-                        description={"suggested_value": suggest_arm_night},
-                    ): str,
+                        default=self.config_entry.options.get(CONF_AREAS_ARM_NIGHT, []),
+                    ): select(sectors),
                     vol.Optional(
                         CONF_AREAS_ARM_VACATION,
-                        description={"suggested_value": suggest_arm_vacation},
-                    ): str,
+                        default=self.config_entry.options.get(CONF_AREAS_ARM_VACATION, []),
+                    ): select(sectors),
                     vol.Optional(
                         CONF_SCAN_INTERVAL,
                         description={"suggested_value": suggest_scan_interval},

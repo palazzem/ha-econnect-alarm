@@ -37,6 +37,20 @@ async def async_migrate_entry(hass, config: ConfigEntry):
         config.version = 2
         hass.config_entries.async_update_entry(config, data=migrated_config)
 
+    if config.version == 2:
+        # Config initialization
+        options = {**config.options}
+        options_to_migrate = ["areas_arm_home", "areas_arm_night", "areas_arm_vacation"]
+        migrated_options = {}
+        # Migration
+        config.version = 3
+        for key, value in options.items():
+            if key in options_to_migrate:
+                migrated_options[key] = [int(area) for area in value.split(",")]
+            else:
+                migrated_options[key] = value
+        hass.config_entries.async_update_entry(config, options=migrated_options)
+
     _LOGGER.info(f"Migration to version {config.version} successful")
     return True
 
