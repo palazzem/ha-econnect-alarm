@@ -1,9 +1,6 @@
-import logging
-
 import pytest
 import responses
 from elmo.api.client import ElmoClient
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from custom_components.econnect_metronet import async_setup
 from custom_components.econnect_metronet.alarm_control_panel import EconnectAlarm
@@ -53,7 +50,7 @@ def alarm_device(client):
 
 
 @pytest.fixture(scope="function")
-def alarm_entity(hass, client, config_entry):
+def panel(hass, config_entry, alarm_device, coordinator):
     """Fixture to provide a test instance of the EconnectAlarm entity.
 
     This sets up an AlarmDevice and its corresponding DataUpdateCoordinator,
@@ -67,11 +64,9 @@ def alarm_entity(hass, client, config_entry):
     Yields:
         EconnectAlarm: Initialized test instance of the EconnectAlarm entity.
     """
-    device = AlarmDevice(client)
-    coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
-    entity = EconnectAlarm(unique_id="test_id", config=config_entry, device=device, coordinator=coordinator)
+    entity = EconnectAlarm(unique_id="test_id", config=config_entry, device=alarm_device, coordinator=coordinator)
     entity.hass = hass
-    yield entity
+    return entity
 
 
 @pytest.fixture(scope="function")
