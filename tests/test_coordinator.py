@@ -67,9 +67,38 @@ async def test_coordinator_async_update_with_data(mocker, coordinator):
             2: {"element": 3, "excluded": True, "id": 3, "index": 2, "name": "Outdoor Sensor 2", "status": False},
         },
         9: {
-            0: {"element": 1, "excluded": False, "id": 1, "index": 0, "name": "S1 Living Room", "status": True},
-            1: {"element": 2, "excluded": False, "id": 2, "index": 1, "name": "S2 Bedroom", "status": True},
-            2: {"element": 3, "excluded": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False},
+            0: {"element": 1, "activable": True, "id": 1, "index": 0, "name": "S1 Living Room", "status": True},
+            1: {"element": 2, "activable": True, "id": 2, "index": 1, "name": "S2 Bedroom", "status": True},
+            2: {"element": 3, "activable": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False},
+        },
+        12: {
+            0: {
+                "element": 1,
+                "control_denied_to_users": False,
+                "do_not_require_authentication": True,
+                "id": 1,
+                "index": 0,
+                "name": "Output 1",
+                "status": True,
+            },
+            1: {
+                "element": 2,
+                "control_denied_to_users": False,
+                "do_not_require_authentication": False,
+                "id": 2,
+                "index": 1,
+                "name": "Output 2",
+                "status": True,
+            },
+            2: {
+                "element": 3,
+                "control_denied_to_users": True,
+                "do_not_require_authentication": False,
+                "id": 3,
+                "index": 2,
+                "name": "Output 3",
+                "status": False,
+            },
         },
     }
 

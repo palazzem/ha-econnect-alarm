@@ -45,6 +45,7 @@ class AlarmDevice:
         self._last_ids = {
             q.SECTORS: 0,
             q.INPUTS: 0,
+            q.OUTPUTS: 0,
             q.ALERTS: 0,
         }
 
@@ -71,6 +72,21 @@ class AlarmDevice:
             [(1, 'Front Door'), (2, 'Back Door')]
         """
         for input_id, item in self._inventory.get(q.INPUTS, {}).items():
+            yield input_id, item["name"]
+
+    @property
+    def outputs(self):
+        """Iterate over the device's inventory of outputs.
+        This property provides an iterator over the device's inventory, where each item is a tuple
+        containing the output's ID and its name.
+        Yields:
+            tuple: A tuple where the first item is the output ID and the second item is the output name.
+        Example:
+            >>> device = AlarmDevice()
+            >>> list(device.outputs)
+            [(1, 'Output 1'), (2, 'Output 2')]
+        """
+        for input_id, item in self._inventory.get(q.OUTPUTS, {}).items():
             yield input_id, item["name"]
 
     @property
@@ -232,6 +248,7 @@ class AlarmDevice:
         try:
             sectors = self._connection.query(q.SECTORS)
             inputs = self._connection.query(q.INPUTS)
+            outputs = self._connection.query(q.OUTPUTS)
             alerts = self._connection.query(q.ALERTS)
         except HTTPError as err:
             _LOGGER.error(f"Device | Error during the update: {err.response.text}")
@@ -243,11 +260,13 @@ class AlarmDevice:
         # Update the _inventory
         self._inventory.update({q.SECTORS: sectors["sectors"]})
         self._inventory.update({q.INPUTS: inputs["inputs"]})
+        self._inventory.update({q.OUTPUTS: outputs["outputs"]})
         self._inventory.update({q.ALERTS: alerts["alerts"]})
 
         # Update the _last_ids
         self._last_ids[q.SECTORS] = sectors.get("last_id", 0)
         self._last_ids[q.INPUTS] = inputs.get("last_id", 0)
+        self._last_ids[q.OUTPUTS] = outputs.get("last_id", 0)
         self._last_ids[q.ALERTS] = alerts.get("last_id", 0)
 
         # Update the internal state machine (mapping state)
@@ -284,3 +303,83 @@ class AlarmDevice:
         except CodeError as err:
             _LOGGER.error(f"Device | Credentials (alarm code) is incorrect: {err}")
             raise err
+
+    def turn_off(self, outputs=None):
+        """
+        Turn off a specified output.
+
+        Args:
+            outputs (str): The ID of the output to be turned off.
+
+        Raises:
+            HTTPError: If there is an error in the HTTP request to turn off the output.
+
+        Notes:
+            - The `element` is the sector ID used to arm/disarm the sector.
+            - This method checks for authentication requirements and control permissions
+                before attempting to turn off the output.
+            - If the output can't be manually controlled or if authentication is required but not provided,
+                appropriate error messages are logged.
+
+        Example:
+            To turn off an output with ID '1', use:
+            >>> device_instance.turn_off(outputs='1')
+        """
+        for id, item in self.items(q.OUTPUTS):
+            if id == outputs:
+                if not item.get("control_denied_to_users"):
+                    if item.get("do_not_require_authentication"):
+                        element_id = item.get("element")
+                        try:
+                            self._connection.turn_off(element_id)
+                        except HTTPError as err:
+                            _LOGGER.error(f"Device | Error while turning off outputs: {err.response.text}")
+                            raise err
+                    else:
+                        _LOGGER.error(
+                            f"Device | Error while turning off output: {item.get('name')}, Required authentication"
+                        )
+                else:
+                    _LOGGER.error(
+                        f"Device | Error while turning off output: {item.get('name')}, Can't be manual controlled"
+                    )
+
+    def turn_on(self, outputs=None):
+        """
+        Turn on a specified output.
+
+        Args:
+            outputs (str): The ID of the output to be turned on.
+
+        Raises:
+            HTTPError: If there is an error in the HTTP request to turn on the output.
+
+        Notes:
+            - The `element` is the sector ID used to arm/disarm the sector.
+            - This method checks for authentication requirements and control permissions
+                before attempting to turn on the output.
+            - If the output can't be manually controlled or if authentication is required but not provided,
+                appropriate error messages are logged.
+
+        Example:
+            To turn on an output with ID '1', use:
+            >>> device_instance.turn_on(outputs='1')
+        """
+        for id, item in self.items(q.OUTPUTS):
+            if id == outputs:
+                if not item.get("control_denied_to_users"):
+                    if item.get("do_not_require_authentication"):
+                        element_id = item.get("element")
+                        try:
+                            self._connection.turn_on(element_id)
+                        except HTTPError as err:
+                            _LOGGER.error(f"Device | Error while turning on outputs: {err.response.text}")
+                            raise err
+                    else:
+                        _LOGGER.error(
+                            f"Device | Error while turning on output: {item.get('name')}, Required authentication"
+                        )
+                else:
+                    _LOGGER.error(
+                        f"Device | Error while turning on output: {item.get('name')}, Can't be manual controlled"
+                    )

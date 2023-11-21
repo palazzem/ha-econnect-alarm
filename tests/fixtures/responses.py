@@ -78,7 +78,7 @@ SYNC_SEND_COMMAND = """[
         "Successful": true
     }
 ]"""
-STRINGS = """[
+STRINGS = r"""[
     {
         "AccountId": 1,
         "Class": 9,
@@ -136,12 +136,44 @@ STRINGS = """[
         "Version": "AAAAAAAAgRw="
     },
     {
-        "AccountId": 3,
+        "AccountId": 1,
         "Class": 10,
         "Index": 3,
         "Description": "Outdoor Sensor 3",
         "Created": "/Date(1546004147493+0100)/",
         "Version": "AAAAAAAAgRw="
+    },
+        {
+        "AccountId": 1,
+        "Class": 12,
+        "Index": 0,
+        "Description": "Output 1",
+        "Created": "\/Date(1699548985673+0100)\/",
+        "Version": "AAAAAAAceCo="
+    },
+    {
+        "AccountId": 1,
+        "Class": 12,
+        "Index": 1,
+        "Description": "Output 2",
+        "Created": "\/Date(1699548985673+0100)\/",
+        "Version": "AAAAAAAceCs="
+    },
+    {
+        "AccountId": 1,
+        "Class": 12,
+        "Index": 2,
+        "Description": "Output 3",
+        "Created": "\/Date(1699548985673+0100)\/",
+        "Version": "AAAAAAAceCw="
+    },
+    {
+        "AccountId": 1,
+        "Class": 12,
+        "Index": 3,
+        "Description": "Output 4",
+        "Created": "\/Date(1699548985673+0100)\/",
+        "Version": "AAAAAAAceC0="
     }
 ]"""
 AREAS = """[
@@ -175,7 +207,7 @@ AREAS = """[
        "Active": false,
        "ActivePartial": false,
        "Max": false,
-       "Activable": true,
+       "Activable": false,
        "ActivablePartial": false,
        "InUse": true,
        "Id": 3,
@@ -242,6 +274,52 @@ INPUTS = """[
        "InUse": false,
        "IsVideo": false,
        "Id": 42,
+       "Index": 3,
+       "Element": 4,
+       "CommandId": 0,
+       "InProgress": false
+   }
+]"""
+OUTPUTS = """[
+   {
+       "Active": true,
+       "InUse": true,
+       "DoNotRequireAuthentication": true,
+       "ControlDeniedToUsers": false,
+       "Id": 1,
+       "Index": 0,
+       "Element": 1,
+       "CommandId": 0,
+       "InProgress": false
+   },
+   {
+       "Active": true,
+       "InUse": true,
+       "DoNotRequireAuthentication": false,
+       "ControlDeniedToUsers": false,
+       "Id": 2,
+       "Index": 1,
+       "Element": 2,
+       "CommandId": 0,
+       "InProgress": false
+   },
+   {
+       "Active": false,
+       "InUse": true,
+       "DoNotRequireAuthentication": false,
+       "ControlDeniedToUsers": true,
+       "Id": 3,
+       "Index": 2,
+       "Element": 3,
+       "CommandId": 0,
+       "InProgress": false
+   },
+   {
+       "Active": false,
+       "InUse": false,
+       "DoNotRequireAuthentication": false,
+       "ControlDeniedToUsers": false,
+       "Id": 4,
        "Index": 3,
        "Element": 4,
        "CommandId": 0,
