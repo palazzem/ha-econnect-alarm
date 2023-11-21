@@ -78,7 +78,7 @@ SYNC_SEND_COMMAND = """[
         "Successful": true
     }
 ]"""
-STRINGS = r"""[
+STRINGS = """[
     {
         "AccountId": 1,
         "Class": 9,
@@ -143,12 +143,12 @@ STRINGS = r"""[
         "Created": "/Date(1546004147493+0100)/",
         "Version": "AAAAAAAAgRw="
     },
-        {
+    {
         "AccountId": 1,
         "Class": 12,
         "Index": 0,
         "Description": "Output 1",
-        "Created": "\/Date(1699548985673+0100)\/",
+        "Created": "/Date(1699548985673+0100)/",
         "Version": "AAAAAAAceCo="
     },
     {
@@ -156,7 +156,7 @@ STRINGS = r"""[
         "Class": 12,
         "Index": 1,
         "Description": "Output 2",
-        "Created": "\/Date(1699548985673+0100)\/",
+        "Created": "/Date(1699548985673+0100)/",
         "Version": "AAAAAAAceCs="
     },
     {
@@ -164,7 +164,7 @@ STRINGS = r"""[
         "Class": 12,
         "Index": 2,
         "Description": "Output 3",
-        "Created": "\/Date(1699548985673+0100)\/",
+        "Created": "/Date(1699548985673+0100)/",
         "Version": "AAAAAAAceCw="
     },
     {
@@ -172,7 +172,7 @@ STRINGS = r"""[
         "Class": 12,
         "Index": 3,
         "Description": "Output 4",
-        "Created": "\/Date(1699548985673+0100)\/",
+        "Created": "/Date(1699548985673+0100)/",
         "Version": "AAAAAAAceC0="
     }
 ]"""
