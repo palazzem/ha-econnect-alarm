@@ -304,12 +304,12 @@ class AlarmDevice:
             _LOGGER.error(f"Device | Credentials (alarm code) is incorrect: {err}")
             raise err
 
-    def turn_off(self, outputs=None):
+    def turn_off(self, output):
         """
         Turn off a specified output.
 
         Args:
-            outputs (str): The ID of the output to be turned off.
+            output: The ID of the output to be turned off.
 
         Raises:
             HTTPError: If there is an error in the HTTP request to turn off the output.
@@ -323,33 +323,38 @@ class AlarmDevice:
 
         Example:
             To turn off an output with ID '1', use:
-            >>> device_instance.turn_off(outputs='1')
+            >>> device_instance.turn_off(1)
         """
         for id, item in self.items(q.OUTPUTS):
-            if id == outputs:
-                if not item.get("control_denied_to_users"):
-                    if item.get("do_not_require_authentication"):
-                        element_id = item.get("element")
-                        try:
-                            self._connection.turn_off(element_id)
-                        except HTTPError as err:
-                            _LOGGER.error(f"Device | Error while turning off outputs: {err.response.text}")
-                            raise err
-                    else:
-                        _LOGGER.error(
-                            f"Device | Error while turning off output: {item.get('name')}, Required authentication"
-                        )
-                else:
-                    _LOGGER.error(
-                        f"Device | Error while turning off output: {item.get('name')}, Can't be manual controlled"
-                    )
+            # Skip if it's not matching the output
+            if id != output:
+                continue
 
-    def turn_on(self, outputs=None):
+            # If the output isn't manual controllable by users write an error il log
+            if item.get("control_denied_to_users"):
+                _LOGGER.error(
+                    f"Device | Error while turning off output: {item.get('name')}, Can't be manual controlled"
+                )
+                break
+
+            # If the output require authentication for control write an error il log
+            if not item.get("do_not_require_authentication"):
+                _LOGGER.error(f"Device | Error while turning off output: {item.get('name')}, Required authentication")
+                break
+
+            try:
+                element_id = item.get("element")
+                self._connection.turn_off(element_id)
+            except HTTPError as err:
+                _LOGGER.error(f"Device | Error while turning off output: {err.response.text}")
+                raise err
+
+    def turn_on(self, output):
         """
         Turn on a specified output.
 
         Args:
-            outputs (str): The ID of the output to be turned on.
+            output: The ID of the output to be turned on.
 
         Raises:
             HTTPError: If there is an error in the HTTP request to turn on the output.
@@ -363,23 +368,26 @@ class AlarmDevice:
 
         Example:
             To turn on an output with ID '1', use:
-            >>> device_instance.turn_on(outputs='1')
+            >>> device_instance.turn_on(1)
         """
         for id, item in self.items(q.OUTPUTS):
-            if id == outputs:
-                if not item.get("control_denied_to_users"):
-                    if item.get("do_not_require_authentication"):
-                        element_id = item.get("element")
-                        try:
-                            self._connection.turn_on(element_id)
-                        except HTTPError as err:
-                            _LOGGER.error(f"Device | Error while turning on outputs: {err.response.text}")
-                            raise err
-                    else:
-                        _LOGGER.error(
-                            f"Device | Error while turning on output: {item.get('name')}, Required authentication"
-                        )
-                else:
-                    _LOGGER.error(
-                        f"Device | Error while turning on output: {item.get('name')}, Can't be manual controlled"
-                    )
+            # Skip if it's not matching the output
+            if id != output:
+                continue
+
+            # If the output isn't manual controllable by users write an error log
+            if item.get("control_denied_to_users"):
+                _LOGGER.error(f"Device | Error while turning on output: {item.get('name')}, Can't be manual controlled")
+                break
+
+            # If the output require authentication for control write an error log
+            if not item.get("do_not_require_authentication"):
+                _LOGGER.error(f"Device | Error while turning on output: {item.get('name')}, Required authentication")
+                break
+
+            try:
+                element_id = item.get("element")
+                self._connection.turn_on(element_id)
+            except HTTPError as err:
+                _LOGGER.error(f"Device | Error while turning on outputs: {err.response.text}")
+                raise err
