@@ -146,6 +146,22 @@ pip install -e '.[all]'
 pre-commit install
 ```
 
+### Testing Changes in Home Assistant
+
+To test your changes in an actual Home Assistant environment, you may use the Docker container available in our
+`compose.yaml` file. Launch the container with the following command:
+
+```bash
+docker compose up -d
+```
+
+Then, navigate to `http://localhost:8123` in your web browser to set up your Home Assistant instance. Follow the standard
+procedure to install the integration, as you would in a typical installation.
+
+The container is configured to automatically mount the `custom_components/` and `config/` directories from your local
+workspace. To see changes reflected in Home Assistant, make sure to restart the instance through the UI each time
+you update the integration.
+
 ### Coding Guidelines
 
 To maintain a consistent codebase, we utilize [flake8][1] and [black][2]. Consistency is crucial as it
