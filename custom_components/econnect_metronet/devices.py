@@ -18,6 +18,7 @@ from .const import (
     CONF_AREAS_ARM_HOME,
     CONF_AREAS_ARM_NIGHT,
     CONF_AREAS_ARM_VACATION,
+    NOTIFICATION_MESSAGE,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -335,11 +336,13 @@ class AlarmDevice:
                 _LOGGER.warning(
                     f"Device | Error while turning off output: {item.get('name')}, Can't be manual controlled"
                 )
+                _LOGGER.warning(NOTIFICATION_MESSAGE)
                 break
 
             # If the output require authentication for control write an error il log
             if not item.get("do_not_require_authentication"):
                 _LOGGER.warning(f"Device | Error while turning off output: {item.get('name')}, Required authentication")
+                _LOGGER.warning(NOTIFICATION_MESSAGE)
                 break
 
             try:
@@ -382,11 +385,13 @@ class AlarmDevice:
                 _LOGGER.warning(
                     f"Device | Error while turning on output: {item.get('name')}, Can't be manual controlled"
                 )
+                _LOGGER.warning(NOTIFICATION_MESSAGE)
                 break
 
             # If the output require authentication for control write an error log
             if not item.get("do_not_require_authentication"):
                 _LOGGER.warning(f"Device | Error while turning on output: {item.get('name')}, Required authentication")
+                _LOGGER.warning(NOTIFICATION_MESSAGE)
                 break
 
             try:

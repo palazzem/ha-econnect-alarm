@@ -15,8 +15,10 @@ CONF_AREAS_ARM_VACATION = "areas_arm_vacation"
 CONF_SCAN_INTERVAL = "scan_interval"
 DOMAIN = "econnect_metronet"
 NOTIFICATION_MESSAGE = (
-    "The switch cannot be used because it is not properly configured in the alarm control panel. "
-    "Please contact your installer to enable it."
+    "The switch cannot be used because it requires two settings to be configured in the Alarm Panel: "
+    "'manual control' and 'activation without authentication'. "
+    "While these settings can be enabled by your installer, this may not always be the case. "
+    "Please contact your installer for further assistance"
 )
 NOTIFICATION_TITLE = "Unable to toggle the switch"
 NOTIFICATION_IDENTIFIER = "econnect_metronet_output_fail"
