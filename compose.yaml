@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  homeassistant:
+    container_name: hass-dev
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - ${PWD}/config:/config
+      - ${PWD}/custom_components:/config/custom_components
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    ports:
+      - "127.0.0.1:8123:8123"
