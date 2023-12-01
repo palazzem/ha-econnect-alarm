@@ -332,14 +332,14 @@ class AlarmDevice:
 
             # If the output isn't manual controllable by users write an error il log
             if item.get("control_denied_to_users"):
-                _LOGGER.error(
+                _LOGGER.warning(
                     f"Device | Error while turning off output: {item.get('name')}, Can't be manual controlled"
                 )
                 break
 
             # If the output require authentication for control write an error il log
             if not item.get("do_not_require_authentication"):
-                _LOGGER.error(f"Device | Error while turning off output: {item.get('name')}, Required authentication")
+                _LOGGER.warning(f"Device | Error while turning off output: {item.get('name')}, Required authentication")
                 break
 
             try:
@@ -377,12 +377,14 @@ class AlarmDevice:
 
             # If the output isn't manual controllable by users write an error log
             if item.get("control_denied_to_users"):
-                _LOGGER.error(f"Device | Error while turning on output: {item.get('name')}, Can't be manual controlled")
+                _LOGGER.warning(
+                    f"Device | Error while turning on output: {item.get('name')}, Can't be manual controlled"
+                )
                 break
 
             # If the output require authentication for control write an error log
             if not item.get("do_not_require_authentication"):
-                _LOGGER.error(f"Device | Error while turning on output: {item.get('name')}, Required authentication")
+                _LOGGER.warning(f"Device | Error while turning on output: {item.get('name')}, Required authentication")
                 break
 
             try:

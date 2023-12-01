@@ -1,4 +1,3 @@
-"""Module for e-connect switch (outputs)."""
 from elmo import query as q
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
@@ -25,11 +24,8 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up e-connect binary sensors from a config entry."""
     device = hass.data[DOMAIN][entry.entry_id][KEY_DEVICE]
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
-    # Load all entities and register outputs
-
     outputs = []
 
     # Iterate through the outputs of the provided device and create OutputSwitch objects
@@ -88,8 +84,8 @@ class OutputSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_off(self):
         """Turn the entity off."""
-        await self.hass.async_add_executor_job(self._device.turn_off, self._output_id)
+        await self.hass.async_add_executor_job(self._device.turn_off, self._output_id)  # pragma: no cover
 
     async def async_turn_on(self):
         """Turn the entity off."""
-        await self.hass.async_add_executor_job(self._device.turn_on, self._output_id)
+        await self.hass.async_add_executor_job(self._device.turn_on, self._output_id)  # pragma: no cover
