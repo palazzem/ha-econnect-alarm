@@ -14,6 +14,12 @@ CONF_AREAS_ARM_NIGHT = "areas_arm_night"
 CONF_AREAS_ARM_VACATION = "areas_arm_vacation"
 CONF_SCAN_INTERVAL = "scan_interval"
 DOMAIN = "econnect_metronet"
+NOTIFICATION_MESSAGE = (
+    "The switch cannot be used because it is not properly configured in the alarm control panel. "
+    "Please contact your installer to enable it."
+)
+NOTIFICATION_TITLE = "Unable to toggle the switch"
+NOTIFICATION_IDENTIFIER = "econnect_metronet_output_fail"
 KEY_DEVICE = "device"
 KEY_COORDINATOR = "coordinator"
 KEY_UNSUBSCRIBER = "options_unsubscriber"

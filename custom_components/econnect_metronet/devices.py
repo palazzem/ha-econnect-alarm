@@ -345,9 +345,11 @@ class AlarmDevice:
             try:
                 element_id = item.get("element")
                 self._connection.turn_off(element_id)
+                return True
             except HTTPError as err:
                 _LOGGER.error(f"Device | Error while turning off output: {err.response.text}")
                 raise err
+        return False
 
     def turn_on(self, output):
         """
@@ -390,6 +392,8 @@ class AlarmDevice:
             try:
                 element_id = item.get("element")
                 self._connection.turn_on(element_id)
+                return True
             except HTTPError as err:
                 _LOGGER.error(f"Device | Error while turning on outputs: {err.response.text}")
                 raise err
+        return False

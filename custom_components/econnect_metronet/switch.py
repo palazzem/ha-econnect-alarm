@@ -1,4 +1,5 @@
 from elmo import query as q
+from homeassistant.components import persistent_notification
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -14,6 +15,9 @@ from .const import (
     DOMAIN,
     KEY_COORDINATOR,
     KEY_DEVICE,
+    NOTIFICATION_IDENTIFIER,
+    NOTIFICATION_MESSAGE,
+    NOTIFICATION_TITLE,
 )
 from .devices import AlarmDevice
 from .helpers import generate_entity_id
@@ -84,8 +88,16 @@ class OutputSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_off(self):
         """Turn the entity off."""
-        await self.hass.async_add_executor_job(self._device.turn_off, self._output_id)  # pragma: no cover
+        # await self.hass.async_add_executor_job(self._device.turn_off, self._output_id)  # pragma: no cover
+        if not await self.hass.async_add_executor_job(self._device.turn_off, self._output_id):
+            persistent_notification.async_create(
+                self.hass, NOTIFICATION_MESSAGE, NOTIFICATION_TITLE, NOTIFICATION_IDENTIFIER
+            )
 
     async def async_turn_on(self):
         """Turn the entity off."""
-        await self.hass.async_add_executor_job(self._device.turn_on, self._output_id)  # pragma: no cover
+        # await self.hass.async_add_executor_job(self._device.turn_on, self._output_id)  # pragma: no cover
+        if not await self.hass.async_add_executor_job(self._device.turn_on, self._output_id):
+            persistent_notification.async_create(
+                self.hass, NOTIFICATION_MESSAGE, NOTIFICATION_TITLE, NOTIFICATION_IDENTIFIER
+            )
