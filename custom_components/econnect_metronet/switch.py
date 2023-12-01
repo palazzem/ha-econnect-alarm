@@ -88,16 +88,14 @@ class OutputSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_off(self):
         """Turn the entity off."""
-        # await self.hass.async_add_executor_job(self._device.turn_off, self._output_id)  # pragma: no cover
-        if not await self.hass.async_add_executor_job(self._device.turn_off, self._output_id):
+        if not await self.hass.async_add_executor_job(self._device.turn_off, self._output_id):  # pragma: no cover
             persistent_notification.async_create(
                 self.hass, NOTIFICATION_MESSAGE, NOTIFICATION_TITLE, NOTIFICATION_IDENTIFIER
             )
 
     async def async_turn_on(self):
         """Turn the entity off."""
-        # await self.hass.async_add_executor_job(self._device.turn_on, self._output_id)  # pragma: no cover
-        if not await self.hass.async_add_executor_job(self._device.turn_on, self._output_id):
+        if not await self.hass.async_add_executor_job(self._device.turn_on, self._output_id):  # pragma: no cover
             persistent_notification.async_create(
                 self.hass, NOTIFICATION_MESSAGE, NOTIFICATION_TITLE, NOTIFICATION_IDENTIFIER
             )
