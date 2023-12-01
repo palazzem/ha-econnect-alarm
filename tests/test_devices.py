@@ -27,7 +27,7 @@ def test_device_constructor(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
-    assert device._last_ids == {10: 0, 9: 0, 11: 0}
+    assert device._last_ids == {10: 0, 9: 0, 11: 0, 12: 0}
     assert device._sectors_away == []
     assert device._sectors_home == []
     assert device._sectors_night == []
@@ -47,7 +47,7 @@ def test_device_constructor_with_config(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
-    assert device._last_ids == {10: 0, 9: 0, 11: 0}
+    assert device._last_ids == {10: 0, 9: 0, 11: 0, 12: 0}
     assert device._sectors_away == [1, 2, 3, 4, 5]
     assert device._sectors_home == [3, 4]
     assert device._sectors_night == [1, 2, 3]
@@ -67,7 +67,7 @@ def test_device_constructor_with_config_empty(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
-    assert device._last_ids == {10: 0, 9: 0, 11: 0}
+    assert device._last_ids == {10: 0, 9: 0, 11: 0, 12: 0}
     assert device._sectors_away == []
     assert device._sectors_home == []
     assert device._sectors_night == []
@@ -115,9 +115,9 @@ class TestItemSectors:
         """Verify that querying items without specifying a status works correctly"""
         alarm_device.connect("username", "password")
         sectors = {
-            0: {"element": 1, "excluded": False, "id": 1, "index": 0, "name": "S1 Living Room", "status": True},
-            1: {"element": 2, "excluded": False, "id": 2, "index": 1, "name": "S2 Bedroom", "status": True},
-            2: {"element": 3, "excluded": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False},
+            0: {"element": 1, "activable": True, "id": 1, "index": 0, "name": "S1 Living Room", "status": True},
+            1: {"element": 2, "activable": True, "id": 2, "index": 1, "name": "S2 Bedroom", "status": True},
+            2: {"element": 3, "activable": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False},
         }
         # Test
         alarm_device.update()
@@ -129,7 +129,7 @@ class TestItemSectors:
         # Test
         alarm_device.update()
         assert dict(alarm_device.items(q.SECTORS, status=False)) == {
-            2: {"element": 3, "excluded": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False}
+            2: {"element": 3, "activable": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False}
         }
 
     def test_without_inventory(self, alarm_device):
@@ -143,6 +143,73 @@ class TestItemSectors:
         alarm_device._inventory = {10: {}}
         # Test
         assert dict(alarm_device.items(q.SECTORS, status=False)) == {}
+
+
+class TestItemOutputs:
+    def test_without_status(self, alarm_device):
+        """Verify that querying items without specifying a status works correctly"""
+        alarm_device.connect("username", "password")
+        outputs = {
+            0: {
+                "element": 1,
+                "control_denied_to_users": False,
+                "do_not_require_authentication": True,
+                "id": 1,
+                "index": 0,
+                "name": "Output 1",
+                "status": True,
+            },
+            1: {
+                "element": 2,
+                "control_denied_to_users": False,
+                "do_not_require_authentication": False,
+                "id": 2,
+                "index": 1,
+                "name": "Output 2",
+                "status": True,
+            },
+            2: {
+                "element": 3,
+                "control_denied_to_users": True,
+                "do_not_require_authentication": False,
+                "id": 3,
+                "index": 2,
+                "name": "Output 3",
+                "status": False,
+            },
+        }
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.items(q.OUTPUTS)) == outputs
+
+    def test_with_status(self, alarm_device):
+        """Verify that querying items with specifying a status works correctly"""
+        alarm_device.connect("username", "password")
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.items(q.OUTPUTS, status=False)) == {
+            2: {
+                "element": 3,
+                "control_denied_to_users": True,
+                "do_not_require_authentication": False,
+                "id": 3,
+                "index": 2,
+                "name": "Output 3",
+                "status": False,
+            }
+        }
+
+    def test_without_inventory(self, alarm_device):
+        """Verify that querying items without inventory populated works correctly"""
+        alarm_device._inventory = {}
+        # Test
+        assert dict(alarm_device.items(q.OUTPUTS, status=False)) == {}
+
+    def test_with_empty_query(self, alarm_device):
+        """Verify that querying items with empty query works correctly"""
+        alarm_device._inventory = {12: {}}
+        # Test
+        assert dict(alarm_device.items(q.OUTPUTS, status=False)) == {}
 
 
 class TestItemAlerts:
@@ -254,12 +321,13 @@ def test_device_has_updates(client, mocker):
     device.connect("username", "password")
     device._last_ids[q.SECTORS] = 20
     device._last_ids[q.INPUTS] = 20
+    device._last_ids[q.OUTPUTS] = 20
     device._last_ids[q.ALERTS] = 20
     mocker.spy(device._connection, "poll")
     # Test
     device.has_updates()
     assert device._connection.poll.call_count == 1
-    assert {9: 20, 10: 20, 11: 20} in device._connection.poll.call_args[0]
+    assert {9: 20, 10: 20, 11: 20, 12: 20} in device._connection.poll.call_args[0]
 
 
 def test_device_has_updates_ids_immutable(client, mocker):
@@ -290,7 +358,7 @@ def test_device_has_updates_errors(client, mocker):
     with pytest.raises(HTTPError):
         device.has_updates()
     assert device._connection.poll.call_count == 1
-    assert {9: 0, 10: 0, 11: 0} == device._last_ids
+    assert {9: 0, 10: 0, 11: 0, 12: 0} == device._last_ids
 
 
 def test_device_has_updates_parse_errors(client, mocker):
@@ -303,7 +371,7 @@ def test_device_has_updates_parse_errors(client, mocker):
     with pytest.raises(ParseError):
         device.has_updates()
     assert device._connection.poll.call_count == 1
-    assert {9: 0, 10: 0, 11: 0} == device._last_ids
+    assert {9: 0, 10: 0, 11: 0, 12: 0} == device._last_ids
 
 
 def test_device_update_success(client, mocker):
@@ -313,11 +381,12 @@ def test_device_update_success(client, mocker):
     device.connect("username", "password")
     # Test
     device.update()
-    assert device._connection.query.call_count == 3
+    assert device._connection.query.call_count == 4
     assert device._last_ids == {
         9: 4,
         10: 42,
         11: 1,
+        12: 4,
     }
 
 
@@ -327,9 +396,9 @@ def test_device_inventory_update_success(client, mocker):
     mocker.spy(device._connection, "query")
     inventory = {
         9: {
-            0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
-            1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
-            2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": False, "name": "S3 Outdoor"},
+            0: {"element": 1, "activable": True, "id": 1, "index": 0, "name": "S1 Living Room", "status": True},
+            1: {"element": 2, "activable": True, "id": 2, "index": 1, "name": "S2 Bedroom", "status": True},
+            2: {"element": 3, "activable": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False},
         },
         10: {
             0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "Entryway Sensor"},
@@ -362,6 +431,35 @@ def test_device_inventory_update_success(client, mocker):
             22: {"name": "rf_interference", "status": 0},
             23: {"name": "system_test", "status": 0},
             24: {"name": "tamper_led", "status": 0},
+        },
+        12: {
+            0: {
+                "element": 1,
+                "control_denied_to_users": False,
+                "do_not_require_authentication": True,
+                "id": 1,
+                "index": 0,
+                "name": "Output 1",
+                "status": True,
+            },
+            1: {
+                "element": 2,
+                "control_denied_to_users": False,
+                "do_not_require_authentication": False,
+                "id": 2,
+                "index": 1,
+                "name": "Output 2",
+                "status": True,
+            },
+            2: {
+                "element": 3,
+                "control_denied_to_users": True,
+                "do_not_require_authentication": False,
+                "id": 3,
+                "index": 2,
+                "name": "Output 3",
+                "status": False,
+            },
         },
     }
     device.connect("username", "password")
@@ -412,10 +510,34 @@ class TestSectorsView:
         assert dict(alarm_device.sectors) == {}
 
     def test_sectors_property_empty(self, alarm_device):
-        """Ensure the property returns an empty dict if outputs key is not in _inventory"""
+        """Ensure the property returns an empty dict if sectors key is not in _inventory"""
         # Test
         alarm_device._inventory = {9: {}}
         assert dict(alarm_device.sectors) == {}
+
+
+class TestOutputsView:
+    def test_property_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        outputs = {
+            0: "Output 1",
+            1: "Output 2",
+            2: "Output 3",
+        }
+        # Test
+        assert dict(alarm_device.outputs) == outputs
+
+    def test_inventory_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if _inventory is empty"""
+        # Test
+        alarm_device._inventory = {}
+        assert dict(alarm_device.outputs) == {}
+
+    def test_sectors_property_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if outputs key is not in _inventory"""
+        # Test
+        alarm_device._inventory = {12: {}}
+        assert dict(alarm_device.outputs) == {}
 
 
 class TestAlertsView:
@@ -506,6 +628,27 @@ class TestGetStatusSectors:
             assert alarm_device.get_status(q.SECTORS, 2)
 
 
+class TestGetStatusOutputs:
+    def test_get_status_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        # Test
+        assert alarm_device.get_status(q.OUTPUTS, 2) == 0
+
+    def test_inventory_empty(self, alarm_device):
+        """Ensure the property returns a KeyError if _inventory is empty"""
+        # Test
+        alarm_device._inventory = {}
+        with pytest.raises(KeyError):
+            assert alarm_device.get_status(q.OUTPUTS, 2)
+
+    def test_alerts_property_empty(self, alarm_device):
+        """Ensure the property returns a KeyError if alerts key is not in _inventory"""
+        # Test
+        alarm_device._inventory = {12: {}}
+        with pytest.raises(KeyError):
+            assert alarm_device.get_status(q.OUTPUTS, 2)
+
+
 class TestGetStatusAlerts:
     def test_get_status_populated(self, alarm_device):
         """Should check if the device property is correctly populated"""
@@ -552,9 +695,9 @@ def test_device_update_state_machine_armed(client, mocker):
         {
             "last_id": 3,
             "sectors": {
-                0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "S1 Living Room"},
-                1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "S2 Bedroom"},
-                2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": False, "name": "S3 Outdoor"},
+                0: {"id": 1, "index": 0, "element": 1, "activable": True, "status": True, "name": "S1 Living Room"},
+                1: {"id": 2, "index": 1, "element": 2, "activable": True, "status": True, "name": "S2 Bedroom"},
+                2: {"id": 3, "index": 2, "element": 3, "activable": False, "status": False, "name": "S3 Outdoor"},
             },
         },
         {
@@ -563,6 +706,38 @@ def test_device_update_state_machine_armed(client, mocker):
                 0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "Entryway Sensor"},
                 1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "Outdoor Sensor 1"},
                 2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"},
+            },
+        },
+        {
+            "last_id": 3,
+            "outputs": {
+                0: {
+                    "id": 1,
+                    "index": 0,
+                    "element": 1,
+                    "control_denied_to_users": False,
+                    "do_not_require_authentication": True,
+                    "status": True,
+                    "name": "Output 1",
+                },
+                1: {
+                    "id": 2,
+                    "index": 1,
+                    "element": 2,
+                    "control_denied_to_users": False,
+                    "do_not_require_authentication": False,
+                    "status": True,
+                    "name": "Output 2",
+                },
+                2: {
+                    "id": 3,
+                    "index": 2,
+                    "element": 3,
+                    "control_denied_to_users": True,
+                    "do_not_require_authentication": False,
+                    "status": False,
+                    "name": "Output 3",
+                },
             },
         },
         {
@@ -610,9 +785,9 @@ def test_device_update_state_machine_disarmed(client, mocker):
         {
             "last_id": 3,
             "sectors": {
-                0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": False, "name": "S1 Living Room"},
-                1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": False, "name": "S2 Bedroom"},
-                2: {"id": 3, "index": 2, "element": 3, "excluded": False, "status": False, "name": "S3 Outdoor"},
+                0: {"id": 1, "index": 0, "element": 1, "activable": True, "status": False, "name": "S1 Living Room"},
+                1: {"id": 2, "index": 1, "element": 2, "activable": True, "status": False, "name": "S2 Bedroom"},
+                2: {"id": 3, "index": 2, "element": 3, "activable": False, "status": False, "name": "S3 Outdoor"},
             },
         },
         {
@@ -621,6 +796,38 @@ def test_device_update_state_machine_disarmed(client, mocker):
                 0: {"id": 1, "index": 0, "element": 1, "excluded": False, "status": True, "name": "Entryway Sensor"},
                 1: {"id": 2, "index": 1, "element": 2, "excluded": False, "status": True, "name": "Outdoor Sensor 1"},
                 2: {"id": 3, "index": 2, "element": 3, "excluded": True, "status": False, "name": "Outdoor Sensor 2"},
+            },
+        },
+        {
+            "last_id": 3,
+            "outputs": {
+                0: {
+                    "id": 1,
+                    "index": 0,
+                    "element": 1,
+                    "control_denied_to_users": False,
+                    "do_not_require_authentication": True,
+                    "status": True,
+                    "name": "Output 1",
+                },
+                1: {
+                    "id": 2,
+                    "index": 1,
+                    "element": 2,
+                    "control_denied_to_users": False,
+                    "do_not_require_authentication": False,
+                    "status": True,
+                    "name": "Output 2",
+                },
+                2: {
+                    "id": 3,
+                    "index": 2,
+                    "element": 3,
+                    "control_denied_to_users": True,
+                    "do_not_require_authentication": False,
+                    "status": False,
+                    "name": "Output 3",
+                },
             },
         },
         {
@@ -924,3 +1131,85 @@ def test_get_state_armed_away_with_config(alarm_device):
     }
     # Test
     assert alarm_device.get_state() == STATE_ALARM_ARMED_AWAY
+
+
+class TestTurnOff:
+    def test_required_authentication(self, alarm_device, mocker, caplog):
+        # Ensure that API calls are not made when the output requires authentication
+        mocker.spy(alarm_device._connection, "turn_off")
+        alarm_device.turn_off(1)
+        # Test
+        assert "Device | Error while turning off output: Output 2, Required authentication" in caplog.text
+        assert alarm_device._connection.turn_off.call_count == 0
+
+    def test_no_manual_control(self, alarm_device, mocker, caplog):
+        # Ensure that API calls are not made when the output cannot be manually controlled
+        mocker.spy(alarm_device._connection, "turn_off")
+        alarm_device.turn_off(2)
+        # Test
+        assert "Device | Error while turning off output: Output 3, Can't be manual controlled" in caplog.text
+        assert alarm_device._connection.turn_off.call_count == 0
+
+    def test_invalid_output(self, alarm_device, mocker, caplog):
+        # Ensure that API calls are not made when the output is not valid
+        mocker.spy(alarm_device._connection, "turn_off")
+        alarm_device.turn_off(10)
+        # Test
+        assert alarm_device._connection.turn_off.call_count == 0
+
+    def test_correct_output(self, alarm_device, mocker):
+        # Ensure that API calls are made correctly
+        mocker.spy(alarm_device._connection, "turn_off")
+        alarm_device.turn_off(0)
+        # Test
+        assert alarm_device._connection.turn_off.call_count == 1
+        assert (1) in alarm_device._connection.turn_off.call_args[0]
+
+    def test_http_error(self, alarm_device, mocker):
+        # Ensure if device's turn_off method raises HTTPError
+        mocker.spy(alarm_device._connection, "turn_off")
+        alarm_device._connection.turn_off.side_effect = HTTPError(response=Response())
+        # Test
+        with pytest.raises(HTTPError):
+            alarm_device.turn_off(0)
+
+
+class TestTurnOn:
+    def test_required_authentication(self, alarm_device, mocker, caplog):
+        # Ensure that API calls are not made when the output requires authentication
+        mocker.spy(alarm_device._connection, "turn_on")
+        alarm_device.turn_on(1)
+        # Test
+        assert "Device | Error while turning on output: Output 2, Required authentication" in caplog.text
+        assert alarm_device._connection.turn_on.call_count == 0
+
+    def test_no_manual_control(self, alarm_device, mocker, caplog):
+        # Ensure that API calls are not made when the output cannot be manually controlled
+        mocker.spy(alarm_device._connection, "turn_on")
+        alarm_device.turn_on(2)
+        # Test
+        assert "Device | Error while turning on output: Output 3, Can't be manual controlled" in caplog.text
+        assert alarm_device._connection.turn_on.call_count == 0
+
+    def test_invalid_output(self, alarm_device, mocker, caplog):
+        # Ensure that API calls are not made when the output is not valid
+        mocker.spy(alarm_device._connection, "turn_on")
+        alarm_device.turn_on(10)
+        # Test
+        assert alarm_device._connection.turn_on.call_count == 0
+
+    def test_correct_output(self, alarm_device, mocker):
+        # Ensure that API calls are made correctly
+        mocker.spy(alarm_device._connection, "turn_on")
+        alarm_device.turn_on(0)
+        # Test
+        assert alarm_device._connection.turn_on.call_count == 1
+        assert (1) in alarm_device._connection.turn_on.call_args[0]
+
+    def test_http_error(self, alarm_device, mocker):
+        # Ensure if device's turn_on method raises HTTPError
+        mocker.spy(alarm_device._connection, "turn_on")
+        alarm_device._connection.turn_on.side_effect = HTTPError(response=Response())
+        # Test
+        with pytest.raises(HTTPError):
+            alarm_device.turn_on(0)
