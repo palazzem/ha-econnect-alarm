@@ -15,7 +15,7 @@
     "custom_components.econnect_metronet"
   ],
   "requirements": [
-    "econnect-python==0.9.1"
+    "econnect-python==0.9.2"
   ],
   "version": "2.2.1"
 }

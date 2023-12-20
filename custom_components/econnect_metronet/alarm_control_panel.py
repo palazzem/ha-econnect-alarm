@@ -1,6 +1,7 @@
 """The E-connect Alarm Entity."""
 import logging
 
+from elmo.api.exceptions import InvalidToken
 from homeassistant.components.alarm_control_panel import (
     FORMAT_NUMBER,
     AlarmControlPanelEntity,
@@ -13,6 +14,7 @@ from homeassistant.components.alarm_control_panel.const import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    CONF_PASSWORD,
     CONF_USERNAME,
     STATE_ALARM_ARMED_AWAY,
     STATE_ALARM_ARMED_HOME,
@@ -95,12 +97,32 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     @set_device_state(STATE_ALARM_DISARMED, STATE_ALARM_DISARMING)
     async def async_alarm_disarm(self, code=None):
         """Send disarm command."""
-        await self.hass.async_add_executor_job(self._device.disarm, code)
+        try:
+            await self.hass.async_add_executor_job(self._device.disarm, code)
+        except InvalidToken:
+            # This exception is expected to happen when the token expires. In this case,
+            # there is no need to re-raise the exception as it's a normal condition.
+            _LOGGER.debug("Coordinator | Invalid token detected, authenticating")
+            username = self.config_entry.data[CONF_USERNAME]
+            password = self.config_entry.data[CONF_PASSWORD]
+            await self.hass.async_add_executor_job(self._device.connect, username, password)
+            _LOGGER.debug("Coordinator | Authentication completed with success")
+            await self.hass.async_add_executor_job(self._device.disarm, code)
 
     @set_device_state(STATE_ALARM_ARMED_AWAY, STATE_ALARM_ARMING)
     async def async_alarm_arm_away(self, code=None):
         """Send arm away command."""
-        await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_away)
+        try:
+            await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_away)
+        except InvalidToken:
+            # This exception is expected to happen when the token expires. In this case,
+            # there is no need to re-raise the exception as it's a normal condition.
+            _LOGGER.debug("Coordinator | Invalid token detected, authenticating")
+            username = self.config_entry.data[CONF_USERNAME]
+            password = self.config_entry.data[CONF_PASSWORD]
+            await self.hass.async_add_executor_job(self._device.connect, username, password)
+            _LOGGER.debug("Coordinator | Authentication completed with success")
+            await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_away)
 
     @set_device_state(STATE_ALARM_ARMED_HOME, STATE_ALARM_ARMING)
     async def async_alarm_arm_home(self, code=None):
@@ -109,7 +131,17 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
             _LOGGER.warning("Triggering ARM HOME without configuration. Use integration Options to configure it.")
             return
 
-        await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_home)
+        try:
+            await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_home)
+        except InvalidToken:
+            # This exception is expected to happen when the token expires. In this case,
+            # there is no need to re-raise the exception as it's a normal condition.
+            _LOGGER.debug("Coordinator | Invalid token detected, authenticating")
+            username = self.config_entry.data[CONF_USERNAME]
+            password = self.config_entry.data[CONF_PASSWORD]
+            await self.hass.async_add_executor_job(self._device.connect, username, password)
+            _LOGGER.debug("Coordinator | Authentication completed with success")
+            await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_home)
 
     @set_device_state(STATE_ALARM_ARMED_NIGHT, STATE_ALARM_ARMING)
     async def async_alarm_arm_night(self, code=None):
@@ -118,7 +150,17 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
             _LOGGER.warning("Triggering ARM NIGHT without configuration. Use integration Options to configure it.")
             return
 
-        await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_night)
+        try:
+            await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_night)
+        except InvalidToken:
+            # This exception is expected to happen when the token expires. In this case,
+            # there is no need to re-raise the exception as it's a normal condition.
+            _LOGGER.debug("Coordinator | Invalid token detected, authenticating")
+            username = self.config_entry.data[CONF_USERNAME]
+            password = self.config_entry.data[CONF_PASSWORD]
+            await self.hass.async_add_executor_job(self._device.connect, username, password)
+            _LOGGER.debug("Coordinator | Authentication completed with success")
+            await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_night)
 
     @set_device_state(STATE_ALARM_ARMED_VACATION, STATE_ALARM_ARMING)
     async def async_alarm_arm_vacation(self, code=None):
@@ -127,4 +169,14 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
             _LOGGER.warning("Triggering ARM VACATION without configuration. Use integration Options to configure it.")
             return
 
-        await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_vacation)
+        try:
+            await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_vacation)
+        except InvalidToken:
+            # This exception is expected to happen when the token expires. In this case,
+            # there is no need to re-raise the exception as it's a normal condition.
+            _LOGGER.debug("Coordinator | Invalid token detected, authenticating")
+            username = self.config_entry.data[CONF_USERNAME]
+            password = self.config_entry.data[CONF_PASSWORD]
+            await self.hass.async_add_executor_job(self._device.connect, username, password)
+            _LOGGER.debug("Coordinator | Authentication completed with success")
+            await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_vacation)
