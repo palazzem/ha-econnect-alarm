@@ -32,6 +32,7 @@ classifiers = [
 ]
 dependencies = [
   "econnect-python==0.9.1",
+  "async_timeout",
   "homeassistant",
 ]
 
