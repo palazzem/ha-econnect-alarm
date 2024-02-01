@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+# Parameters
+VERSION=$1
+
+# Abort if no version is specified
+if [ -z "$VERSION" ]; then
+    echo "Usage: ./scripts/init.sh <Home Assistant Version>"
+    exit 1
+fi
+
+# Abort if `venv` folder already exists
+if [ -d "venv" ]; then
+    echo "venv/ folder already exists. Deactivate your venv and remove venv/ folder."
+    exit 1
+fi
+
+# Create and activate a new virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Upgrade pip and install all projects and their dependencies
+pip install --upgrade pip
+pip install -e '.[all]'
+
+# Override Home Assistant version
+pip install homeassistant==$VERSION
+./scripts/download_fixtures.sh $VERSION
