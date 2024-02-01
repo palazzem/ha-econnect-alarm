@@ -114,6 +114,20 @@ homekit:
 
 Please note that Apple Home requires you to confirm automations that involves security devices such as lockers and alarm systems.
 
+## Troubleshooting
+
+If you encounter an issue, providing `DEBUG` logs can greatly assist us in identifying the bug. Please follow these steps to send us the debug logs:
+
+1. Navigate to the integration configuration page in Home Assistant: **Settings > Devices & Services > e-Connect/Metronet Alarm**.
+2. Enable debug logging by clicking on **Enable debug logging**.
+3. Restart the integration by selecting **Restart** from the three-dot menu.
+4. Reproduce the error (e.g., arm the system or modify the configuration).
+5. After reproducing the error, return to the Integration configuration page and click **Disable debug logging**.
+6. Your browser will prompt you to download the log file.
+7. Ensure that the logs do not contain sensitive information, as we do not log credentials or access tokens.
+8. Send the logs to us via a secure method. **Do not post your logs on public platforms** like our Discord general channel or GitHub issues, as they are publicly accessible.
+
+<img src="https://github.com/palazzem/ha-econnect-alarm/assets/1560405/08e5dc92-6b0e-4f41-bab0-e1851405425b">
 
 ## Contributing
 
