@@ -59,7 +59,7 @@ class AlarmCoordinator(DataUpdateCoordinator):
                     # the long-polling strategy. If IDs are misaligned, then no updates happen and
                     # the integration remains stuck.
                     # See: https://github.com/palazzem/ha-econnect-alarm/issues/51
-                    _LOGGER.error("Coordinator | Central unit disconnected, forcing a full update")
+                    _LOGGER.debug("Coordinator | Central unit disconnected, forcing a full update")
                     return await self.hass.async_add_executor_job(self._device.update)
 
                 # `device.has_updates` implements e-Connect long-polling API. This
