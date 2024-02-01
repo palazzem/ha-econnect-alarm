@@ -1,4 +1,5 @@
 """Module for e-connect sensors (alert) """
+
 from elmo import query as q
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry

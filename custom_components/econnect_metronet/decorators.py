@@ -1,4 +1,5 @@
 """Decorators used to share the same logic between functions."""
+
 import functools
 import logging
 

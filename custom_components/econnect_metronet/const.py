@@ -1,4 +1,5 @@
 """Constants for the E-connect Alarm integration."""
+
 from elmo import systems as s
 
 SUPPORTED_SYSTEMS = {

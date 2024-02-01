@@ -1,4 +1,5 @@
 """The E-connect Alarm Entity."""
+
 import logging
 
 from homeassistant.components.alarm_control_panel import (

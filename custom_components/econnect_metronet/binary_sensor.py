@@ -1,4 +1,5 @@
 """Module for e-connect binary sensors (sectors, inputs and alert)."""
+
 from elmo import query as q
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
