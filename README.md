@@ -134,13 +134,21 @@ To create a virtual environment and install the project and its dependencies, ex
 terminal:
 
 ```bash
-# Create and activate a new virtual environment
-python3 -m venv venv
+# Initialize the environment with the latest version of Home Assistant
+E_HASS_VERSION=$(curl --silent "https://api.github.com/repos/home-assistant/core/releases/latest" | grep -Po "(?<=\"tag_name\": \").*(?=\")")
+./scripts/init $E_HASS_VERSION
 source venv/bin/activate
 
-# Upgrade pip and install all projects and their dependencies
-pip install --upgrade pip
-pip install -e '.[all]'
+# Install pre-commit hooks
+pre-commit install
+```
+
+Instead, if you want to develop and test this integration with a different Home Assistant version, just pass the
+version to the init script:
+```bash
+# Initialize the environment Home Assistant 2024.1.1
+./scripts/init 2024.1.1
+source venv/bin/activate
 
 # Install pre-commit hooks
 pre-commit install
