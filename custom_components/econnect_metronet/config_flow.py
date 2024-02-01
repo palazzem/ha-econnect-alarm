@@ -69,7 +69,7 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                 return self.async_create_entry(title="e-Connect/Metronet Alarm", data=user_input)
 
         # Populate with latest changes
-        user_input = user_input or {}
+        user_input = user_input or {CONF_DOMAIN: "default"}
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
@@ -87,7 +87,7 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                         default=E_CONNECT_DEFAULT,
                         description={"suggested_value": user_input.get(CONF_SYSTEM_URL)},
                     ): vol.In(SUPPORTED_SYSTEMS),
-                    vol.Optional(
+                    vol.Required(
                         CONF_DOMAIN,
                         description={"suggested_value": user_input.get(CONF_DOMAIN)},
                     ): str,

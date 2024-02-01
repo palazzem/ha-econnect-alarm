@@ -33,14 +33,14 @@ async def test_form_submit_successful_with_input(hass, mocker):
         {
             "username": "test-username",
             "password": "test-password",
-            "domain": "test-domain",
+            "domain": "default",
             "system_base_url": "https://metronet.iessonline.com",
         },
     )
     await hass.async_block_till_done()
     # Check Client Authentication
     assert m_client.call_args.args == ("https://metronet.iessonline.com",)
-    assert m_client.call_args.kwargs == {"domain": "test-domain"}
+    assert m_client.call_args.kwargs == {"domain": "default"}
     assert m_client().auth.call_count == 1
     assert m_client().auth.call_args.args == ("test-username", "test-password")
     # Check HA setup
@@ -51,7 +51,7 @@ async def test_form_submit_successful_with_input(hass, mocker):
     assert result["data"] == {
         "username": "test-username",
         "password": "test-password",
-        "domain": "test-domain",
+        "domain": "default",
         "system_base_url": "https://metronet.iessonline.com",
     }
 
@@ -68,6 +68,7 @@ async def test_form_submit_with_defaults(hass, mocker):
         {
             "username": "test-username",
             "password": "test-password",
+            "domain": "default",
         },
     )
     await hass.async_block_till_done()
@@ -76,11 +77,12 @@ async def test_form_submit_with_defaults(hass, mocker):
     assert result["data"] == {
         "username": "test-username",
         "password": "test-password",
+        "domain": "default",
         "system_base_url": "https://connect.elmospa.com",
     }
     # Check Client Authentication
     assert m_client.call_args.args == ("https://connect.elmospa.com",)
-    assert m_client.call_args.kwargs == {"domain": None}
+    assert m_client.call_args.kwargs == {"domain": "default"}
     assert m_client().auth.call_count == 1
     assert m_client().auth.call_args.args == ("test-username", "test-password")
     # Check HA setup
@@ -108,12 +110,14 @@ async def test_form_submit_required_fields(hass, mocker):
     with pytest.raises(MultipleInvalid) as excinfo:
         await hass.config_entries.flow.async_configure(form["flow_id"], {})
     await hass.async_block_till_done()
-    assert len(excinfo.value.errors) == 2
+    assert len(excinfo.value.errors) == 3
     errors = []
     errors.append(str(excinfo.value.errors[0]))
     errors.append(str(excinfo.value.errors[1]))
+    errors.append(str(excinfo.value.errors[2]))
     assert "required key not provided @ data['username']" in errors
     assert "required key not provided @ data['password']" in errors
+    assert "required key not provided @ data['domain']" in errors
 
 
 async def test_form_submit_wrong_credential(hass, mocker):

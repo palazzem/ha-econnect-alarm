@@ -12,12 +12,12 @@
         "step": {
             "user": {
                 "data": {
-                    "domain": "Nome dominio (opzionale)",
+                    "domain": "Nome dominio",
                     "username": "Nome utente",
                     "password": "Password",
                     "system_name": "Nome dell'impianto (opzionale)"
                 },
-                "description": "Fornisci le tue credenziali e il dominio utilizzato per accedere alla tua pagina di login via web.\n\nAd esempio, se accedi a `https://connect.elmospa.com/installatore/`, devi impostare il dominio su `installatore`. Nel caso in cui non hai un installatore definito, impostalo su `default`.\n\nPuoi configurare il sistema selezionando \"Opzioni\" dopo aver installato l'integrazione.",
+                "description": "Fornisci le tue credenziali e il dominio utilizzato per accedere alla tua pagina di login via web.\n\nSe accedi a `https://connect.elmospa.com/installatore/`, devi impostare il dominio su `installatore`. Nel caso in cui tu non abbia un installatore impostato, lascia il valore su `default`.\n\nPuoi configurare il sistema selezionando \"Opzioni\" dopo aver installato l'integrazione.",
                 "title": "Configura il tuo sistema e-Connect/Metronet"
             }
         }

@@ -50,8 +50,8 @@ If you are curious about the project and want to know more, check out our [Disco
 - Username: is your username to access Elmo/IESS via web or app.
 - Password: is your password to access Elmo/IESS via web or app.
 - System: pick the brand of alarm system you are using.
-- Domain name (optional): domain used to access your login page via web. For instance, if you access to `https://connect.elmospa.com/vendor/`,
-  you must set the domain to `vendor`. In case you don't have a vendor defined, set it to `default`.
+- Domain name: domain used to access your login page via web. If you access to `https://connect.elmospa.com/vendor/`,
+  you must set the domain to `vendor`. In case you don't have a vendor defined, leave it to `default`.
 
 ### Options
 
