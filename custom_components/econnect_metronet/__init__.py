@@ -7,6 +7,7 @@ from elmo.api.client import ElmoClient
 from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant.config_entries import ConfigEntry, ConfigType
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
 
 from .const import (
     CONF_DOMAIN,
@@ -23,6 +24,7 @@ from .devices import AlarmDevice
 
 _LOGGER = logging.getLogger(__name__)
 
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 PLATFORMS = ["alarm_control_panel", "binary_sensor", "sensor", "switch"]
 
 
