@@ -17,7 +17,6 @@ Usage:
            # Continue with the test...
 """
 
-
 LOGIN = """
     {
         "SessionId": "00000000-0000-0000-0000-000000000000",

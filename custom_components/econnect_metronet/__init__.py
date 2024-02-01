@@ -1,4 +1,5 @@
 """The E-connect Alarm integration."""
+
 import asyncio
 import logging
 
