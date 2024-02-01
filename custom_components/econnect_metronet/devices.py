@@ -2,7 +2,13 @@ import logging
 from typing import Union
 
 from elmo import query as q
-from elmo.api.exceptions import CodeError, CredentialError, LockError, ParseError
+from elmo.api.exceptions import (
+    CodeError,
+    CommandError,
+    CredentialError,
+    LockError,
+    ParseError,
+)
 from homeassistant.const import (
     STATE_ALARM_ARMED_AWAY,
     STATE_ALARM_ARMED_HOME,
@@ -289,6 +295,9 @@ class AlarmDevice:
         except CodeError as err:
             _LOGGER.error(f"Device | Credentials (alarm code) is incorrect: {err}")
             raise err
+        except CommandError as err:
+            _LOGGER.error(f"Device | Error while arming the system: {err}")
+            raise err
 
     def disarm(self, code, sectors=None):
         try:
@@ -303,6 +312,9 @@ class AlarmDevice:
             raise err
         except CodeError as err:
             _LOGGER.error(f"Device | Credentials (alarm code) is incorrect: {err}")
+            raise err
+        except CommandError as err:
+            _LOGGER.error(f"Device | Error while disarming the system: {err}")
             raise err
 
     def turn_off(self, output):
@@ -352,6 +364,9 @@ class AlarmDevice:
             except HTTPError as err:
                 _LOGGER.error(f"Device | Error while turning off output: {err.response.text}")
                 raise err
+            except CommandError as err:
+                _LOGGER.error(f"Device | Error while turning off output: {err}")
+                raise err
         return False
 
     def turn_on(self, output):
@@ -400,5 +415,8 @@ class AlarmDevice:
                 return True
             except HTTPError as err:
                 _LOGGER.error(f"Device | Error while turning on outputs: {err.response.text}")
+                raise err
+            except CommandError as err:
+                _LOGGER.error(f"Device | Error while turning on outputs: {err}")
                 raise err
         return False
