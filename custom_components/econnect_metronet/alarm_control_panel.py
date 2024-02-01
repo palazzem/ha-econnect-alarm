@@ -3,14 +3,11 @@
 import logging
 
 from homeassistant.components.alarm_control_panel import (
-    FORMAT_NUMBER,
     AlarmControlPanelEntity,
+    CodeFormat,
 )
 from homeassistant.components.alarm_control_panel.const import (
-    SUPPORT_ALARM_ARM_AWAY,
-    SUPPORT_ALARM_ARM_HOME,
-    SUPPORT_ALARM_ARM_NIGHT,
-    SUPPORT_ALARM_ARM_VACATION,
+    AlarmControlPanelEntityFeature as AlarmFeatures,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -86,12 +83,12 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     @property
     def code_format(self):
         """Define a number code format."""
-        return FORMAT_NUMBER
+        return CodeFormat.NUMBER
 
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return SUPPORT_ALARM_ARM_HOME | SUPPORT_ALARM_ARM_AWAY | SUPPORT_ALARM_ARM_NIGHT | SUPPORT_ALARM_ARM_VACATION
+        return AlarmFeatures.ARM_HOME | AlarmFeatures.ARM_AWAY | AlarmFeatures.ARM_NIGHT | AlarmFeatures.ARM_VACATION
 
     @set_device_state(STATE_ALARM_DISARMED, STATE_ALARM_DISARMING)
     async def async_alarm_disarm(self, code=None):
