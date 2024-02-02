@@ -1,6 +1,7 @@
 from typing import List, Tuple, Union
 
 import voluptuous as vol
+from elmo.api.exceptions import CodeError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_USERNAME
 from homeassistant.helpers.config_validation import multi_select
@@ -81,3 +82,30 @@ def generate_entity_id(config: ConfigEntry, name: Union[str, None] = None) -> st
     # See: https://www.home-assistant.io/faq/unique_id/#can-be-changed
     entity_name = slugify(f"{system_name}_{additional_name}")
     return f"{DOMAIN}.{DOMAIN}_{entity_name}"
+
+
+def split_code(code: str) -> Tuple[str, str]:
+    """Splits the given code into two parts: user ID and code.
+
+    The function returns a tuple containing the user ID and the code as separate strings.
+    The code is expected to be in the format <USER_ID><CODE> without spaces, with the CODE
+    part being the last 6 characters of the string.
+
+    Args:
+        code: A string representing the combined user ID and code.
+
+    Returns:
+        A tuple of two strings: (user ID, code).
+
+    Raises:
+        CodeError: If the input code is less than 7 characters long, indicating it does not
+        conform to the expected format.
+    """
+    if len(code) <= 6:
+        raise CodeError("Invalid code: your code must be in the format <USER_ID><CODE> without spaces.")
+
+    user_id_part, code_part = code[:-6], code[-6:]
+    if not (user_id_part.isdigit() and code_part.isdigit()):
+        raise CodeError("Invalid code: both user ID and code must be numbers.")
+
+    return user_id_part, code_part
