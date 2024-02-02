@@ -31,7 +31,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
 ]
 dependencies = [
-  "econnect-python==0.10.0",
+  "econnect-python==0.11.0b0",
   "async_timeout",
   "homeassistant",
 ]
