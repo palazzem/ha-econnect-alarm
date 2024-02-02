@@ -26,6 +26,7 @@ from .const import (
     CONF_AREAS_ARM_VACATION,
     NOTIFICATION_MESSAGE,
 )
+from .helpers import split_code
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -291,7 +292,13 @@ class AlarmDevice:
 
     def arm(self, code, sectors=None):
         try:
-            with self._connection.lock(code):
+            # Detect if the user is trying to arm a system that requires a user ID
+            if not self.panel.get("login_without_user_id", True):
+                user_id, code = split_code(code)
+            else:
+                user_id = None
+
+            with self._connection.lock(code, user_id=user_id):
                 self._connection.arm(sectors=sectors)
                 self.state = STATE_ALARM_ARMED_AWAY
         except HTTPError as err:
@@ -309,7 +316,13 @@ class AlarmDevice:
 
     def disarm(self, code, sectors=None):
         try:
-            with self._connection.lock(code):
+            # Detect if the user is trying to arm a system that requires a user ID
+            if not self.panel.get("login_without_user_id", True):
+                user_id, code = split_code(code)
+            else:
+                user_id = None
+
+            with self._connection.lock(code, user_id=user_id):
                 self._connection.disarm(sectors=sectors)
                 self.state = STATE_ALARM_DISARMED
         except HTTPError as err:
