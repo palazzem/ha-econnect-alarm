@@ -282,6 +282,69 @@ class TestItemAlerts:
         assert dict(alarm_device.items(q.ALERTS, status=False)) == {}
 
 
+class TestItemPanel:
+    def test_without_status(self, alarm_device):
+        """Verify that querying items without specifying a status works correctly"""
+        alarm_device.connect("username", "password")
+        details = {
+            "description": "T-800 1.0.1",
+            "last_connection": "01/01/1984 13:27:28",
+            "last_disconnection": "01/10/1984 13:27:18",
+            "major": 1,
+            "minor": 0,
+            "source_ip": "10.0.0.1",
+            "connection_type": "EthernetWiFi",
+            "device_class": 92,
+            "revision": 1,
+            "build": 1,
+            "brand": 0,
+            "language": 0,
+            "areas": 4,
+            "sectors_per_area": 4,
+            "total_sectors": 16,
+            "inputs": 24,
+            "outputs": 24,
+            "operators": 64,
+            "sectors_in_use": [
+                True,
+                True,
+                True,
+                True,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+            ],
+            "model": "T-800",
+            "login_without_user_id": True,
+            "additional_info_supported": 1,
+            "is_fire_panel": False,
+        }
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.items(q.PANEL)) == details
+
+    def test_without_inventory(self, alarm_device):
+        """Verify that querying items without inventory populated works correctly"""
+        alarm_device._inventory = {}
+        # Test
+        assert dict(alarm_device.items(q.PANEL)) == {}
+
+    def test_with_empty_query(self, alarm_device):
+        """Verify that querying items with empty query works correctly"""
+        alarm_device._inventory = {0: {}}
+        # Test
+        assert dict(alarm_device.items(q.PANEL)) == {}
+
+
 def test_device_connect(client, mocker):
     """Should call authentication endpoints and update internal state."""
     device = AlarmDevice(client)
@@ -627,6 +690,67 @@ class TestAlertsView:
         # Test
         alarm_device._inventory = {11: {}}
         assert dict(alarm_device.alerts) == {}
+
+
+class TestPanelView:
+    def test_property_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        panel = {
+            "description": "T-800 1.0.1",
+            "last_connection": "01/01/1984 13:27:28",
+            "last_disconnection": "01/10/1984 13:27:18",
+            "major": 1,
+            "minor": 0,
+            "source_ip": "10.0.0.1",
+            "connection_type": "EthernetWiFi",
+            "device_class": 92,
+            "revision": 1,
+            "build": 1,
+            "brand": 0,
+            "language": 0,
+            "areas": 4,
+            "sectors_per_area": 4,
+            "total_sectors": 16,
+            "inputs": 24,
+            "outputs": 24,
+            "operators": 64,
+            "sectors_in_use": [
+                True,
+                True,
+                True,
+                True,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+            ],
+            "model": "T-800",
+            "login_without_user_id": True,
+            "additional_info_supported": 1,
+            "is_fire_panel": False,
+        }
+        # Test
+        assert dict(alarm_device.panel) == panel
+
+    def test_inventory_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if _inventory is empty"""
+        # Test
+        alarm_device._inventory = {}
+        assert dict(alarm_device.panel) == {}
+
+    def test_sectors_property_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if outputs key is not in _inventory"""
+        # Test
+        alarm_device._inventory = {0: {}}
+        assert dict(alarm_device.panel) == {}
 
 
 class TestGetStatusInputs:

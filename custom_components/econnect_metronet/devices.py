@@ -67,6 +67,11 @@ class AlarmDevice:
         self.state = STATE_UNAVAILABLE
 
     @property
+    def panel(self):
+        """Return the panel status."""
+        return self._inventory.get(q.PANEL, {})
+
+    @property
     def inputs(self):
         """Iterate over the device's inventory of inputs.
         This property provides an iterator over the device's inventory, where each item is a tuple
