@@ -24,16 +24,78 @@ LOGIN = """
         "Domain": "domain",
         "Language": "en",
         "IsActivated": true,
+        "ShowTimeZoneControls": true,
+        "TimeZone": "(UTC+01:00) Amsterdam, Berlino, Berna, Roma, Stoccolma, Vienna",
+        "ShowChronothermostat": false,
+        "ShowThumbnails": false,
+        "ShowExtinguish": false,
         "IsConnected": true,
         "IsLoggedIn": false,
         "IsLoginInProgress": false,
         "CanElevate": true,
+        "Panel": {
+            "Description": "T-800 1.0.1",
+            "LastConnection": "01/01/1984 13:27:28",
+            "LastDisconnection": "01/10/1984 13:27:18",
+            "Major": 1,
+            "Minor": 0,
+            "SourceIP": "10.0.0.1",
+            "ConnectionType": "EthernetWiFi",
+            "DeviceClass": 92,
+            "Revision": 1,
+            "Build": 1,
+            "Brand": 0,
+            "Language": 0,
+            "Areas": 4,
+            "SectorsPerArea": 4,
+            "TotalSectors": 16,
+            "Inputs": 24,
+            "Outputs": 24,
+            "Operators": 64,
+            "SectorsInUse": [
+                true,
+                true,
+                true,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "Model": "T-800",
+            "LoginWithoutUserID": true,
+            "AdditionalInfoSupported": 1,
+            "IsFirePanel": false
+        },
         "AccountId": 100,
+        "ManagedAccounts": [
+            {
+                "Id": 1,
+                "FullUsername": "domain\\\\test"
+            }
+        ],
         "IsManaged": false,
+        "Message": "",
+        "DVRPort": "",
+        "ExtendedAreaInfoOnStatusPage": true,
+        "DefaultPage": "Status",
+        "NotificationTitle": "",
+        "NotificationText": "",
+        "NotificationDontShowAgain": true,
         "Redirect": false,
-        "IsElevation": false
-    }
-"""
+        "IsElevation": false,
+        "InstallerForceSupervision": true,
+        "PrivacyLink": "/PrivacyAndTerms/v1/Informativa_privacy_econnect_2020_09.pdf",
+        "TermsLink": "/PrivacyAndTerms/v1/CONTRATTO_UTILIZZATORE_FINALE_2020_02_07.pdf"
+    }"""
 UPDATES = """
     {
         "ConnectionStatus": false,
