@@ -67,6 +67,11 @@ class AlarmDevice:
         self.state = STATE_UNAVAILABLE
 
     @property
+    def panel(self):
+        """Return the panel status."""
+        return self._inventory.get(q.PANEL, {})
+
+    @property
     def inputs(self):
         """Iterate over the device's inventory of inputs.
         This property provides an iterator over the device's inventory, where each item is a tuple
@@ -257,6 +262,7 @@ class AlarmDevice:
             inputs = self._connection.query(q.INPUTS)
             outputs = self._connection.query(q.OUTPUTS)
             alerts = self._connection.query(q.ALERTS)
+            panel = self._connection.query(q.PANEL)
         except HTTPError as err:
             _LOGGER.error(f"Device | Error during the update: {err.response.text}")
             raise err
@@ -269,12 +275,14 @@ class AlarmDevice:
         self._inventory.update({q.INPUTS: inputs["inputs"]})
         self._inventory.update({q.OUTPUTS: outputs["outputs"]})
         self._inventory.update({q.ALERTS: alerts["alerts"]})
+        self._inventory.update({q.PANEL: panel["panel"]})
 
         # Update the _last_ids
         self._last_ids[q.SECTORS] = sectors.get("last_id", 0)
         self._last_ids[q.INPUTS] = inputs.get("last_id", 0)
         self._last_ids[q.OUTPUTS] = outputs.get("last_id", 0)
         self._last_ids[q.ALERTS] = alerts.get("last_id", 0)
+        self._last_ids[q.PANEL] = panel.get("last_id", 0)
 
         # Update the internal state machine (mapping state)
         self.state = self.get_state()

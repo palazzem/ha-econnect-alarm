@@ -282,6 +282,69 @@ class TestItemAlerts:
         assert dict(alarm_device.items(q.ALERTS, status=False)) == {}
 
 
+class TestItemPanel:
+    def test_without_status(self, alarm_device):
+        """Verify that querying items without specifying a status works correctly"""
+        alarm_device.connect("username", "password")
+        details = {
+            "description": "T-800 1.0.1",
+            "last_connection": "01/01/1984 13:27:28",
+            "last_disconnection": "01/10/1984 13:27:18",
+            "major": 1,
+            "minor": 0,
+            "source_ip": "10.0.0.1",
+            "connection_type": "EthernetWiFi",
+            "device_class": 92,
+            "revision": 1,
+            "build": 1,
+            "brand": 0,
+            "language": 0,
+            "areas": 4,
+            "sectors_per_area": 4,
+            "total_sectors": 16,
+            "inputs": 24,
+            "outputs": 24,
+            "operators": 64,
+            "sectors_in_use": [
+                True,
+                True,
+                True,
+                True,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+            ],
+            "model": "T-800",
+            "login_without_user_id": True,
+            "additional_info_supported": 1,
+            "is_fire_panel": False,
+        }
+        # Test
+        alarm_device.update()
+        assert dict(alarm_device.items(q.PANEL)) == details
+
+    def test_without_inventory(self, alarm_device):
+        """Verify that querying items without inventory populated works correctly"""
+        alarm_device._inventory = {}
+        # Test
+        assert dict(alarm_device.items(q.PANEL)) == {}
+
+    def test_with_empty_query(self, alarm_device):
+        """Verify that querying items with empty query works correctly"""
+        alarm_device._inventory = {0: {}}
+        # Test
+        assert dict(alarm_device.items(q.PANEL)) == {}
+
+
 def test_device_connect(client, mocker):
     """Should call authentication endpoints and update internal state."""
     device = AlarmDevice(client)
@@ -381,8 +444,9 @@ def test_device_update_success(client, mocker):
     device.connect("username", "password")
     # Test
     device.update()
-    assert device._connection.query.call_count == 4
+    assert device._connection.query.call_count == 5
     assert device._last_ids == {
+        0: 0,
         9: 4,
         10: 42,
         11: 1,
@@ -395,6 +459,48 @@ def test_device_inventory_update_success(client, mocker):
     device = AlarmDevice(client)
     mocker.spy(device._connection, "query")
     inventory = {
+        0: {
+            "additional_info_supported": 1,
+            "areas": 4,
+            "brand": 0,
+            "build": 1,
+            "connection_type": "EthernetWiFi",
+            "description": "T-800 1.0.1",
+            "device_class": 92,
+            "inputs": 24,
+            "is_fire_panel": False,
+            "language": 0,
+            "last_connection": "01/01/1984 13:27:28",
+            "last_disconnection": "01/10/1984 13:27:18",
+            "login_without_user_id": True,
+            "major": 1,
+            "minor": 0,
+            "model": "T-800",
+            "operators": 64,
+            "outputs": 24,
+            "revision": 1,
+            "sectors_in_use": [
+                True,
+                True,
+                True,
+                True,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+            ],
+            "sectors_per_area": 4,
+            "source_ip": "10.0.0.1",
+            "total_sectors": 16,
+        },
         9: {
             0: {"element": 1, "activable": True, "id": 1, "index": 0, "name": "S1 Living Room", "status": True},
             1: {"element": 2, "activable": True, "id": 2, "index": 1, "name": "S2 Bedroom", "status": True},
@@ -586,6 +692,67 @@ class TestAlertsView:
         assert dict(alarm_device.alerts) == {}
 
 
+class TestPanelView:
+    def test_property_populated(self, alarm_device):
+        """Should check if the device property is correctly populated"""
+        panel = {
+            "description": "T-800 1.0.1",
+            "last_connection": "01/01/1984 13:27:28",
+            "last_disconnection": "01/10/1984 13:27:18",
+            "major": 1,
+            "minor": 0,
+            "source_ip": "10.0.0.1",
+            "connection_type": "EthernetWiFi",
+            "device_class": 92,
+            "revision": 1,
+            "build": 1,
+            "brand": 0,
+            "language": 0,
+            "areas": 4,
+            "sectors_per_area": 4,
+            "total_sectors": 16,
+            "inputs": 24,
+            "outputs": 24,
+            "operators": 64,
+            "sectors_in_use": [
+                True,
+                True,
+                True,
+                True,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+                False,
+            ],
+            "model": "T-800",
+            "login_without_user_id": True,
+            "additional_info_supported": 1,
+            "is_fire_panel": False,
+        }
+        # Test
+        assert dict(alarm_device.panel) == panel
+
+    def test_inventory_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if _inventory is empty"""
+        # Test
+        alarm_device._inventory = {}
+        assert dict(alarm_device.panel) == {}
+
+    def test_sectors_property_empty(self, alarm_device):
+        """Ensure the property returns an empty dict if outputs key is not in _inventory"""
+        # Test
+        alarm_device._inventory = {0: {}}
+        assert dict(alarm_device.panel) == {}
+
+
 class TestGetStatusInputs:
     def test_get_status_populated(self, alarm_device):
         """Should check if the device property is correctly populated"""
@@ -770,6 +937,51 @@ def test_device_update_state_machine_armed(client, mocker):
                 "tamper_led": 0,
             },
         },
+        {
+            "last_id": 0,
+            "panel": {
+                "additional_info_supported": 1,
+                "areas": 4,
+                "brand": 0,
+                "build": 1,
+                "connection_type": "EthernetWiFi",
+                "description": "T-800 1.0.1",
+                "device_class": 92,
+                "inputs": 24,
+                "is_fire_panel": False,
+                "language": 0,
+                "last_connection": "01/01/1984 13:27:28",
+                "last_disconnection": "01/10/1984 13:27:18",
+                "login_without_user_id": True,
+                "major": 1,
+                "minor": 0,
+                "model": "T-800",
+                "operators": 64,
+                "outputs": 24,
+                "revision": 1,
+                "sectors_in_use": [
+                    True,
+                    True,
+                    True,
+                    True,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                ],
+                "sectors_per_area": 4,
+                "source_ip": "10.0.0.1",
+                "total_sectors": 16,
+            },
+        },
     ]
     # Test
     device.update()
@@ -858,6 +1070,51 @@ def test_device_update_state_machine_disarmed(client, mocker):
                 "rf_interference": 0,
                 "system_test": 0,
                 "tamper_led": 0,
+            },
+        },
+        {
+            "last_id": 0,
+            "panel": {
+                "additional_info_supported": 1,
+                "areas": 4,
+                "brand": 0,
+                "build": 1,
+                "connection_type": "EthernetWiFi",
+                "description": "T-800 1.0.1",
+                "device_class": 92,
+                "inputs": 24,
+                "is_fire_panel": False,
+                "language": 0,
+                "last_connection": "01/01/1984 13:27:28",
+                "last_disconnection": "01/10/1984 13:27:18",
+                "login_without_user_id": True,
+                "major": 1,
+                "minor": 0,
+                "model": "T-800",
+                "operators": 64,
+                "outputs": 24,
+                "revision": 1,
+                "sectors_in_use": [
+                    True,
+                    True,
+                    True,
+                    True,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                ],
+                "sectors_per_area": 4,
+                "source_ip": "10.0.0.1",
+                "total_sectors": 16,
             },
         },
     ]
