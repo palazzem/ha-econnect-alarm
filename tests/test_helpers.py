@@ -70,7 +70,7 @@ def test_split_code_with_alphanumeric_user_id_raises_error():
     code = "USER123456"
     with pytest.raises(CodeError) as exc_info:
         split_code(code)
-    assert "both user ID and code must be numbers" in str(exc_info.value)
+    assert "user ID and code must be numbers" in str(exc_info.value)
 
 
 def test_split_code_with_special_characters_raises_error():
@@ -78,7 +78,7 @@ def test_split_code_with_special_characters_raises_error():
     code = "12345@678901"
     with pytest.raises(CodeError) as exc_info:
         split_code(code)
-    assert "both user ID and code must be numbers" in str(exc_info.value)
+    assert "user ID and code must be numbers" in str(exc_info.value)
 
 
 def test_split_code_with_empty_string_raises_error():
