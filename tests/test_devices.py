@@ -1174,6 +1174,21 @@ def test_device_arm_success_with_user_id(alarm_device, mocker):
     assert {"sectors": [4]} == alarm_device._connection.arm.call_args[1]
 
 
+def test_device_arm_success_user_id_not_required(alarm_device, mocker):
+    """Should not split the code if the login with `userId` is not required."""
+    alarm_device._inventory[0]["login_without_user_id"] = True
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "arm")
+    # Test
+    alarm_device._connection._session_id = "test"
+    alarm_device.arm("123456", sectors=[4])
+    assert alarm_device._connection.lock.call_count == 1
+    assert alarm_device._connection.arm.call_count == 1
+    assert "123456" in alarm_device._connection.lock.call_args[0]
+    assert {"user_id": None} == alarm_device._connection.lock.call_args[1]
+    assert {"sectors": [4]} == alarm_device._connection.arm.call_args[1]
+
+
 def test_device_arm_code_error_with_user_id(alarm_device, mocker):
     """Should raise an error if the code can't be split in `userId` and `code`."""
     alarm_device._inventory[0]["login_without_user_id"] = False
@@ -1252,6 +1267,21 @@ def test_device_disarm_success_without_panel_details(alarm_device, mocker):
     assert alarm_device._connection.lock.call_count == 1
     assert alarm_device._connection.disarm.call_count == 1
     assert "1234" in alarm_device._connection.lock.call_args[0]
+    assert {"sectors": [4]} == alarm_device._connection.disarm.call_args[1]
+
+
+def test_device_disarm_success_user_id_not_required(alarm_device, mocker):
+    """Should not split the code if the login with `userId` is not required."""
+    alarm_device._inventory[0]["login_without_user_id"] = True
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "disarm")
+    # Test
+    alarm_device._connection._session_id = "test"
+    alarm_device.disarm("123456", sectors=[4])
+    assert alarm_device._connection.lock.call_count == 1
+    assert alarm_device._connection.disarm.call_count == 1
+    assert "123456" in alarm_device._connection.lock.call_args[0]
+    assert {"user_id": None} == alarm_device._connection.lock.call_args[1]
     assert {"sectors": [4]} == alarm_device._connection.disarm.call_args[1]
 
 
