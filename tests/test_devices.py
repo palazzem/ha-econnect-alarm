@@ -1133,18 +1133,71 @@ def test_device_update_query_not_valid(client, mocker):
     assert device.update() is None
 
 
-def test_device_arm_success(client, mocker):
+def test_device_arm_success(alarm_device, mocker):
     """Should arm the e-connect system using the underlying client."""
-    device = AlarmDevice(client)
-    mocker.spy(device._connection, "lock")
-    mocker.spy(device._connection, "arm")
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "arm")
     # Test
-    device._connection._session_id = "test"
-    device.arm("1234", sectors=[4])
-    assert device._connection.lock.call_count == 1
-    assert device._connection.arm.call_count == 1
-    assert "1234" in device._connection.lock.call_args[0]
-    assert {"sectors": [4]} == device._connection.arm.call_args[1]
+    alarm_device.arm("1234", sectors=[4])
+    assert alarm_device._connection.lock.call_count == 1
+    assert alarm_device._connection.arm.call_count == 1
+    assert "1234" in alarm_device._connection.lock.call_args[0]
+    assert {"sectors": [4]} == alarm_device._connection.arm.call_args[1]
+
+
+def test_device_arm_success_without_panel_details(alarm_device, mocker):
+    """Should assume `userId` is not required if panel details are empty."""
+    alarm_device._inventory = {}
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "arm")
+    # Test
+    alarm_device._connection._session_id = "test"
+    alarm_device.arm("1234", sectors=[4])
+    assert alarm_device._connection.lock.call_count == 1
+    assert alarm_device._connection.arm.call_count == 1
+    assert "1234" in alarm_device._connection.lock.call_args[0]
+    assert {"sectors": [4]} == alarm_device._connection.arm.call_args[1]
+
+
+def test_device_arm_success_with_user_id(alarm_device, mocker):
+    """Should split the code if the login with `userId` is required."""
+    alarm_device._inventory[0]["login_without_user_id"] = False
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "arm")
+    # Test
+    alarm_device._connection._session_id = "test"
+    alarm_device.arm("001123456", sectors=[4])
+    assert alarm_device._connection.lock.call_count == 1
+    assert alarm_device._connection.arm.call_count == 1
+    assert "123456" in alarm_device._connection.lock.call_args[0]
+    assert {"user_id": "001"} == alarm_device._connection.lock.call_args[1]
+    assert {"sectors": [4]} == alarm_device._connection.arm.call_args[1]
+
+
+def test_device_arm_success_user_id_not_required(alarm_device, mocker):
+    """Should not split the code if the login with `userId` is not required."""
+    alarm_device._inventory[0]["login_without_user_id"] = True
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "arm")
+    # Test
+    alarm_device._connection._session_id = "test"
+    alarm_device.arm("123456", sectors=[4])
+    assert alarm_device._connection.lock.call_count == 1
+    assert alarm_device._connection.arm.call_count == 1
+    assert "123456" in alarm_device._connection.lock.call_args[0]
+    assert {"user_id": None} == alarm_device._connection.lock.call_args[1]
+    assert {"sectors": [4]} == alarm_device._connection.arm.call_args[1]
+
+
+def test_device_arm_code_error_with_user_id(alarm_device, mocker):
+    """Should raise an error if the code can't be split in `userId` and `code`."""
+    alarm_device._inventory[0]["login_without_user_id"] = False
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "arm")
+    # Test
+    alarm_device._connection._session_id = "test"
+    with pytest.raises(CodeError):
+        alarm_device.arm("1234", sectors=[4])
 
 
 def test_device_arm_error(client, mocker):
@@ -1189,19 +1242,73 @@ def test_device_arm_code_error(client, mocker):
     assert device._connection.arm.call_count == 0
 
 
-def test_device_disarm_success(client, mocker):
+def test_device_disarm_success(alarm_device, mocker):
     """Should disarm the e-connect system using the underlying client."""
-    device = AlarmDevice(client)
-    mocker.spy(device._connection, "lock")
-    mocker.spy(device._connection, "disarm")
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "disarm")
     # Test
-    device._connection._session_id = "test"
-    device.disarm("1234", sectors=[4])
+    alarm_device._connection._session_id = "test"
+    alarm_device.disarm("1234", sectors=[4])
 
-    assert device._connection.lock.call_count == 1
-    assert device._connection.disarm.call_count == 1
-    assert "1234" in device._connection.lock.call_args[0]
-    assert {"sectors": [4]} == device._connection.disarm.call_args[1]
+    assert alarm_device._connection.lock.call_count == 1
+    assert alarm_device._connection.disarm.call_count == 1
+    assert "1234" in alarm_device._connection.lock.call_args[0]
+    assert {"sectors": [4]} == alarm_device._connection.disarm.call_args[1]
+
+
+def test_device_disarm_success_without_panel_details(alarm_device, mocker):
+    """Should assume `userId` is not required if panel details are empty."""
+    alarm_device._inventory = {}
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "disarm")
+    # Test
+    alarm_device._connection._session_id = "test"
+    alarm_device.disarm("1234", sectors=[4])
+    assert alarm_device._connection.lock.call_count == 1
+    assert alarm_device._connection.disarm.call_count == 1
+    assert "1234" in alarm_device._connection.lock.call_args[0]
+    assert {"sectors": [4]} == alarm_device._connection.disarm.call_args[1]
+
+
+def test_device_disarm_success_user_id_not_required(alarm_device, mocker):
+    """Should not split the code if the login with `userId` is not required."""
+    alarm_device._inventory[0]["login_without_user_id"] = True
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "disarm")
+    # Test
+    alarm_device._connection._session_id = "test"
+    alarm_device.disarm("123456", sectors=[4])
+    assert alarm_device._connection.lock.call_count == 1
+    assert alarm_device._connection.disarm.call_count == 1
+    assert "123456" in alarm_device._connection.lock.call_args[0]
+    assert {"user_id": None} == alarm_device._connection.lock.call_args[1]
+    assert {"sectors": [4]} == alarm_device._connection.disarm.call_args[1]
+
+
+def test_device_disarm_success_with_user_id(alarm_device, mocker):
+    """Should split the code if the login with `userId` is required."""
+    alarm_device._inventory[0]["login_without_user_id"] = False
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "disarm")
+    # Test
+    alarm_device._connection._session_id = "test"
+    alarm_device.disarm("001123456", sectors=[4])
+    assert alarm_device._connection.lock.call_count == 1
+    assert alarm_device._connection.disarm.call_count == 1
+    assert "123456" in alarm_device._connection.lock.call_args[0]
+    assert {"user_id": "001"} == alarm_device._connection.lock.call_args[1]
+    assert {"sectors": [4]} == alarm_device._connection.disarm.call_args[1]
+
+
+def test_device_disarm_code_error_with_user_id(alarm_device, mocker):
+    """Should raise an error if the code can't be split in `userId` and `code`."""
+    alarm_device._inventory[0]["login_without_user_id"] = False
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "disarm")
+    # Test
+    alarm_device._connection._session_id = "test"
+    with pytest.raises(CodeError):
+        alarm_device.disarm("1234", sectors=[4])
 
 
 def test_device_disarm_error(client, mocker):
