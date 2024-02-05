@@ -296,7 +296,7 @@ class AlarmDevice:
             if not self.panel.get("login_without_user_id", True):
                 user_id, code = split_code(code)
             else:
-                user_id = None
+                user_id = 1
 
             with self._connection.lock(code, user_id=user_id):
                 self._connection.arm(sectors=sectors)
@@ -320,7 +320,11 @@ class AlarmDevice:
             if not self.panel.get("login_without_user_id", True):
                 user_id, code = split_code(code)
             else:
-                user_id = None
+                user_id = 1
+
+            # Detect which sectors should be disarmed
+            if sectors is None:
+                sectors = [sector["element"] for _, sector in self.items(q.SECTORS, status=True)]
 
             with self._connection.lock(code, user_id=user_id):
                 self._connection.disarm(sectors=sectors)
