@@ -1185,7 +1185,7 @@ def test_device_arm_success_user_id_not_required(alarm_device, mocker):
     assert alarm_device._connection.lock.call_count == 1
     assert alarm_device._connection.arm.call_count == 1
     assert "123456" in alarm_device._connection.lock.call_args[0]
-    assert {"user_id": None} == alarm_device._connection.lock.call_args[1]
+    assert {"user_id": 1} == alarm_device._connection.lock.call_args[1]
     assert {"sectors": [4]} == alarm_device._connection.arm.call_args[1]
 
 
@@ -1295,7 +1295,7 @@ def test_device_disarm_success_user_id_not_required(alarm_device, mocker):
     assert alarm_device._connection.lock.call_count == 1
     assert alarm_device._connection.disarm.call_count == 1
     assert "123456" in alarm_device._connection.lock.call_args[0]
-    assert {"user_id": None} == alarm_device._connection.lock.call_args[1]
+    assert {"user_id": 1} == alarm_device._connection.lock.call_args[1]
     assert {"sectors": [4]} == alarm_device._connection.disarm.call_args[1]
 
 
