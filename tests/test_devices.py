@@ -1256,6 +1256,20 @@ def test_device_disarm_success(alarm_device, mocker):
     assert {"sectors": [4]} == alarm_device._connection.disarm.call_args[1]
 
 
+def test_device_disarm_activated_sectors(alarm_device, mocker):
+    """Should disarm sectors that are currently activated if no sectors are specified."""
+    mocker.spy(alarm_device._connection, "lock")
+    mocker.spy(alarm_device._connection, "disarm")
+    # Test
+    alarm_device._connection._session_id = "test"
+    alarm_device.disarm("1234")
+
+    assert alarm_device._connection.lock.call_count == 1
+    assert alarm_device._connection.disarm.call_count == 1
+    assert "1234" in alarm_device._connection.lock.call_args[0]
+    assert {"sectors": [1, 2]} == alarm_device._connection.disarm.call_args[1]
+
+
 def test_device_disarm_success_without_panel_details(alarm_device, mocker):
     """Should assume `userId` is not required if panel details are empty."""
     alarm_device._inventory = {}

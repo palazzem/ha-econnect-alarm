@@ -322,6 +322,10 @@ class AlarmDevice:
             else:
                 user_id = None
 
+            # Detect which sectors should be disarmed
+            if sectors is None:
+                sectors = [sector["element"] for _, sector in self.items(q.SECTORS, status=True)]
+
             with self._connection.lock(code, user_id=user_id):
                 self._connection.disarm(sectors=sectors)
                 self.state = STATE_ALARM_DISARMED
