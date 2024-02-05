@@ -102,10 +102,10 @@ def split_code(code: str) -> Tuple[str, str]:
         conform to the expected format.
     """
     if len(code) <= 6:
-        raise CodeError("Invalid code: your code must be in the format <USER_ID><CODE> without spaces.")
+        raise CodeError("Your code must be in the format <USER_ID><CODE> without spaces.")
 
     user_id_part, code_part = code[:-6], code[-6:]
     if not (user_id_part.isdigit() and code_part.isdigit()):
-        raise CodeError("Invalid code: both user ID and code must be numbers.")
+        raise CodeError("Both user ID and code must be numbers.")
 
     return user_id_part, code_part
