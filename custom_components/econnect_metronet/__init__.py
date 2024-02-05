@@ -3,11 +3,11 @@
 import asyncio
 import logging
 
+import voluptuous as vol
 from elmo.api.client import ElmoClient
 from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant.config_entries import ConfigEntry, ConfigType
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv
 
 from .const import (
     CONF_DOMAIN,
@@ -24,7 +24,21 @@ from .devices import AlarmDevice
 
 _LOGGER = logging.getLogger(__name__)
 
-CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+# Allow experimental settings to be exposed in the YAML configuration
+# This part will be removed once the experimental settings are stable
+# and moved to the configuration flow. This is considered an internal
+# API so it will be removed without notice.
+CONFIG_SCHEMA = vol.Schema(
+    {
+        DOMAIN: vol.Schema(
+            {
+                vol.Optional("experimental"): vol.Schema({}, extra=vol.ALLOW_EXTRA),
+            }
+        ),
+    },
+    extra=vol.ALLOW_EXTRA,
+)
+
 PLATFORMS = ["alarm_control_panel", "binary_sensor", "sensor", "switch"]
 
 
