@@ -1,6 +1,6 @@
 import pytest
+from homeassistant.data_entry_flow import InvalidData
 from homeassistant.helpers.config_validation import multi_select as select
-from voluptuous.error import MultipleInvalid
 
 from custom_components.econnect_metronet.const import DOMAIN, KEY_DEVICE
 
@@ -64,7 +64,7 @@ class TestOptionsFlow:
             config_entry.entry_id, context={"show_advanced_options": False}
         )
         # Test
-        with pytest.raises(MultipleInvalid) as excinfo:
+        with pytest.raises(InvalidData) as excinfo:
             await hass.config_entries.options.async_configure(
                 form["flow_id"],
                 user_input={
@@ -72,7 +72,7 @@ class TestOptionsFlow:
                 },
             )
             await hass.async_block_till_done()
-        assert excinfo.value.errors[0].msg == "Not a list"
+        assert excinfo.value.schema_errors["areas_arm_home"] == "Not a list"
 
     async def test_form_submit_invalid_input(self, hass, config_entry):
         # Ensure it fails if a user submits an option not in the allowed list
@@ -80,7 +80,7 @@ class TestOptionsFlow:
             config_entry.entry_id, context={"show_advanced_options": False}
         )
         # Test
-        with pytest.raises(MultipleInvalid) as excinfo:
+        with pytest.raises(InvalidData) as excinfo:
             await hass.config_entries.options.async_configure(
                 form["flow_id"],
                 user_input={
@@ -90,7 +90,7 @@ class TestOptionsFlow:
                 },
             )
             await hass.async_block_till_done()
-        assert excinfo.value.errors[0].msg == "(3, 'Garden') is not a valid option"
+        assert excinfo.value.schema_errors["areas_arm_home"] == "(3, 'Garden') is not a valid option"
 
     async def test_form_submit_successful_with_identifier(self, hass, config_entry):
         # Ensure users can submit an option just by using the option ID
