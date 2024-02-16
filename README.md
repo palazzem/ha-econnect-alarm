@@ -81,38 +81,50 @@ YAML example:
 ```yaml
 service: alarm_control_panel.alarm_arm_away
 target:
-  entity_id: alarm_control_panel.alarm_panel
+  entity_id: alarm_control_panel.<YOUR ALARM ENTITY ID>
 data:
   code: !secret alarm_code  # (check how to use secrets if you are not familiar)
 ```
+
+You can find `<YOUR ALARM ENTITY ID>` under *Settings > Devices & Services > e-Connect/Metronet Alarm* opening the list of entities and searching for *Alarm Panel*
+
+<img src="images/alarm_panel_entity_id.png" width="400"/>
 
 UI example:
 
 <img src="https://user-images.githubusercontent.com/1560405/110870435-ba91f900-82cc-11eb-9ebc-442152fd67f1.png" width="500"/>
 
-### HomeKit integration
+### Apple Home integration (HomeKit)
 
-If you want to integrate your alarm with the Apple ecosystem to use Siri or Apple Home automations, follow these steps:
+If you want to integrate your alarm with the Apple Home to use Siri or automations, follow these steps:
 
-1) Add these entries inside `configuration.yaml` to let Home Assistant create a new bridge with just the Alarm Panel exposed.
+1) Add these entries inside `configuration.yaml` to let Home Assistant create a new HomeKit bridge with just the Alarm Panel exposed.
 
 ```
 homekit:
-  - filter:
+  - name: HASS Bridge Alarm
+    port: 21065
+    filter:
       include_domains:
         - alarm_control_panel
     entity_config:
-      alarm_control_panel.alarm_panel:
-       code: <PIN CODE>
-  - name: HASS Bridge Alarm
-    port: 21065
+      alarm_control_panel.<YOUR ALARM ENTITY ID>:
+        code: <PIN CODE>
 ```
 
-2) Please replace `<PIN CODE>` with your specific alarm code.
-3) Reboot Home Assistant.
-4) Scan the QR code available in your Home Assistant Notifications area (bottom-left badge) with your iPhone to add the alarm into the Apple Home app.
+1) Please replace `<PIN CODE>` with your specific alarm code and `<YOUR ALARM ENTITY ID>` with your alarm entity id.
+2) Reboot Home Assistant.
+3) Scan the QR code available in your Home Assistant Notifications area (bottom-left badge) with your iPhone to add the alarm into the Apple Home app.
+
+**Multiple HomeKit bridges**: If you have others HomeKit integrations created via the UI (i.e., Settings > Devices & Services), be careful to not use the same `port` twice to prevent conflicts. Also note, if you don't specify a `port` the default `21063` is used.
 
 Please note that Apple Home requires you to confirm automations that involves security devices such as lockers and alarm systems.
+
+As a result of the integration you should have a similar configuration in your Home app:
+
+| Alarm panel  | Alarm panel opened |
+|---|---|
+| <img src="images/homekit_alarm_panel.jpg" width="300"/> | <img src="images/homekit_alarm_panel_open.png" width="300"/> |
 
 ## Troubleshooting
 
