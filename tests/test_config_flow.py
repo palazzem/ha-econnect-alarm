@@ -1,9 +1,9 @@
 import pytest
 from elmo.api.exceptions import CredentialError
 from homeassistant import config_entries
+from homeassistant.data_entry_flow import InvalidData
 from requests.exceptions import ConnectionError, HTTPError
 from requests.models import Response
-from voluptuous.error import MultipleInvalid
 
 from custom_components.econnect_metronet.const import DOMAIN
 
@@ -107,17 +107,13 @@ async def test_form_submit_required_fields(hass, mocker):
     mocker.patch(_("async_setup_entry"), return_value=True)
     form = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
     # Test
-    with pytest.raises(MultipleInvalid) as excinfo:
+    with pytest.raises(InvalidData) as excinfo:
         await hass.config_entries.flow.async_configure(form["flow_id"], {})
     await hass.async_block_till_done()
-    assert len(excinfo.value.errors) == 3
-    errors = []
-    errors.append(str(excinfo.value.errors[0]))
-    errors.append(str(excinfo.value.errors[1]))
-    errors.append(str(excinfo.value.errors[2]))
-    assert "required key not provided @ data['username']" in errors
-    assert "required key not provided @ data['password']" in errors
-    assert "required key not provided @ data['domain']" in errors
+    assert len(excinfo.value.schema_errors) == 3
+    assert excinfo.value.schema_errors["username"] == "required key not provided"
+    assert excinfo.value.schema_errors["password"] == "required key not provided"
+    assert excinfo.value.schema_errors["domain"] == "required key not provided"
 
 
 async def test_form_submit_wrong_credential(hass, mocker):
