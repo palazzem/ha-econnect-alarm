@@ -1,9 +1,13 @@
-# Describes the format for available alarm control panel services
+# Describes the format for available e-Connect services
 
-alarm_disarm:
-  name: Disarm
-  description: Send the alarm the command for disarm.
+arm_sectors:
+  name: Arm Sectors
+  description: Arm one or multiple sectors.
   target:
+    entity:
+      integration: econnect_metronet
+      domain: binary_sensor
+      device_class: "sector"
   fields:
     code:
       name: Code
@@ -13,62 +17,14 @@ alarm_disarm:
       selector:
         text:
 
-alarm_arm_custom_bypass:
-  name: Arm with custom bypass
-  description: Send arm custom bypass command.
+disarm_sectors:
+  name: Disarm Sectors
+  description: Disarm one or multiple sectors.
   target:
-  fields:
-    code:
-      name: Code
-      required: true
-      description: A code to trigger the alarm control panel with.
-      example: "1234"
-      selector:
-        text:
-
-alarm_arm_home:
-  name: Arm home
-  description: Send the alarm the command for arm home.
-  target:
-  fields:
-    code:
-      name: Code
-      required: true
-      description: A code to trigger the alarm control panel with.
-      example: "1234"
-      selector:
-        text:
-
-alarm_arm_away:
-  name: Arm away
-  description: Send the alarm the command for arm away.
-  target:
-  fields:
-    code:
-      name: Code
-      required: true
-      description: A code to trigger the alarm control panel with.
-      example: "1234"
-      selector:
-        text:
-
-alarm_arm_night:
-  name: Arm night
-  description: Send the alarm the command for arm night.
-  target:
-  fields:
-    code:
-      name: Code
-      required: true
-      description: A code to trigger the alarm control panel with.
-      example: "1234"
-      selector:
-        text:
-
-alarm_trigger:
-  name: Trigger
-  description: Send the alarm the command for trigger.
-  target:
+    entity:
+      integration: econnect_metronet
+      domain: binary_sensor
+      device_class: "sector"
   fields:
     code:
       name: Code
