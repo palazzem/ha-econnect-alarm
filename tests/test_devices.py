@@ -12,6 +12,7 @@ from homeassistant.const import (
 from requests.exceptions import HTTPError
 from requests.models import Response
 
+from custom_components.econnect_metronet.binary_sensor import SectorBinarySensor
 from custom_components.econnect_metronet.const import (
     CONF_AREAS_ARM_AWAY,
     CONF_AREAS_ARM_HOME,
@@ -27,6 +28,7 @@ def test_device_constructor(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
+    assert device._sectors == {}
     assert device._last_ids == {10: 0, 9: 0, 11: 0, 12: 0}
     assert device._sectors_away == []
     assert device._sectors_home == []
@@ -47,6 +49,7 @@ def test_device_constructor_with_config(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
+    assert device._sectors == {}
     assert device._last_ids == {10: 0, 9: 0, 11: 0, 12: 0}
     assert device._sectors_away == [1, 2, 3, 4, 5]
     assert device._sectors_home == [3, 4]
@@ -67,6 +70,7 @@ def test_device_constructor_with_config_empty(client):
     # Test
     assert device._connection == client
     assert device._inventory == {}
+    assert device._sectors == {}
     assert device._last_ids == {10: 0, 9: 0, 11: 0, 12: 0}
     assert device._sectors_away == []
     assert device._sectors_home == []
@@ -1131,6 +1135,13 @@ def test_device_update_query_not_valid(client, mocker):
     device._connection.query.side_effect = Exception("Unexpected")
     # Test
     assert device.update() is None
+
+
+def test_device_register_sector(alarm_device, config_entry, coordinator):
+    # Ensure a sector can register itself so the device can map entity ids to sector codes
+    sector = SectorBinarySensor("test_id", 0, config_entry, "S1 Living Room", coordinator, alarm_device)
+    alarm_device._register_sector(sector)
+    assert alarm_device._sectors["econnect_metronet_test_user_s1_living_room"] == 1
 
 
 def test_device_arm_success(alarm_device, mocker):

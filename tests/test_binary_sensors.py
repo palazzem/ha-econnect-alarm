@@ -205,6 +205,12 @@ class TestInputBinarySensor:
 
 
 class TestSectorBinarySensor:
+    def test_binary_sensor_device_class(self, hass, config_entry, alarm_device):
+        # Ensure sectors provide the device class name
+        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        entity = SectorBinarySensor("test_id", 1, config_entry, "1 S1 Living Room", coordinator, alarm_device)
+        assert entity.device_class == "sector"
+
     def test_binary_sensor_input_name(self, hass, config_entry, alarm_device):
         # Ensure the sensor has the right name
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")

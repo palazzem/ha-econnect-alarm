@@ -49,6 +49,7 @@ class AlarmDevice:
     def __init__(self, connection, config=None):
         # Configuration and internals
         self._inventory = {}
+        self._sectors = {}
         self._connection = connection
         self._last_ids = {
             q.SECTORS: 0,
@@ -66,6 +67,11 @@ class AlarmDevice:
 
         # Alarm state
         self.state = STATE_UNAVAILABLE
+
+    def _register_sector(self, entity):
+        """Register a sector entity in the device's internal inventory."""
+        entity_id = entity.entity_id.split(".")[1]
+        self._sectors[entity_id] = self._inventory[q.SECTORS][entity._sector_id]["element"]
 
     @property
     def panel(self):
