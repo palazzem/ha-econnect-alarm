@@ -16,6 +16,7 @@ from homeassistant.helpers.update_coordinator import (
 from .const import (
     CONF_EXPERIMENTAL,
     CONF_FORCE_UPDATE,
+    DEVICE_CLASS_SECTORS,
     DOMAIN,
     KEY_COORDINATOR,
     KEY_DEVICE,
@@ -189,6 +190,11 @@ class SectorBinarySensor(CoordinatorEntity, BinarySensorEntity):
     def unique_id(self) -> str:
         """Return the unique identifier."""
         return self._unique_id
+
+    @property
+    def device_class(self) -> str:
+        """Return the device class."""
+        return DEVICE_CLASS_SECTORS
 
     @property
     def name(self) -> str:
