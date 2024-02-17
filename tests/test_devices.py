@@ -1141,7 +1141,7 @@ def test_device_register_sector(alarm_device, config_entry, coordinator):
     # Ensure a sector can register itself so the device can map entity ids to sector codes
     sector = SectorBinarySensor("test_id", 0, config_entry, "S1 Living Room", coordinator, alarm_device)
     alarm_device._register_sector(sector)
-    assert alarm_device._sectors["econnect_metronet.econnect_metronet_test_user_s1_living_room"] == 1
+    assert alarm_device._sectors["econnect_metronet_test_user_s1_living_room"] == 1
 
 
 def test_device_arm_success(alarm_device, mocker):
