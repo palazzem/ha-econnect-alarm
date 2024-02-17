@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+from functools import partial
 
 import voluptuous as vol
 from elmo.api.client import ElmoClient
@@ -9,6 +10,7 @@ from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant.config_entries import ConfigEntry, ConfigType
 from homeassistant.core import HomeAssistant
 
+from . import services
 from .const import (
     CONF_DOMAIN,
     CONF_SCAN_INTERVAL,
@@ -117,6 +119,12 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry) -> bool:
     # Register a listener when option changes
     unsub = config.add_update_listener(options_update_listener)
     hass.data[DOMAIN][config.entry_id][KEY_UNSUBSCRIBER] = unsub
+
+    # Register e-Connect services
+    # We use a `partial` function to pass the `hass` and `config.entry_id` arguments
+    # as we need both to access the integration configurations.
+    hass.services.async_register(DOMAIN, "arm_sectors", partial(services.arm_sectors, hass, config.entry_id))
+    hass.services.async_register(DOMAIN, "disarm_sectors", partial(services.disarm_sectors, hass, config.entry_id))
 
     for component in PLATFORMS:
         hass.async_create_task(hass.config_entries.async_forward_entry_setup(config, component))
