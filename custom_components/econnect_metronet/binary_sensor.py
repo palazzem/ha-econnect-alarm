@@ -186,6 +186,9 @@ class SectorBinarySensor(CoordinatorEntity, BinarySensorEntity):
         self._unique_id = unique_id
         self._sector_id = sector_id
 
+        # Register the sector with the device
+        device._register_sector(self)
+
     @property
     def unique_id(self) -> str:
         """Return the unique identifier."""
