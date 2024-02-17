@@ -24,6 +24,7 @@ from .const import (
     CONF_AREAS_ARM_HOME,
     CONF_AREAS_ARM_NIGHT,
     CONF_AREAS_ARM_VACATION,
+    CONF_MANAGE_SECTORS,
     NOTIFICATION_MESSAGE,
 )
 from .helpers import split_code
@@ -60,6 +61,7 @@ class AlarmDevice:
 
         # Load user configuration
         config = config or {}
+        self._managed_sectors = config.get(CONF_MANAGE_SECTORS) or []
         self._sectors_away = config.get(CONF_AREAS_ARM_AWAY) or []
         self._sectors_home = config.get(CONF_AREAS_ARM_HOME) or []
         self._sectors_night = config.get(CONF_AREAS_ARM_NIGHT) or []
@@ -290,6 +292,15 @@ class AlarmDevice:
         self._last_ids[q.OUTPUTS] = outputs.get("last_id", 0)
         self._last_ids[q.ALERTS] = alerts.get("last_id", 0)
         self._last_ids[q.PANEL] = panel.get("last_id", 0)
+
+        # Filter out the sectors that are not managed
+        # NOTE: this change is internal and not exposed to users as the feature is experimental. Further
+        # development requires that users can register multiple devices and alarm panels to control
+        # sectors in a more granular way. See: https://github.com/palazzem/ha-econnect-alarm/issues/95
+        if self._managed_sectors:
+            self._inventory[q.SECTORS] = {
+                k: v for k, v in self._inventory[q.SECTORS].items() if v["element"] in self._managed_sectors
+            }
 
         # Update the internal state machine (mapping state)
         self.state = self.get_state()
