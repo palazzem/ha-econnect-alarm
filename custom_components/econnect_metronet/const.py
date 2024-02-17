@@ -14,6 +14,7 @@ CONF_AREAS_ARM_HOME = "areas_arm_home"
 CONF_AREAS_ARM_NIGHT = "areas_arm_night"
 CONF_AREAS_ARM_VACATION = "areas_arm_vacation"
 CONF_SCAN_INTERVAL = "scan_interval"
+CONF_MANAGE_SECTORS = "managed_sectors"
 DEVICE_CLASS_SECTORS = "sector"
 DOMAIN = "econnect_metronet"
 NOTIFICATION_MESSAGE = (

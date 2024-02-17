@@ -13,6 +13,7 @@ from homeassistant.core import HomeAssistant
 from . import services
 from .const import (
     CONF_DOMAIN,
+    CONF_EXPERIMENTAL,
     CONF_SCAN_INTERVAL,
     CONF_SYSTEM_URL,
     DOMAIN,
@@ -102,9 +103,15 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry) -> bool:
     Raises:
         Any exceptions raised by the coordinator or the setup process will be propagated up to the caller.
     """
+    # Enable experimental settings from the configuration file
+    # NOTE: While it's discouraged to use YAML configurations for integrations, this approach
+    # ensures that we can experiment with new settings we can break without notice.
+    experimental = hass.data[DOMAIN].get(CONF_EXPERIMENTAL, {})
+
+    # Initialize Components
     scan_interval = config.options.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL_DEFAULT)
     client = ElmoClient(config.data[CONF_SYSTEM_URL], config.data[CONF_DOMAIN])
-    device = AlarmDevice(client, config.options)
+    device = AlarmDevice(client, {**config.options, **experimental})
     coordinator = AlarmCoordinator(hass, device, scan_interval)
     await coordinator.async_config_entry_first_refresh()
 

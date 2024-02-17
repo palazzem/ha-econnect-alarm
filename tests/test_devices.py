@@ -18,6 +18,7 @@ from custom_components.econnect_metronet.const import (
     CONF_AREAS_ARM_HOME,
     CONF_AREAS_ARM_NIGHT,
     CONF_AREAS_ARM_VACATION,
+    CONF_MANAGE_SECTORS,
 )
 from custom_components.econnect_metronet.devices import AlarmDevice
 
@@ -30,6 +31,7 @@ def test_device_constructor(client):
     assert device._inventory == {}
     assert device._sectors == {}
     assert device._last_ids == {10: 0, 9: 0, 11: 0, 12: 0}
+    assert device._managed_sectors == []
     assert device._sectors_away == []
     assert device._sectors_home == []
     assert device._sectors_night == []
@@ -44,6 +46,7 @@ def test_device_constructor_with_config(client):
         CONF_AREAS_ARM_HOME: [3, 4],
         CONF_AREAS_ARM_NIGHT: [1, 2, 3],
         CONF_AREAS_ARM_VACATION: [5, 3],
+        CONF_MANAGE_SECTORS: [1, 2, 3, 4, 5],
     }
     device = AlarmDevice(client, config=config)
     # Test
@@ -51,6 +54,7 @@ def test_device_constructor_with_config(client):
     assert device._inventory == {}
     assert device._sectors == {}
     assert device._last_ids == {10: 0, 9: 0, 11: 0, 12: 0}
+    assert device._managed_sectors == [1, 2, 3, 4, 5]
     assert device._sectors_away == [1, 2, 3, 4, 5]
     assert device._sectors_home == [3, 4]
     assert device._sectors_night == [1, 2, 3]
@@ -65,6 +69,7 @@ def test_device_constructor_with_config_empty(client):
         CONF_AREAS_ARM_HOME: None,
         CONF_AREAS_ARM_NIGHT: None,
         CONF_AREAS_ARM_VACATION: None,
+        CONF_MANAGE_SECTORS: None,
     }
     device = AlarmDevice(client, config=config)
     # Test
@@ -72,6 +77,7 @@ def test_device_constructor_with_config_empty(client):
     assert device._inventory == {}
     assert device._sectors == {}
     assert device._last_ids == {10: 0, 9: 0, 11: 0, 12: 0}
+    assert device._managed_sectors == []
     assert device._sectors_away == []
     assert device._sectors_home == []
     assert device._sectors_night == []
@@ -576,6 +582,17 @@ def test_device_inventory_update_success(client, mocker):
     # Test
     device.update()
     assert device._inventory == inventory
+
+
+def test_device_inventory_update_managed_sectors(alarm_device):
+    # Ensure that only managed sectors are updated
+    alarm_device._managed_sectors = [2, 3]
+    # Test
+    alarm_device.update()
+    assert alarm_device._inventory[q.SECTORS] == {
+        1: {"element": 2, "activable": True, "id": 2, "index": 1, "name": "S2 Bedroom", "status": True},
+        2: {"element": 3, "activable": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False},
+    }
 
 
 class TestInputsView:
