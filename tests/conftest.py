@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 import responses
 from elmo.api.client import ElmoClient
@@ -13,6 +15,18 @@ from .fixtures import responses as r
 from .helpers import MockConfigEntry
 
 pytest_plugins = ["tests.hass.fixtures"]
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Keeps the default log level to WARNING.
+
+    Home Assistant sets the log level to `DEBUG` if the `--verbose` flag is used.
+    Considering all the debug logs of this integration and `econnect-python`, this is very
+    noisy. This is an override for `tests/hass/fixtures.py` as described in this
+    issue: https://github.com/palazzem/ha-econnect-alarm/issues/134
+    """
+    if config.getoption("verbose") > 0:
+        logging.getLogger().setLevel(logging.WARNING)
 
 
 @pytest.fixture
