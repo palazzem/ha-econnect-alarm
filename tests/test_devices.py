@@ -27,6 +27,7 @@ def test_device_constructor(client):
     """Should initialize defaults attributes to run properly."""
     device = AlarmDevice(client)
     # Test
+    assert device.connected is False
     assert device._connection == client
     assert device._inventory == {}
     assert device._sectors == {}
@@ -50,6 +51,7 @@ def test_device_constructor_with_config(client):
     }
     device = AlarmDevice(client, config=config)
     # Test
+    assert device.connected is False
     assert device._connection == client
     assert device._inventory == {}
     assert device._sectors == {}
@@ -73,6 +75,7 @@ def test_device_constructor_with_config_empty(client):
     }
     device = AlarmDevice(client, config=config)
     # Test
+    assert device.connected is False
     assert device._connection == client
     assert device._inventory == {}
     assert device._sectors == {}
@@ -364,6 +367,7 @@ def test_device_connect(client, mocker):
     assert device._connection.auth.call_count == 1
     assert "username" == device._connection.auth.call_args[0][0]
     assert "password" == device._connection.auth.call_args[0][1]
+    assert device.connected is True
 
 
 def test_device_connect_error(client, mocker):
@@ -375,6 +379,7 @@ def test_device_connect_error(client, mocker):
     with pytest.raises(HTTPError):
         device.connect("username", "password")
     assert device._connection.auth.call_count == 1
+    assert device.connected is False
 
 
 def test_device_connect_credential_error(client, mocker):
@@ -386,6 +391,7 @@ def test_device_connect_credential_error(client, mocker):
     with pytest.raises(CredentialError):
         device.connect("username", "password")
     assert device._connection.auth.call_count == 1
+    assert device.connected is False
 
 
 def test_device_has_updates(client, mocker):
