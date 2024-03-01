@@ -54,6 +54,10 @@ async def async_setup_entry(
             unique_id = f"{entry.entry_id}_{DOMAIN}_{name}"
             sensors.append(AlertBinarySensor(unique_id, alert_id, entry, name, coordinator, device))
 
+    # Binary sensor to keep track of the device connection status
+    unique_id = f"{entry.entry_id}_{DOMAIN}_connection_status"
+    sensors.append(AlertBinarySensor(unique_id, -1, entry, "connection_status", coordinator, device))
+
     async_add_entities(sensors)
 
 

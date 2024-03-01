@@ -43,6 +43,13 @@
     },
     "entity": {
         "binary_sensor": {
+            "connection_status": {
+                "name": "Connection Status",
+                "state": {
+                    "on": "Disconnected",
+                    "off": "Connected"
+                }
+            },
             "anomalies_led": {
                 "name": "General Anomaly",
                 "state": {

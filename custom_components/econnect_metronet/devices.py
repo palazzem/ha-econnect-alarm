@@ -251,6 +251,11 @@ class AlarmDevice:
         Returns:
             int: The status of the item.
         """
+        if query == q.ALERTS and id == -1:
+            # Connection Status Alert
+            # NOTE: we should turn on the sensor (alert) if the device is not connected, hence the `not`
+            return not self.connected
+
         return self._inventory[query][id]["status"]
 
     def update(self):
