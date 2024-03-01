@@ -22,9 +22,29 @@ async def test_async_setup_entry_in_use(hass, config_entry, alarm_device, coordi
 
     # Test
     def ensure_only_in_use(sensors):
-        assert len(sensors) == 28
+        assert len(sensors) == 29
 
     await async_setup_entry(hass, config_entry, ensure_only_in_use)
+
+
+@pytest.mark.asyncio
+async def test_async_setup_entry_connection_status(hass, config_entry, alarm_device, coordinator):
+    # Ensure the async setup loads the device connection status
+    hass.data[DOMAIN][config_entry.entry_id] = {
+        "device": alarm_device,
+        "coordinator": coordinator,
+    }
+
+    # Test
+    def check_connection_status(sensors):
+        connection_status = sensors[-1]
+        assert connection_status.unique_id == "test_entry_id_econnect_metronet_connection_status"
+        assert connection_status.entity_id == "econnect_metronet.econnect_metronet_test_user_connection_status"
+        assert connection_status.is_on is False
+        alarm_device.connected = False
+        assert connection_status.is_on is True
+
+    await async_setup_entry(hass, config_entry, check_connection_status)
 
 
 @pytest.mark.asyncio

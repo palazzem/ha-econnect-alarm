@@ -69,6 +69,13 @@
             }
         },
         "binary_sensor": {
+            "connection_status": {
+                "name": "Stato Connessione",
+                "state": {
+                    "on": "Disconnessa",
+                    "off": "Connessa"
+                }
+            },
             "anomalies_led": {
                 "name": "Anomalia Generale",
                 "state": {
