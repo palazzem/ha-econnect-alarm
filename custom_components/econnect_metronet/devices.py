@@ -207,7 +207,6 @@ class AlarmDevice:
             _LOGGER.error(f"Device | Error parsing the poll response: {err}")
             raise err
         except DeviceDisconnectedError as err:
-            _LOGGER.error(f"Device | Error while polling for updates: {err}")
             self.connected = False
             raise err
 
@@ -288,7 +287,6 @@ class AlarmDevice:
             _LOGGER.error(f"Device | Error during the update: {err}")
             raise err
         except DeviceDisconnectedError as err:
-            _LOGGER.error(f"Device | Error during the update: {err}")
             self.connected = False
             raise err
 

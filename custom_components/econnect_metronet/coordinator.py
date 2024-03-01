@@ -88,5 +88,5 @@ class AlarmCoordinator(DataUpdateCoordinator):
             # to make all entities unavailable for a temporary issue. Furthermore, if the device goes
             # in an unavailable state, it might trigger unwanted automations.
             # See: https://github.com/palazzem/ha-econnect-alarm/issues/148
-            _LOGGER.error(f"Coordinator | {err}, keeping the previous state")
+            _LOGGER.error(f"Coordinator | {err}. Keeping the last known state.")
             return {}
