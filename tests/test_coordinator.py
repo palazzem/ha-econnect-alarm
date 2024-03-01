@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 import pytest
-from elmo.api.exceptions import CredentialError, InvalidToken
+from elmo.api.exceptions import CredentialError, DeviceDisconnectedError, InvalidToken
 from homeassistant.exceptions import ConfigEntryNotReady
 from requests.exceptions import HTTPError
 
@@ -216,3 +216,48 @@ async def test_coordinator_first_refresh_update_failed(mocker, coordinator):
     # Test
     with pytest.raises(ConfigEntryNotReady):
         await coordinator.async_config_entry_first_refresh()
+
+
+@pytest.mark.asyncio
+async def test_coordinator_poll_with_disconnected_device(mocker, coordinator):
+    # Ensure the coordinator handles a disconnected device during polling
+    query = mocker.patch.object(coordinator._device._connection, "query")
+    coordinator._device._connection.query.side_effect = DeviceDisconnectedError()
+    # Test
+    await coordinator._async_update_data()
+    assert query.call_count == 1
+    assert coordinator._device.connected is False
+
+
+@pytest.mark.asyncio
+async def test_coordinator_poll_recover_disconnected_device(mocker, coordinator):
+    # Ensure the coordinator recovers the connection state from a previous disconnected device error
+    coordinator._device.connected = False
+    # Test
+    await coordinator._async_update_data()
+    assert coordinator._device.connected is True
+
+
+@pytest.mark.asyncio
+async def test_coordinator_update_with_disconnected_device(mocker, coordinator):
+    # Ensure the coordinator handles a disconnected device during updates
+    mocker.patch.object(coordinator._device, "has_updates")
+    mocker.patch.object(coordinator._device._connection, "query")
+    update = mocker.spy(coordinator._device, "update")
+    coordinator._device.has_updates.return_value = {"has_changes": True}
+    coordinator._device._connection.query.side_effect = DeviceDisconnectedError()
+    # Test
+    await coordinator._async_update_data()
+    assert update.call_count == 1
+    assert coordinator._device.connected is False
+
+
+@pytest.mark.asyncio
+async def test_coordinator_update_recover_disconnected_device(mocker, coordinator):
+    # Ensure the coordinator recovers the connection state from a previous disconnected device error
+    mocker.patch.object(coordinator._device, "has_updates")
+    coordinator._device.has_updates.return_value = {"has_changes": True}
+    coordinator._device.connected = False
+    # Test
+    await coordinator._async_update_data()
+    assert coordinator._device.connected is True
