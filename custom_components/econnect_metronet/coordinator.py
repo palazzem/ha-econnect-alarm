@@ -53,7 +53,7 @@ class AlarmCoordinator(DataUpdateCoordinator):
                 return await self.hass.async_add_executor_job(self._device.update)
 
             async with async_timeout.timeout(POLLING_TIMEOUT):
-                if not self.last_update_success:
+                if not self.last_update_success or not self._device.connected:
                     # Force an update if at least one failed. This is required to prevent
                     # a misalignment between the `AlarmDevice` and backend IDs, needed to implement
                     # the long-polling strategy. If IDs are misaligned, then no updates happen and

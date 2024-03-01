@@ -221,6 +221,7 @@ async def test_coordinator_first_refresh_update_failed(mocker, coordinator):
 @pytest.mark.asyncio
 async def test_coordinator_poll_with_disconnected_device(mocker, coordinator):
     # Ensure the coordinator handles a disconnected device during polling
+    # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/148
     query = mocker.patch.object(coordinator._device._connection, "query")
     coordinator._device._connection.query.side_effect = DeviceDisconnectedError()
     # Test
@@ -230,7 +231,7 @@ async def test_coordinator_poll_with_disconnected_device(mocker, coordinator):
 
 
 @pytest.mark.asyncio
-async def test_coordinator_poll_recover_disconnected_device(mocker, coordinator):
+async def test_coordinator_poll_recover_disconnected_device(coordinator):
     # Ensure the coordinator recovers the connection state from a previous disconnected device error
     coordinator._device.connected = False
     # Test
@@ -241,6 +242,7 @@ async def test_coordinator_poll_recover_disconnected_device(mocker, coordinator)
 @pytest.mark.asyncio
 async def test_coordinator_update_with_disconnected_device(mocker, coordinator):
     # Ensure the coordinator handles a disconnected device during updates
+    # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/148
     mocker.patch.object(coordinator._device, "has_updates")
     mocker.patch.object(coordinator._device._connection, "query")
     update = mocker.spy(coordinator._device, "update")
@@ -261,3 +263,16 @@ async def test_coordinator_update_recover_disconnected_device(mocker, coordinato
     # Test
     await coordinator._async_update_data()
     assert coordinator._device.connected is True
+
+
+@pytest.mark.asyncio
+async def test_coordinator_async_update_disconnected_device(mocker, coordinator):
+    # Ensure a full update is forced if the device was previously disconnected
+    # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/148
+    coordinator._device.connected = False
+    mocker.spy(coordinator._device, "update")
+    mocker.spy(coordinator._device, "has_updates")
+    # Test
+    await coordinator._async_update_data()
+    assert coordinator._device.update.call_count == 1
+    assert coordinator._device.has_updates.call_count == 0
