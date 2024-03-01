@@ -6,6 +6,7 @@ from elmo.api.exceptions import (
     CodeError,
     CommandError,
     CredentialError,
+    DeviceDisconnectedError,
     LockError,
     ParseError,
 )
@@ -49,6 +50,7 @@ class AlarmDevice:
 
     def __init__(self, connection, config=None):
         # Configuration and internals
+        self.connected = False
         self._inventory = {}
         self._sectors = {}
         self._connection = connection
@@ -170,6 +172,7 @@ class AlarmDevice:
         """
         try:
             self._connection.auth(username, password)
+            self.connected = True
         except HTTPError as err:
             _LOGGER.error(f"Device | Error while authenticating with e-Connect: {err}")
             raise err
@@ -194,12 +197,17 @@ class AlarmDevice:
         """
         try:
             self._connection.query(q.ALERTS)
-            return self._connection.poll({key: value for key, value in self._last_ids.items()})
+            data = self._connection.poll({key: value for key, value in self._last_ids.items()})
+            self.connected = True
+            return data
         except HTTPError as err:
             _LOGGER.error(f"Device | Error while polling for updates: {err.response.text}")
             raise err
         except ParseError as err:
             _LOGGER.error(f"Device | Error parsing the poll response: {err}")
+            raise err
+        except DeviceDisconnectedError as err:
+            self.connected = False
             raise err
 
     def get_state(self):
@@ -278,8 +286,12 @@ class AlarmDevice:
         except ParseError as err:
             _LOGGER.error(f"Device | Error during the update: {err}")
             raise err
+        except DeviceDisconnectedError as err:
+            self.connected = False
+            raise err
 
         # Update the _inventory
+        self.connected = True
         self._inventory.update({q.SECTORS: sectors["sectors"]})
         self._inventory.update({q.INPUTS: inputs["inputs"]})
         self._inventory.update({q.OUTPUTS: outputs["outputs"]})

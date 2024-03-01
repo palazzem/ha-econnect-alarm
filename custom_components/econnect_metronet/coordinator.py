@@ -3,7 +3,7 @@ from datetime import timedelta
 from typing import Any, Dict, Optional
 
 import async_timeout
-from elmo.api.exceptions import InvalidToken
+from elmo.api.exceptions import DeviceDisconnectedError, InvalidToken
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -53,7 +53,7 @@ class AlarmCoordinator(DataUpdateCoordinator):
                 return await self.hass.async_add_executor_job(self._device.update)
 
             async with async_timeout.timeout(POLLING_TIMEOUT):
-                if not self.last_update_success:
+                if not self.last_update_success or not self._device.connected:
                     # Force an update if at least one failed. This is required to prevent
                     # a misalignment between the `AlarmDevice` and backend IDs, needed to implement
                     # the long-polling strategy. If IDs are misaligned, then no updates happen and
@@ -82,3 +82,11 @@ class AlarmCoordinator(DataUpdateCoordinator):
             await self.hass.async_add_executor_job(self._device.connect, username, password)
             _LOGGER.debug("Coordinator | Authentication completed with success")
             return await self.hass.async_add_executor_job(self._device.update)
+        except DeviceDisconnectedError as err:
+            # If the device is disconnected, we keep the previous state and try again later
+            # This is required as the device might be temporarily disconnected, and we don't want
+            # to make all entities unavailable for a temporary issue. Furthermore, if the device goes
+            # in an unavailable state, it might trigger unwanted automations.
+            # See: https://github.com/palazzem/ha-econnect-alarm/issues/148
+            _LOGGER.error(f"Coordinator | {err}. Keeping the last known state.")
+            return {}
