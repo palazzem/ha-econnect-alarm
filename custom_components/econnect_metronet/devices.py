@@ -295,6 +295,12 @@ class AlarmDevice:
             self.connected = False
             raise err
 
+        # `last_id` equal to 1 means the connection has been reset and the update
+        # is an empty state. See: https://github.com/palazzem/ha-econnect-alarm/issues/148
+        if sectors.get("last_id") == 1:
+            _LOGGER.debug("Device | The connection has been reset, skipping the update")
+            return self._inventory
+
         # Update the _inventory
         self.connected = True
         self._inventory.update({q.SECTORS: sectors["sectors"]})
