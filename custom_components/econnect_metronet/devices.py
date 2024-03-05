@@ -15,7 +15,9 @@ from homeassistant.const import (
     STATE_ALARM_ARMED_HOME,
     STATE_ALARM_ARMED_NIGHT,
     STATE_ALARM_ARMED_VACATION,
+    STATE_ALARM_ARMING,
     STATE_ALARM_DISARMED,
+    STATE_ALARM_DISARMING,
     STATE_UNAVAILABLE,
 )
 from requests.exceptions import HTTPError
@@ -221,6 +223,11 @@ class AlarmDevice:
         Returns:
             str: One of the predefined HA alarm states.
         """
+        # If the system is arming or disarming, return the current state
+        # to prevent the state from being updated while the system is in transition.
+        if self.state in [STATE_ALARM_ARMING, STATE_ALARM_DISARMING]:
+            return self.state
+
         sectors_armed = dict(self.items(q.SECTORS, status=True))
         if not sectors_armed:
             return STATE_ALARM_DISARMED
@@ -340,7 +347,6 @@ class AlarmDevice:
 
             with self._connection.lock(code, user_id=user_id):
                 self._connection.arm(sectors=sectors)
-                self.state = STATE_ALARM_ARMED_AWAY
         except HTTPError as err:
             _LOGGER.error(f"Device | Error while arming the system: {err.response.text}")
             raise err
@@ -368,7 +374,6 @@ class AlarmDevice:
 
             with self._connection.lock(code, user_id=user_id):
                 self._connection.disarm(sectors=sectors)
-                self.state = STATE_ALARM_DISARMED
         except HTTPError as err:
             _LOGGER.error(f"Device | Error while disarming the system: {err.response.text}")
             raise err
