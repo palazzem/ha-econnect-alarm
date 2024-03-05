@@ -1,4 +1,5 @@
 import pytest
+import responses
 from elmo import query as q
 from elmo.api.exceptions import CodeError, CredentialError, LockError, ParseError
 from homeassistant.const import (
@@ -21,6 +22,8 @@ from custom_components.econnect_metronet.const import (
     CONF_MANAGE_SECTORS,
 )
 from custom_components.econnect_metronet.devices import AlarmDevice
+
+from .fixtures import responses as r
 
 
 def test_device_constructor(client):
@@ -599,6 +602,62 @@ def test_device_inventory_update_managed_sectors(alarm_device):
         1: {"element": 2, "activable": True, "id": 2, "index": 1, "name": "S2 Bedroom", "status": True},
         2: {"element": 3, "activable": False, "id": 3, "index": 2, "name": "S3 Outdoor", "status": False},
     }
+
+
+def test_device_inventory_update_after_connection_reset(mocker, alarm_device):
+    # Ensure that after a connection reset (last_id == 1), the inventory is not updated
+    # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/148
+    AREAS = """[
+       {
+           "Active": false,
+           "ActivePartial": false,
+           "Max": false,
+           "Activable": false,
+           "ActivablePartial": false,
+           "InUse": true,
+           "Id": 1,
+           "Index": 0,
+           "Element": 1,
+           "CommandId": 0,
+           "InProgress": false
+       },
+       {
+           "Active": false,
+           "ActivePartial": false,
+           "Max": false,
+           "Activable": false,
+           "ActivablePartial": false,
+           "InUse": true,
+           "Id": 1,
+           "Index": 1,
+           "Element": 2,
+           "CommandId": 0,
+           "InProgress": false
+       },
+       {
+           "Active": false,
+           "ActivePartial": false,
+           "Max": false,
+           "Activable": false,
+           "ActivablePartial": false,
+           "InUse": true,
+           "Id": 1,
+           "Index": 2,
+           "Element": 3,
+           "CommandId": 0,
+           "InProgress": false
+       }
+    ]"""
+    # Test
+    with responses.RequestsMock() as server:
+        server.add(responses.POST, "https://example.com/api/areas", body=AREAS, status=200)
+        server.add(responses.POST, "https://example.com/api/inputs", body=r.INPUTS, status=200)
+        server.add(responses.POST, "https://example.com/api/outputs", body=r.OUTPUTS, status=200)
+        server.add(responses.POST, "https://example.com/api/statusadv", body=r.STATUS, status=200)
+        inventory = alarm_device.update()
+        assert inventory[q.SECTORS][0]["status"] is True
+        assert inventory[q.SECTORS][1]["status"] is True
+        assert inventory[q.SECTORS][2]["status"] is False
 
 
 class TestInputsView:
