@@ -7,7 +7,9 @@ from homeassistant.const import (
     STATE_ALARM_ARMED_HOME,
     STATE_ALARM_ARMED_NIGHT,
     STATE_ALARM_ARMED_VACATION,
+    STATE_ALARM_ARMING,
     STATE_ALARM_DISARMED,
+    STATE_ALARM_DISARMING,
     STATE_UNAVAILABLE,
 )
 from requests.exceptions import HTTPError
@@ -1602,6 +1604,28 @@ def test_get_state_armed_away_with_config(alarm_device):
     }
     # Test
     assert alarm_device.get_state() == STATE_ALARM_ARMED_AWAY
+
+
+def test_get_state_while_disarming(alarm_device):
+    # Ensure that the state is not changed while disarming
+    # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/154
+    alarm_device._sectors_home = []
+    alarm_device._sectors_night = []
+    alarm_device._inventory = {9: {}}
+    alarm_device.state = STATE_ALARM_DISARMING
+    # Test
+    assert alarm_device.get_state() == STATE_ALARM_DISARMING
+
+
+def test_get_state_while_arming(alarm_device):
+    # Ensure that the state is not changed while arming
+    # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/154
+    alarm_device._sectors_home = []
+    alarm_device._sectors_night = []
+    alarm_device._inventory = {9: {}}
+    alarm_device.state = STATE_ALARM_ARMING
+    # Test
+    assert alarm_device.get_state() == STATE_ALARM_ARMING
 
 
 class TestTurnOff:
