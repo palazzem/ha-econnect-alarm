@@ -135,7 +135,7 @@ class TestAlertBinarySensor:
 
     def test_binary_sensor_name_with_system_name(self, hass, config_entry, alarm_device):
         # The system name doesn't change the translation key
-        config_entry.data["system_name"] = "Home"
+        hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = AlertBinarySensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
         assert entity.translation_key == "has_anomalies"
@@ -148,7 +148,7 @@ class TestAlertBinarySensor:
 
     def test_binary_sensor_entity_id_with_system_name(self, hass, config_entry, alarm_device):
         # Ensure the Entity ID takes into consideration the system name
-        config_entry.data["system_name"] = "Home"
+        hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = AlertBinarySensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
         assert entity.entity_id == "econnect_metronet.econnect_metronet_home_has_anomalies"
@@ -181,7 +181,7 @@ class TestInputBinarySensor:
 
     def test_binary_sensor_name_with_system_name(self, hass, config_entry, alarm_device):
         # The system name doesn't change the Entity name
-        config_entry.data["system_name"] = "Home"
+        hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = InputBinarySensor("test_id", 1, config_entry, "1 Tamper Sirena", coordinator, alarm_device)
         assert entity.name == "1 Tamper Sirena"
@@ -194,7 +194,7 @@ class TestInputBinarySensor:
 
     def test_binary_sensor_entity_id_with_system_name(self, hass, config_entry, alarm_device):
         # Ensure the Entity ID takes into consideration the system name
-        config_entry.data["system_name"] = "Home"
+        hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = InputBinarySensor("test_id", 1, config_entry, "1 Tamper Sirena", coordinator, alarm_device)
         assert entity.entity_id == "econnect_metronet.econnect_metronet_home_1_tamper_sirena"
@@ -239,7 +239,7 @@ class TestSectorBinarySensor:
 
     def test_binary_sensor_input_name_with_system_name(self, hass, config_entry, alarm_device):
         # The system name doesn't change the Entity name
-        config_entry.data["system_name"] = "Home"
+        hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = SectorBinarySensor("test_id", 1, config_entry, "1 S1 Living Room", coordinator, alarm_device)
         assert entity.name == "1 S1 Living Room"
@@ -252,7 +252,7 @@ class TestSectorBinarySensor:
 
     def test_binary_sensor_input_entity_id_with_system_name(self, hass, config_entry, alarm_device):
         # Ensure the Entity ID takes into consideration the system name
-        config_entry.data["system_name"] = "Home"
+        hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = SectorBinarySensor("test_id", 1, config_entry, "1 S1 Living Room", coordinator, alarm_device)
         assert entity.entity_id == "econnect_metronet.econnect_metronet_home_1_s1_living_room"
