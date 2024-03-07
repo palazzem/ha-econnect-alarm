@@ -1,7 +1,7 @@
 from custom_components.econnect_metronet import async_migrate_entry
 from custom_components.econnect_metronet.const import DOMAIN
 
-from .helpers import MockConfigEntry
+from .hass.fixtures import MockConfigEntry
 
 
 async def test_async_no_migrations(mocker, hass, config_entry):
@@ -24,6 +24,7 @@ async def test_async_migrate_from_v1(hass):
             "domain": "econnect_metronet",
         },
     )
+    config_entry.add_to_hass(hass)
     # Test
     result = await async_migrate_entry(hass, config_entry)
     assert result is True
@@ -55,6 +56,7 @@ async def test_async_migrate_from_v2(hass):
             "system_base_url": "https://example.com",
         },
     )
+    config_entry.add_to_hass(hass)
     # Test
     result = await async_migrate_entry(hass, config_entry)
     assert result is True

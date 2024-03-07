@@ -12,7 +12,7 @@ from custom_components.econnect_metronet.coordinator import AlarmCoordinator
 from custom_components.econnect_metronet.devices import AlarmDevice
 
 from .fixtures import responses as r
-from .helpers import MockConfigEntry
+from .hass.fixtures import MockConfigEntry
 
 pytest_plugins = ["tests.hass.fixtures"]
 
@@ -147,13 +147,13 @@ def client(socket_enabled):
 
 
 @pytest.fixture(scope="function")
-def config_entry():
+def config_entry(hass):
     """Creates a mock config entry for testing purposes.
 
     This config entry is designed to emulate the behavior of a real config entry for
     testing purposes.
     """
-    return MockConfigEntry(
+    config = MockConfigEntry(
         version=EconnectConfigFlow.VERSION,
         domain=DOMAIN,
         entry_id="test_entry_id",
@@ -165,3 +165,5 @@ def config_entry():
             "system_base_url": "https://example.com",
         },
     )
+    config.add_to_hass(hass)
+    return config

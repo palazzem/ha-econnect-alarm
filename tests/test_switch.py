@@ -62,7 +62,7 @@ class TestOutputSwitch:
 
     def test_switch_name_with_system_name(self, hass, config_entry, alarm_device):
         # The system name doesn't change the Entity name
-        config_entry.data["system_name"] = "Home"
+        hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = OutputSwitch("test_id", 1, config_entry, "Output 2", coordinator, alarm_device)
         assert entity.name == "Output 2"
@@ -75,7 +75,7 @@ class TestOutputSwitch:
 
     def test_switch_entity_id_with_system_name(self, hass, config_entry, alarm_device):
         # Ensure the Entity ID takes into consideration the system name
-        config_entry.data["system_name"] = "Home"
+        hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
         coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
         entity = OutputSwitch("test_id", 1, config_entry, "Output 2", coordinator, alarm_device)
         assert entity.entity_id == "econnect_metronet.econnect_metronet_home_output_2"

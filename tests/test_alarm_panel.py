@@ -17,7 +17,7 @@ def test_alarm_panel_name(client, hass, config_entry):
 
 def test_alarm_panel_name_with_system_name(client, hass, config_entry):
     # Ensure the Entity ID takes into consideration the system optional name
-    config_entry.data["system_name"] = "Home"
+    hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
     device = AlarmDevice(client)
     coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
     entity = EconnectAlarm("test_id", config_entry, device, coordinator)
@@ -34,7 +34,7 @@ def test_alarm_panel_entity_id(client, hass, config_entry):
 
 def test_alarm_panel_entity_id_with_system_name(client, hass, config_entry):
     # Ensure the Entity ID takes into consideration the system name
-    config_entry.data["system_name"] = "Home"
+    hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
     device = AlarmDevice(client)
     coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
     entity = EconnectAlarm("test_id", config_entry, device, coordinator)
