@@ -12,7 +12,7 @@ async def arm_sectors(hass: HomeAssistant, config_id: str, call: ServiceCall):
     device = hass.data[DOMAIN][config_id][KEY_DEVICE]
     sectors = [device._sectors[x.split(".")[1]] for x in call.data["entity_id"]]
     code = call.data.get("code")
-    _LOGGER.debug(f"Service | Arming sectors: {sectors} with code {code})")
+    _LOGGER.debug(f"Service | Arming sectors: {sectors}")
     await hass.async_add_executor_job(device.arm, code, sectors)
 
 
@@ -21,5 +21,5 @@ async def disarm_sectors(hass: HomeAssistant, config_id: str, call: ServiceCall)
     device = hass.data[DOMAIN][config_id][KEY_DEVICE]
     sectors = [device._sectors[x.split(".")[1]] for x in call.data["entity_id"]]
     code = call.data.get("code")
-    _LOGGER.debug(f"Service | Arming sectors: {sectors} with code {code})")
+    _LOGGER.debug(f"Service | Disarming sectors: {sectors}")
     await hass.async_add_executor_job(device.disarm, code, sectors)
