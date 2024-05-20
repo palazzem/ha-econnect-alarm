@@ -24,7 +24,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import CONF_SYSTEM_NAME, DOMAIN, KEY_COORDINATOR, KEY_DEVICE
-from .decorators import set_device_state
+from .decorators import retry_refresh_token, set_device_state
 from .helpers import generate_entity_id
 
 _LOGGER = logging.getLogger(__name__)
@@ -56,6 +56,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
         """Construct."""
         super().__init__(coordinator)
         self.entity_id = generate_entity_id(config)
+        self._config = config
         self._unique_id = unique_id
         self._name = f"Alarm Panel {config.data.get(CONF_SYSTEM_NAME) or config.data.get(CONF_USERNAME)}"
         self._device = device
@@ -91,16 +92,19 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
         return AlarmFeatures.ARM_HOME | AlarmFeatures.ARM_AWAY | AlarmFeatures.ARM_NIGHT | AlarmFeatures.ARM_VACATION
 
     @set_device_state(STATE_ALARM_DISARMED, STATE_ALARM_DISARMING)
+    @retry_refresh_token
     async def async_alarm_disarm(self, code=None):
         """Send disarm command."""
         await self.hass.async_add_executor_job(self._device.disarm, code)
 
     @set_device_state(STATE_ALARM_ARMED_AWAY, STATE_ALARM_ARMING)
+    @retry_refresh_token
     async def async_alarm_arm_away(self, code=None):
         """Send arm away command."""
         await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_away)
 
     @set_device_state(STATE_ALARM_ARMED_HOME, STATE_ALARM_ARMING)
+    @retry_refresh_token
     async def async_alarm_arm_home(self, code=None):
         """Send arm home command."""
         if not self._device._sectors_home:
@@ -110,6 +114,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
         await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_home)
 
     @set_device_state(STATE_ALARM_ARMED_NIGHT, STATE_ALARM_ARMING)
+    @retry_refresh_token
     async def async_alarm_arm_night(self, code=None):
         """Send arm night command."""
         if not self._device._sectors_night:
@@ -119,6 +124,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
         await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_night)
 
     @set_device_state(STATE_ALARM_ARMED_VACATION, STATE_ALARM_ARMING)
+    @retry_refresh_token
     async def async_alarm_arm_vacation(self, code=None):
         """Send arm vacation command."""
         if not self._device._sectors_vacation:
