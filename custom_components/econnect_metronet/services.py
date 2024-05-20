@@ -3,10 +3,12 @@ import logging
 from homeassistant.core import HomeAssistant, ServiceCall
 
 from .const import DOMAIN, KEY_DEVICE
+from .decorators import retry_refresh_token_service
 
 _LOGGER = logging.getLogger(__name__)
 
 
+@retry_refresh_token_service
 async def arm_sectors(hass: HomeAssistant, config_id: str, call: ServiceCall):
     _LOGGER.debug(f"Service | Triggered action {call.service}")
     device = hass.data[DOMAIN][config_id][KEY_DEVICE]
@@ -16,6 +18,7 @@ async def arm_sectors(hass: HomeAssistant, config_id: str, call: ServiceCall):
     await hass.async_add_executor_job(device.arm, code, sectors)
 
 
+@retry_refresh_token_service
 async def disarm_sectors(hass: HomeAssistant, config_id: str, call: ServiceCall):
     _LOGGER.debug(f"Service | Triggered action {call.service}")
     device = hass.data[DOMAIN][config_id][KEY_DEVICE]
