@@ -1,6 +1,7 @@
 {
     "services": {
         "arm_sectors": "mdi:shield-lock",
-        "disarm_sectors": "mdi:shield-off"
+        "disarm_sectors": "mdi:shield-off",
+        "update_state": "mdi:update"
     }
 }
