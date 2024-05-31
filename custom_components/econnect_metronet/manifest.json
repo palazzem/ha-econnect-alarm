@@ -16,7 +16,7 @@
     "elmo"
   ],
   "requirements": [
-    "econnect-python==0.12.0a1"
+    "econnect-python==0.12.0"
   ],
   "version": "2.4.0"
 }
