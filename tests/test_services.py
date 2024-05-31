@@ -57,3 +57,21 @@ async def test_service_disarm_sectors(hass, config_entry, alarm_device, coordina
     assert disarm.call_count == 1
     assert disarm.call_args[0][0] == "1234"
     assert disarm.call_args[0][1] == [1, 3]
+
+
+async def test_service_update_state(hass, config_entry, alarm_device, coordinator, mocker):
+    # Ensure `update_state` triggers a full refresh
+    update = mocker.patch.object(alarm_device, "update")
+    hass.data[DOMAIN][config_entry.entry_id] = {
+        "device": alarm_device,
+        "coordinator": coordinator,
+    }
+    call = ServiceCall(
+        domain=DOMAIN,
+        service="update_state",
+        data={},
+    )
+    # Test
+    await services.update_state(hass, config_entry.entry_id, call)
+    assert update.call_count == 1
+    assert update.call_args == ()

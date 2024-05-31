@@ -1,5 +1,9 @@
 # Describes the format for available e-Connect services
 
+update_state:
+  name: Update Alarm State
+  description: Force an update of the alarm areas and inputs.
+
 arm_sectors:
   name: Arm Sectors
   description: Arm one or multiple sectors.
