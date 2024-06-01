@@ -340,6 +340,8 @@ class AlarmDevice:
     def arm(self, code, sectors=None):
         try:
             # Detect if the user is trying to arm a system that requires a user ID
+            _LOGGER.debug(f"Device | Arming the system with code length: {len(code)}")
+            _LOGGER.debug(f"Device | login_without_user_id value: {self.panel.get('login_without_user_id')}")
             if not self.panel.get("login_without_user_id", True):
                 user_id, code = split_code(code)
             else:
@@ -363,6 +365,8 @@ class AlarmDevice:
     def disarm(self, code, sectors=None):
         try:
             # Detect if the user is trying to arm a system that requires a user ID
+            _LOGGER.debug(f"Device | Disarming the system with code length: {len(code)}")
+            _LOGGER.debug(f"Device | login_without_user_id value: {self.panel.get('login_without_user_id')}")
             if not self.panel.get("login_without_user_id", True):
                 user_id, code = split_code(code)
             else:
