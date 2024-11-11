@@ -3,6 +3,7 @@ import logging
 import pytest
 import responses
 from elmo.api.client import ElmoClient
+from homeassistant.config_entries import ConfigEntryState
 
 from custom_components.econnect_metronet import async_setup
 from custom_components.econnect_metronet.alarm_control_panel import EconnectAlarm
@@ -164,6 +165,7 @@ def config_entry(hass):
             "domain": "econnect_metronet",
             "system_base_url": "https://example.com",
         },
+        state=ConfigEntryState.SETUP_IN_PROGRESS,
     )
     config.add_to_hass(hass)
     return config
