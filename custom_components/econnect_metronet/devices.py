@@ -11,7 +11,6 @@ from elmo.api.exceptions import (
     ParseError,
 )
 from homeassistant.components.alarm_control_panel import AlarmControlPanelState
-from homeassistant.const import STATE_UNAVAILABLE
 from requests.exceptions import HTTPError
 
 from .const import (
@@ -64,7 +63,7 @@ class AlarmDevice:
         self._sectors_vacation = config.get(CONF_AREAS_ARM_VACATION) or []
 
         # Alarm state
-        self.state = STATE_UNAVAILABLE
+        self.state = None
 
     def _register_sector(self, entity):
         """Register a sector entity in the device's internal inventory."""

@@ -69,7 +69,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
         return "hass:shield-home"
 
     @property
-    def state(self):
+    def alarm_state(self):
         """Return the state of the device."""
         return self._device.state
 

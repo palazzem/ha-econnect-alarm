@@ -3,7 +3,6 @@ import responses
 from elmo import query as q
 from elmo.api.exceptions import CodeError, CredentialError, LockError, ParseError
 from homeassistant.components.alarm_control_panel import AlarmControlPanelState
-from homeassistant.const import STATE_UNAVAILABLE
 from requests.exceptions import HTTPError
 from requests.models import Response
 
@@ -34,7 +33,7 @@ def test_device_constructor(client):
     assert device._sectors_home == []
     assert device._sectors_night == []
     assert device._sectors_vacation == []
-    assert device.state == STATE_UNAVAILABLE
+    assert device.state is None
 
 
 def test_device_constructor_with_config(client):
@@ -58,7 +57,7 @@ def test_device_constructor_with_config(client):
     assert device._sectors_home == [3, 4]
     assert device._sectors_night == [1, 2, 3]
     assert device._sectors_vacation == [5, 3]
-    assert device.state == STATE_UNAVAILABLE
+    assert device.state is None
 
 
 def test_device_constructor_with_config_empty(client):
@@ -82,7 +81,7 @@ def test_device_constructor_with_config_empty(client):
     assert device._sectors_home == []
     assert device._sectors_night == []
     assert device._sectors_vacation == []
-    assert device.state == STATE_UNAVAILABLE
+    assert device.state is None
 
 
 class TestItemInputs:
