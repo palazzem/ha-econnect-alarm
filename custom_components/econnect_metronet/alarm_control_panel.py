@@ -4,22 +4,14 @@ import logging
 
 from homeassistant.components.alarm_control_panel import (
     AlarmControlPanelEntity,
+    AlarmControlPanelState,
     CodeFormat,
 )
 from homeassistant.components.alarm_control_panel.const import (
     AlarmControlPanelEntityFeature as AlarmFeatures,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
-    CONF_USERNAME,
-    STATE_ALARM_ARMED_AWAY,
-    STATE_ALARM_ARMED_HOME,
-    STATE_ALARM_ARMED_NIGHT,
-    STATE_ALARM_ARMED_VACATION,
-    STATE_ALARM_ARMING,
-    STATE_ALARM_DISARMED,
-    STATE_ALARM_DISARMING,
-)
+from homeassistant.const import CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -91,19 +83,19 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
         """Return the list of supported features."""
         return AlarmFeatures.ARM_HOME | AlarmFeatures.ARM_AWAY | AlarmFeatures.ARM_NIGHT | AlarmFeatures.ARM_VACATION
 
-    @set_device_state(STATE_ALARM_DISARMED, STATE_ALARM_DISARMING)
+    @set_device_state(AlarmControlPanelState.DISARMED, AlarmControlPanelState.DISARMING)
     @retry_refresh_token
     async def async_alarm_disarm(self, code=None):
         """Send disarm command."""
         await self.hass.async_add_executor_job(self._device.disarm, code)
 
-    @set_device_state(STATE_ALARM_ARMED_AWAY, STATE_ALARM_ARMING)
+    @set_device_state(AlarmControlPanelState.ARMED_AWAY, AlarmControlPanelState.ARMING)
     @retry_refresh_token
     async def async_alarm_arm_away(self, code=None):
         """Send arm away command."""
         await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_away)
 
-    @set_device_state(STATE_ALARM_ARMED_HOME, STATE_ALARM_ARMING)
+    @set_device_state(AlarmControlPanelState.ARMED_HOME, AlarmControlPanelState.ARMING)
     @retry_refresh_token
     async def async_alarm_arm_home(self, code=None):
         """Send arm home command."""
@@ -113,7 +105,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
 
         await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_home)
 
-    @set_device_state(STATE_ALARM_ARMED_NIGHT, STATE_ALARM_ARMING)
+    @set_device_state(AlarmControlPanelState.ARMED_NIGHT, AlarmControlPanelState.ARMING)
     @retry_refresh_token
     async def async_alarm_arm_night(self, code=None):
         """Send arm night command."""
@@ -123,7 +115,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
 
         await self.hass.async_add_executor_job(self._device.arm, code, self._device._sectors_night)
 
-    @set_device_state(STATE_ALARM_ARMED_VACATION, STATE_ALARM_ARMING)
+    @set_device_state(AlarmControlPanelState.ARMED_VACATION, AlarmControlPanelState.ARMING)
     @retry_refresh_token
     async def async_alarm_arm_vacation(self, code=None):
         """Send arm vacation command."""

@@ -2,16 +2,8 @@ import pytest
 import responses
 from elmo import query as q
 from elmo.api.exceptions import CodeError, CredentialError, LockError, ParseError
-from homeassistant.const import (
-    STATE_ALARM_ARMED_AWAY,
-    STATE_ALARM_ARMED_HOME,
-    STATE_ALARM_ARMED_NIGHT,
-    STATE_ALARM_ARMED_VACATION,
-    STATE_ALARM_ARMING,
-    STATE_ALARM_DISARMED,
-    STATE_ALARM_DISARMING,
-    STATE_UNAVAILABLE,
-)
+from homeassistant.components.alarm_control_panel import AlarmControlPanelState
+from homeassistant.const import STATE_UNAVAILABLE
 from requests.exceptions import HTTPError
 from requests.models import Response
 
@@ -1468,7 +1460,7 @@ def test_get_state_no_sectors_armed(alarm_device):
     alarm_device._sectors_night = []
     alarm_device._inventory = {9: {}}
     # Test
-    assert alarm_device.get_state() == STATE_ALARM_DISARMED
+    assert alarm_device.get_state() == AlarmControlPanelState.DISARMED
 
 
 def test_get_state_armed_home(alarm_device):
@@ -1482,7 +1474,7 @@ def test_get_state_armed_home(alarm_device):
         }
     }
     # Test
-    assert alarm_device.get_state() == STATE_ALARM_ARMED_HOME
+    assert alarm_device.get_state() == AlarmControlPanelState.ARMED_HOME
 
 
 def test_get_state_armed_home_out_of_order(alarm_device):
@@ -1496,7 +1488,7 @@ def test_get_state_armed_home_out_of_order(alarm_device):
         }
     }
     # Test
-    assert alarm_device.get_state() == STATE_ALARM_ARMED_HOME
+    assert alarm_device.get_state() == AlarmControlPanelState.ARMED_HOME
 
 
 def test_get_state_armed_night(alarm_device):
@@ -1510,7 +1502,7 @@ def test_get_state_armed_night(alarm_device):
         }
     }
     # Test (out of order keys to test sorting)
-    assert alarm_device.get_state() == STATE_ALARM_ARMED_NIGHT
+    assert alarm_device.get_state() == AlarmControlPanelState.ARMED_NIGHT
 
 
 def test_get_state_armed_night_out_of_order(alarm_device):
@@ -1524,7 +1516,7 @@ def test_get_state_armed_night_out_of_order(alarm_device):
         }
     }
     # Test
-    assert alarm_device.get_state() == STATE_ALARM_ARMED_NIGHT
+    assert alarm_device.get_state() == AlarmControlPanelState.ARMED_NIGHT
 
 
 def test_get_state_armed_vacation(alarm_device):
@@ -1538,7 +1530,7 @@ def test_get_state_armed_vacation(alarm_device):
         }
     }
     # Test (out of order keys to test sorting)
-    assert alarm_device.get_state() == STATE_ALARM_ARMED_VACATION
+    assert alarm_device.get_state() == AlarmControlPanelState.ARMED_VACATION
 
 
 def test_get_state_armed_vacation_out_of_order(alarm_device):
@@ -1552,7 +1544,7 @@ def test_get_state_armed_vacation_out_of_order(alarm_device):
         }
     }
     # Test
-    assert alarm_device.get_state() == STATE_ALARM_ARMED_VACATION
+    assert alarm_device.get_state() == AlarmControlPanelState.ARMED_VACATION
 
 
 def test_get_state_armed_away(alarm_device):
@@ -1569,7 +1561,7 @@ def test_get_state_armed_away(alarm_device):
         }
     }
     # Test
-    assert alarm_device.get_state() == STATE_ALARM_ARMED_AWAY
+    assert alarm_device.get_state() == AlarmControlPanelState.ARMED_AWAY
 
 
 def test_get_state_armed_mixed(alarm_device):
@@ -1586,7 +1578,7 @@ def test_get_state_armed_mixed(alarm_device):
         }
     }
     # Test
-    assert alarm_device.get_state() == STATE_ALARM_ARMED_AWAY
+    assert alarm_device.get_state() == AlarmControlPanelState.ARMED_AWAY
 
 
 def test_get_state_armed_away_with_config(alarm_device):
@@ -1603,7 +1595,7 @@ def test_get_state_armed_away_with_config(alarm_device):
         }
     }
     # Test
-    assert alarm_device.get_state() == STATE_ALARM_ARMED_AWAY
+    assert alarm_device.get_state() == AlarmControlPanelState.ARMED_AWAY
 
 
 def test_get_state_while_disarming(alarm_device):
@@ -1612,9 +1604,9 @@ def test_get_state_while_disarming(alarm_device):
     alarm_device._sectors_home = []
     alarm_device._sectors_night = []
     alarm_device._inventory = {9: {}}
-    alarm_device.state = STATE_ALARM_DISARMING
+    alarm_device.state = AlarmControlPanelState.DISARMING
     # Test
-    assert alarm_device.get_state() == STATE_ALARM_DISARMING
+    assert alarm_device.get_state() == AlarmControlPanelState.DISARMING
 
 
 def test_get_state_while_arming(alarm_device):
@@ -1623,9 +1615,9 @@ def test_get_state_while_arming(alarm_device):
     alarm_device._sectors_home = []
     alarm_device._sectors_night = []
     alarm_device._inventory = {9: {}}
-    alarm_device.state = STATE_ALARM_ARMING
+    alarm_device.state = AlarmControlPanelState.ARMING
     # Test
-    assert alarm_device.get_state() == STATE_ALARM_ARMING
+    assert alarm_device.get_state() == AlarmControlPanelState.ARMING
 
 
 class TestTurnOff:
