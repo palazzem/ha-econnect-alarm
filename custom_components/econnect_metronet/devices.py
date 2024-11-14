@@ -10,16 +10,7 @@ from elmo.api.exceptions import (
     LockError,
     ParseError,
 )
-from homeassistant.const import (
-    STATE_ALARM_ARMED_AWAY,
-    STATE_ALARM_ARMED_HOME,
-    STATE_ALARM_ARMED_NIGHT,
-    STATE_ALARM_ARMED_VACATION,
-    STATE_ALARM_ARMING,
-    STATE_ALARM_DISARMED,
-    STATE_ALARM_DISARMING,
-    STATE_UNAVAILABLE,
-)
+from homeassistant.components.alarm_control_panel import AlarmControlPanelState
 from requests.exceptions import HTTPError
 
 from .const import (
@@ -72,7 +63,7 @@ class AlarmDevice:
         self._sectors_vacation = config.get(CONF_AREAS_ARM_VACATION) or []
 
         # Alarm state
-        self.state = STATE_UNAVAILABLE
+        self.state = None
 
     def _register_sector(self, entity):
         """Register a sector entity in the device's internal inventory."""
@@ -225,12 +216,12 @@ class AlarmDevice:
         """
         # If the system is arming or disarming, return the current state
         # to prevent the state from being updated while the system is in transition.
-        if self.state in [STATE_ALARM_ARMING, STATE_ALARM_DISARMING]:
+        if self.state in [AlarmControlPanelState.ARMING, AlarmControlPanelState.DISARMING]:
             return self.state
 
         sectors_armed = dict(self.items(q.SECTORS, status=True))
         if not sectors_armed:
-            return STATE_ALARM_DISARMED
+            return AlarmControlPanelState.DISARMED
 
         # Note: `element` is the sector ID you use to arm/disarm the sector.
         sectors = [sectors["element"] for sectors in sectors_armed.values()]
@@ -238,15 +229,15 @@ class AlarmDevice:
         # regardless of whether the input lists were pre-sorted or not.
         sectors_armed_sorted = sorted(sectors)
         if sectors_armed_sorted == sorted(self._sectors_home):
-            return STATE_ALARM_ARMED_HOME
+            return AlarmControlPanelState.ARMED_HOME
 
         if sectors_armed_sorted == sorted(self._sectors_night):
-            return STATE_ALARM_ARMED_NIGHT
+            return AlarmControlPanelState.ARMED_NIGHT
 
         if sectors_armed_sorted == sorted(self._sectors_vacation):
-            return STATE_ALARM_ARMED_VACATION
+            return AlarmControlPanelState.ARMED_VACATION
 
-        return STATE_ALARM_ARMED_AWAY
+        return AlarmControlPanelState.ARMED_AWAY
 
     def get_status(self, query: int, id: int) -> Union[bool, int]:
         """Get the status of an item in the device inventory specified by query and id.

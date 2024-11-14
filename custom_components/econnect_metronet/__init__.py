@@ -132,8 +132,7 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry) -> bool:
     hass.services.async_register(DOMAIN, "disarm_sectors", partial(services.disarm_sectors, hass, config.entry_id))
     hass.services.async_register(DOMAIN, "update_state", partial(services.update_state, hass, config.entry_id))
 
-    for component in PLATFORMS:
-        hass.async_create_task(hass.config_entries.async_forward_entry_setup(config, component))
+    await hass.config_entries.async_forward_entry_setups(config, PLATFORMS)
 
     return True
 
