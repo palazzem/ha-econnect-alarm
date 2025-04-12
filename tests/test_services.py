@@ -15,6 +15,7 @@ async def test_service_arm_sectors(hass, config_entry, alarm_device, coordinator
         "coordinator": coordinator,
     }
     call = ServiceCall(
+        hass=hass,
         domain=DOMAIN,
         service="arm_sectors",
         data={
@@ -42,6 +43,7 @@ async def test_service_disarm_sectors(hass, config_entry, alarm_device, coordina
         "coordinator": coordinator,
     }
     call = ServiceCall(
+        hass=hass,
         domain=DOMAIN,
         service="disarm_sectors",
         data={
@@ -67,6 +69,7 @@ async def test_service_update_state(hass, config_entry, alarm_device, coordinato
         "coordinator": coordinator,
     }
     call = ServiceCall(
+        hass=hass,
         domain=DOMAIN,
         service="update_state",
         data={},
