@@ -27,11 +27,11 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
 ]
 dependencies = [
-  "econnect-python==0.12.0",
+  "econnect-python==0.12.2",
   "async_timeout",
   "homeassistant",
 ]
