@@ -1,3 +1,4 @@
+import logging
 from typing import List, Tuple, Union
 
 import voluptuous as vol
@@ -8,6 +9,8 @@ from homeassistant.helpers.config_validation import multi_select
 from homeassistant.util import slugify
 
 from .const import CONF_SYSTEM_NAME, DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class select(multi_select):
@@ -101,8 +104,12 @@ def split_code(code: str) -> Tuple[str, str]:
         CodeError: If the input code is less than 7 characters long, indicating it does not
         conform to the expected format.
     """
-    if len(code) <= 6:
+    if not code:
         raise CodeError("Your code must be in the format <USER_ID><CODE> without spaces.")
+
+    if len(code) < 7:
+        _LOGGER.debug("Client | Your configuration may require a code in the format <USER_ID><CODE> without spaces.")
+        return "1", code
 
     user_id_part, code_part = code[:-6], code[-6:]
     if not (user_id_part.isdigit() and code_part.isdigit()):
