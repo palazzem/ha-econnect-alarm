@@ -1283,7 +1283,7 @@ def test_device_arm_code_error_with_user_id(alarm_device, mocker):
     # Test
     alarm_device._connection._session_id = "test"
     with pytest.raises(CodeError):
-        alarm_device.arm("1234", sectors=[4])
+        alarm_device.arm("asdf1234", sectors=[4])
 
 
 def test_device_arm_error(client, mocker):
@@ -1408,7 +1408,7 @@ def test_device_disarm_code_error_with_user_id(alarm_device, mocker):
     # Test
     alarm_device._connection._session_id = "test"
     with pytest.raises(CodeError):
-        alarm_device.disarm("1234", sectors=[4])
+        alarm_device.disarm("asdf1234", sectors=[4])
 
 
 def test_device_disarm_error(client, mocker):

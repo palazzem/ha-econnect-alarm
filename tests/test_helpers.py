@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 from elmo.api.exceptions import CodeError
 from homeassistant.core import valid_entity_id
@@ -57,12 +59,13 @@ def test_split_code_with_valid_digits():
     assert split_code(code) == ("123456", "789012")
 
 
-def test_split_code_with_exact_six_chars_raises_error():
-    # Should raise CodeError for code with less than 7 characters
-    code = "123456"
-    with pytest.raises(CodeError) as exc_info:
-        split_code(code)
-    assert "format <USER_ID><CODE> without spaces" in str(exc_info.value)
+def test_split_code_with_exact_six_chars_raises_error(caplog):
+    # Should log a debug message and return a tuple with user ID 1 and the code
+    caplog.set_level(logging.DEBUG)
+    assert split_code("123456") == ("1", "123456")
+    debug_msg = [record for record in caplog.records if record.levelname == "DEBUG"]
+    assert len(debug_msg) == 1
+    assert "format <USER_ID><CODE> without spaces" in debug_msg[0].message
 
 
 def test_split_code_with_alphanumeric_user_id_raises_error():
