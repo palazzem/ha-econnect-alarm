@@ -56,50 +56,66 @@ async def test_async_setup_entry_outputs_unique_id(hass, config_entry, alarm_dev
 class TestOutputSwitch:
     def test_switch_name(self, hass, config_entry, alarm_device):
         # Ensure the switch has the right name
-        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        coordinator = DataUpdateCoordinator(
+            hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
+        )
         entity = OutputSwitch("test_id", 1, config_entry, "Output 2", coordinator, alarm_device)
         assert entity.name == "Output 2"
 
     def test_switch_name_with_system_name(self, hass, config_entry, alarm_device):
         # The system name doesn't change the Entity name
         hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
-        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        coordinator = DataUpdateCoordinator(
+            hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
+        )
         entity = OutputSwitch("test_id", 1, config_entry, "Output 2", coordinator, alarm_device)
         assert entity.name == "Output 2"
 
     def test_switch_entity_id(self, hass, config_entry, alarm_device):
         # Ensure the switch has a valid Entity ID
-        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        coordinator = DataUpdateCoordinator(
+            hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
+        )
         entity = OutputSwitch("test_id", 1, config_entry, "Output 2", coordinator, alarm_device)
         assert entity.entity_id == "econnect_metronet.econnect_metronet_test_user_output_2"
 
     def test_switch_entity_id_with_system_name(self, hass, config_entry, alarm_device):
         # Ensure the Entity ID takes into consideration the system name
         hass.config_entries.async_update_entry(config_entry, data={"system_name": "Home"})
-        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        coordinator = DataUpdateCoordinator(
+            hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
+        )
         entity = OutputSwitch("test_id", 1, config_entry, "Output 2", coordinator, alarm_device)
         assert entity.entity_id == "econnect_metronet.econnect_metronet_home_output_2"
 
     def test_switch_unique_id(self, hass, config_entry, alarm_device):
         # Ensure the switch has the right unique ID
-        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        coordinator = DataUpdateCoordinator(
+            hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
+        )
         entity = OutputSwitch("test_id", 1, config_entry, "Output 2", coordinator, alarm_device)
         assert entity.unique_id == "test_id"
 
     def test_switch_icon(self, hass, config_entry, alarm_device):
         # Ensure the switch has the right icon
-        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        coordinator = DataUpdateCoordinator(
+            hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
+        )
         entity = OutputSwitch("test_id", 1, config_entry, "Output 2", coordinator, alarm_device)
         assert entity.icon == "hass:toggle-switch-variant"
 
     def test_switch_is_off(self, hass, config_entry, alarm_device):
         # Ensure the switch attribute is_on has the right status False
-        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        coordinator = DataUpdateCoordinator(
+            hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
+        )
         entity = OutputSwitch("test_id", 2, config_entry, "Output 3", coordinator, alarm_device)
         assert entity.is_on is False
 
     def test_switch_is_on(self, hass, config_entry, alarm_device):
         # Ensure the switch attribute is_on has the right status True
-        coordinator = DataUpdateCoordinator(hass, logging.getLogger(__name__), name="econnect_metronet")
+        coordinator = DataUpdateCoordinator(
+            hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
+        )
         entity = OutputSwitch("test_id", 1, config_entry, "Output 1", coordinator, alarm_device)
         assert entity.is_on is True
