@@ -11,5 +11,5 @@
     "issue_tracker": "https://github.com/palazzem/ha-econnect-alarm/issues",
     "loggers": ["custom_components.econnect_metronet", "elmo"],
     "requirements": ["econnect-python==0.14.1"],
-    "version": "2.5.1"
+    "version": "2.5.2"
 }
