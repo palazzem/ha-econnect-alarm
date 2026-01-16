@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   homeassistant:
     container_name: hass-dev
