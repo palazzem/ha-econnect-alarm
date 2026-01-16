@@ -161,7 +161,7 @@ terminal:
 
 ```bash
 # Initialize the environment with the latest version of Home Assistant
-E_HASS_VERSION=$(curl --silent "https://api.github.com/repos/home-assistant/core/releases/latest" | grep -Po "(?<=\"tag_name\": \").*(?=\")")
+E_HASS_VERSION=$(curl --silent "https://api.github.com/repos/home-assistant/core/releases/latest" | sed -n 's/.*"tag_name": "\([^"]*\)".*/\1/p')
 ./scripts/init $E_HASS_VERSION
 source venv/bin/activate
 

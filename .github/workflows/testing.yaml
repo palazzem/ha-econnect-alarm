@@ -37,7 +37,7 @@ jobs:
 
       - name: Install Home Assistant testing platform
         run: |
-          ./scripts/download_fixtures.sh $(curl --silent "https://api.github.com/repos/home-assistant/core/releases/latest" | grep -Po "(?<=\"tag_name\": \").*(?=\")")
+          ./scripts/download_fixtures.sh $(curl --silent "https://api.github.com/repos/home-assistant/core/releases/latest" | sed -n 's/.*"tag_name": "\([^"]*\)".*/\1/p')
 
       - name: Test with tox environments
         run: tox
