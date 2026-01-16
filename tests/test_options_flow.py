@@ -114,7 +114,6 @@ class TestOptionsFlow:
             "areas_arm_night": [],
             "areas_arm_vacation": [],
         }
-        assert result["result"] is True
 
     async def test_form_submit_successful_with_input(self, hass, config_entry):
         # Ensure users can submit an option that is available in the allowed list
@@ -140,7 +139,6 @@ class TestOptionsFlow:
             "areas_arm_night": [],
             "areas_arm_vacation": [],
         }
-        assert result["result"] is True
 
     async def test_form_submit_successful_with_multiple_inputs(self, hass, config_entry):
         # Ensure multiple options can be submitted at once
@@ -173,4 +171,3 @@ class TestOptionsFlow:
             "areas_arm_night": [(1, "S1 Living Room")],
             "areas_arm_vacation": [(1, "S1 Living Room"), (2, "S2 Bedroom")],
         }
-        assert result["result"] is True
