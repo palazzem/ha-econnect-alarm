@@ -19,27 +19,31 @@ fi
 
 # Variables
 DOWNLOAD_FOLDER=$(mktemp -d)
-HASS_TESTS_FOLDER="$DOWNLOAD_FOLDER/core-$VERSION/tests/"
+HASS_FOLDER="$DOWNLOAD_FOLDER/core-$VERSION"
 
-# Remove previous folder if exists
-if [ -d "tests/hass" ]; then
-    echo "Removing previous tests/hass/ folder"
-    rm -rf tests/hass
-fi
+# Remove previous folders if they exist
+rm -rf tests/hass tests/script
 
-# Download HASS version
-echo "Downloading Home Assistant $VERSION in $DOWNLOAD_FOLDER"
-curl -L "https://github.com/home-assistant/core/archive/refs/tags/$VERSION.tar.gz" -o "$DOWNLOAD_FOLDER/$VERSION.tar.gz"
+# Download and extract Home Assistant
+echo "Downloading Home Assistant $VERSION..."
+curl -sL "https://github.com/home-assistant/core/archive/refs/tags/$VERSION.tar.gz" -o "$DOWNLOAD_FOLDER/$VERSION.tar.gz"
 
-# Extract HASS fixtures and tests helpers, excluding all components and actual tests
-echo "Extracting tests/ folder from $VERSION.tar.gz"
-tar -C "$DOWNLOAD_FOLDER" --exclude='*/components/*' --exclude='*/pylint/*' -xf "$DOWNLOAD_FOLDER/$VERSION.tar.gz" "core-$VERSION/tests"
-find "$HASS_TESTS_FOLDER" -type f -name "test_*.py" -delete
+echo "Extracting fixtures..."
+tar -C "$DOWNLOAD_FOLDER" -xf "$DOWNLOAD_FOLDER/$VERSION.tar.gz" \
+    --exclude='*/components/*' \
+    --exclude='*/pylint/*' \
+    "core-$VERSION/tests" \
+    "core-$VERSION/script/__init__.py" \
+    "core-$VERSION/script/hassfest/__init__.py" \
+    "core-$VERSION/script/hassfest/model.py"
 
-# Recursively find and update imports
-find "$HASS_TESTS_FOLDER" -type f -exec perl -pi -e 's/from tests\./from tests.hass./g' {} +
-mv "$HASS_TESTS_FOLDER/conftest.py" "$HASS_TESTS_FOLDER/fixtures.py"
+# Process tests folder
+find "$HASS_FOLDER/tests" -type f -name "test_*.py" -delete
+find "$HASS_FOLDER" -type f -name "*.py" -exec perl -pi -e 's/from (tests|script)\./from tests.$1./g' {} +
+mv "$HASS_FOLDER/tests/conftest.py" "$HASS_FOLDER/tests/fixtures.py"
 
-# Copy Home Assistant fixtures
-mv "$HASS_TESTS_FOLDER" ./tests/hass
-echo "Home Assistant $VERSION tests are now in tests/hass/"
+# Move to final location
+mv "$HASS_FOLDER/tests" ./tests/hass
+mv "$HASS_FOLDER/script" ./tests/script
+
+echo "Home Assistant $VERSION fixtures installed in tests/"
