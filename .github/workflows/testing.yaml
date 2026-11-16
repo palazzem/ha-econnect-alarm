@@ -28,16 +28,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: |
-            3.13
+            3.14
 
       - name: Upgrade pip and install required tools
         run: |
           pip install --upgrade pip
           pip install tox
-
-      - name: Install Home Assistant testing platform
-        run: |
-          ./scripts/download_fixtures.sh $(curl --silent "https://api.github.com/repos/home-assistant/core/releases/latest" | sed -n 's/.*"tag_name": "\([^"]*\)".*/\1/p')
 
       - name: Test with tox environments
         run: tox

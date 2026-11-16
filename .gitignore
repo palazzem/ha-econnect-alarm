@@ -1,7 +1,5 @@
 # Home Assistant
 config/
-tests/script/
-tests/hass/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

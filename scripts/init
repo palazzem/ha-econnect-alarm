@@ -25,5 +25,4 @@ pip install --upgrade pip
 pip install -e '.[all]'
 
 # Override Home Assistant version
-pip install homeassistant==$VERSION
-./scripts/download_fixtures.sh $VERSION
+pip install homeassistant==$VERSION pytest-homeassistant==$VERSION
