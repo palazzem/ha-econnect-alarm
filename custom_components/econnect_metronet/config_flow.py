@@ -98,6 +98,7 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                 }
             ),
             errors=errors,
+            description_placeholders={"login_url": "https://connect.elmospa.com/"},
         )
 
 
