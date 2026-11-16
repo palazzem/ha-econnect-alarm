@@ -56,22 +56,23 @@ class select(multi_select):
         return selected
 
 
-def generate_entity_id(config: ConfigEntry, name: Union[str, None] = None) -> str:
+def generate_entity_id(platform: str, config: ConfigEntry, name: Union[str, None] = None) -> str:
     """Generate an entity ID based on system configuration or username.
 
     Args:
+        platform (str): The entity platform (e.g. `binary_sensor`), used as the entity ID domain.
         config (ConfigEntry): The configuration entry from Home Assistant containing system
                               configuration or username.
         name (Union[str, None]): Additional name component to be appended to the entity name.
 
     Returns:
-        str: The generated entity id, which is a combination of the domain and either the configured
+        str: The generated entity id, which is a combination of the platform and either the configured
              system name or the username, optionally followed by the provided name.
 
     Example:
         >>> config.data = {"system_name": "Seaside Home"}
-        >>> generate_entity_name(entry, "window")
-        "elmo_iess_alarm.seaside_home_window"
+        >>> generate_entity_id("binary_sensor", entry, "window")
+        "binary_sensor.econnect_metronet_seaside_home_window"
     """
     # Retrieve the system name or username from the ConfigEntry
     system_name = config.data.get(CONF_SYSTEM_NAME) or config.data.get(CONF_USERNAME)
@@ -80,11 +81,10 @@ def generate_entity_id(config: ConfigEntry, name: Union[str, None] = None) -> st
     additional_name = name or ""
 
     # Generate the entity ID and use Home Assistant slugify to ensure it's a valid value
-    # NOTE: We append DOMAIN twice as HA removes the domain from the entity ID name. This is unexpected
-    # as it means we lose our namespacing, even though this is the suggested method explained in HA documentation.
-    # See: https://www.home-assistant.io/faq/unique_id/#can-be-changed
+    # NOTE: The entity ID domain must be the entity platform, otherwise Home Assistant replaces it (and from
+    # 2027.5.0 rejects it). DOMAIN is kept as the object ID prefix to namespace our entities.
     entity_name = slugify(f"{system_name}_{additional_name}")
-    return f"{DOMAIN}.{DOMAIN}_{entity_name}"
+    return f"{platform}.{DOMAIN}_{entity_name}"
 
 
 def split_code(code: str) -> Tuple[str, str]:
