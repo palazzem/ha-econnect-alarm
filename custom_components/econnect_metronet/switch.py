@@ -2,6 +2,7 @@ from elmo import query as q
 from homeassistant.components import persistent_notification
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
@@ -60,7 +61,7 @@ class OutputSwitch(CoordinatorEntity, SwitchEntity):
         self._attr_force_update = experimental.get(CONF_FORCE_UPDATE, False)
 
         super().__init__(coordinator)
-        self.entity_id = generate_entity_id(config, name)
+        self.entity_id = generate_entity_id(Platform.SWITCH, config, name)
         self._name = name
         self._device = device
         self._unique_id = unique_id

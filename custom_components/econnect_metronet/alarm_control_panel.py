@@ -11,7 +11,7 @@ from homeassistant.components.alarm_control_panel.const import (
     AlarmControlPanelEntityFeature as AlarmFeatures,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_USERNAME
+from homeassistant.const import CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -47,7 +47,7 @@ class EconnectAlarm(CoordinatorEntity, AlarmControlPanelEntity):
     def __init__(self, unique_id, config, device, coordinator):
         """Construct."""
         super().__init__(coordinator)
-        self.entity_id = generate_entity_id(config)
+        self.entity_id = generate_entity_id(Platform.ALARM_CONTROL_PANEL, config)
         self._config = config
         self._unique_id = unique_id
         self._name = f"Alarm Panel {config.data.get(CONF_SYSTEM_NAME) or config.data.get(CONF_USERNAME)}"
