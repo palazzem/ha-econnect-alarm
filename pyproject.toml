@@ -27,7 +27,7 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
 ]
 dependencies = [
@@ -47,12 +47,8 @@ dev = [
   "pytest-mock",
   "responses",
   "tox",
-  # Home Assistant fixtures
-  "freezegun",
-  "pytest-socket",
-  "requests-mock",
-  "syrupy",
-  "respx",
+  # Home Assistant fixtures, released with the matching Home Assistant version
+  "pytest-homeassistant",
 ]
 
 lint = [
@@ -79,6 +75,8 @@ allow-direct-references = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+# Let Home Assistant install its httpx alias before respx is imported.
+addopts = "-p no:respx"
 
 [tool.hatch.build.targets.sdist]
 only-include = ["custom_components/econnect_metronet"]

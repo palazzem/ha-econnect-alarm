@@ -1,7 +1,7 @@
+from pytest_homeassistant.common import MockConfigEntry
+
 from custom_components.econnect_metronet import async_migrate_entry
 from custom_components.econnect_metronet.const import DOMAIN
-
-from .hass.fixtures import MockConfigEntry
 
 
 async def test_async_no_migrations(mocker, hass, config_entry):
