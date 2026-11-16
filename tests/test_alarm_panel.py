@@ -35,7 +35,7 @@ def test_alarm_panel_entity_id(client, hass, config_entry):
         hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
     )
     entity = EconnectAlarm("test_id", config_entry, device, coordinator)
-    assert entity.entity_id == "econnect_metronet.econnect_metronet_test_user"
+    assert entity.entity_id == "alarm_control_panel.econnect_metronet_test_user"
 
 
 def test_alarm_panel_entity_id_with_system_name(client, hass, config_entry):
@@ -46,7 +46,7 @@ def test_alarm_panel_entity_id_with_system_name(client, hass, config_entry):
         hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
     )
     entity = EconnectAlarm("test_id", config_entry, device, coordinator)
-    assert entity.entity_id == "econnect_metronet.econnect_metronet_home"
+    assert entity.entity_id == "alarm_control_panel.econnect_metronet_home"
 
 
 @pytest.mark.asyncio

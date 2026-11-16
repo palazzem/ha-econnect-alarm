@@ -78,7 +78,7 @@ class TestAlertSensor:
             hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
         )
         entity = AlertSensor("test_id", 0, config_entry, "input_led", coordinator, alarm_device)
-        assert entity.entity_id == "econnect_metronet.econnect_metronet_test_user_input_led"
+        assert entity.entity_id == "sensor.econnect_metronet_test_user_input_led"
 
     def test_sensor_entity_id_with_system_name(self, hass, config_entry, alarm_device):
         # Ensure the Entity ID takes into consideration the system name
@@ -87,7 +87,7 @@ class TestAlertSensor:
             hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
         )
         entity = AlertSensor("test_id", 0, config_entry, "input_led", coordinator, alarm_device)
-        assert entity.entity_id == "econnect_metronet.econnect_metronet_home_input_led"
+        assert entity.entity_id == "sensor.econnect_metronet_home_input_led"
 
     def test_sensor_unique_id(self, hass, config_entry, alarm_device):
         # Ensure the alert has the right unique ID

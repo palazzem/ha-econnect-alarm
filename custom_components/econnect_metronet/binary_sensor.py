@@ -6,6 +6,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
@@ -81,7 +82,7 @@ class AlertBinarySensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_force_update = experimental.get(CONF_FORCE_UPDATE, False)
 
         super().__init__(coordinator)
-        self.entity_id = generate_entity_id(config, name)
+        self.entity_id = generate_entity_id(Platform.BINARY_SENSOR, config, name)
         self._name = name
         self._device = device
         self._unique_id = unique_id
@@ -137,7 +138,7 @@ class InputBinarySensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_force_update = experimental.get(CONF_FORCE_UPDATE, False)
 
         super().__init__(coordinator)
-        self.entity_id = generate_entity_id(config, name)
+        self.entity_id = generate_entity_id(Platform.BINARY_SENSOR, config, name)
         self._name = name
         self._device = device
         self._unique_id = unique_id
@@ -184,7 +185,7 @@ class SectorBinarySensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_force_update = experimental.get(CONF_FORCE_UPDATE, False)
 
         super().__init__(coordinator)
-        self.entity_id = generate_entity_id(config, name)
+        self.entity_id = generate_entity_id(Platform.BINARY_SENSOR, config, name)
         self._name = name
         self._device = device
         self._unique_id = unique_id

@@ -39,7 +39,7 @@ async def test_async_setup_entry_connection_status(hass, config_entry, alarm_dev
     def check_connection_status(sensors):
         connection_status = sensors[-1]
         assert connection_status.unique_id == "test_entry_id_econnect_metronet_connection_status"
-        assert connection_status.entity_id == "econnect_metronet.econnect_metronet_test_user_connection_status"
+        assert connection_status.entity_id == "binary_sensor.econnect_metronet_test_user_connection_status"
         assert connection_status.is_on is False
         alarm_device.connected = False
         assert connection_status.is_on is True
@@ -160,7 +160,7 @@ class TestAlertBinarySensor:
             hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
         )
         entity = AlertBinarySensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
-        assert entity.entity_id == "econnect_metronet.econnect_metronet_test_user_has_anomalies"
+        assert entity.entity_id == "binary_sensor.econnect_metronet_test_user_has_anomalies"
 
     def test_binary_sensor_entity_id_with_system_name(self, hass, config_entry, alarm_device):
         # Ensure the Entity ID takes into consideration the system name
@@ -169,7 +169,7 @@ class TestAlertBinarySensor:
             hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
         )
         entity = AlertBinarySensor("test_id", 0, config_entry, "has_anomalies", coordinator, alarm_device)
-        assert entity.entity_id == "econnect_metronet.econnect_metronet_home_has_anomalies"
+        assert entity.entity_id == "binary_sensor.econnect_metronet_home_has_anomalies"
 
     def test_binary_sensor_unique_id(self, hass, config_entry, alarm_device):
         # Ensure the alert has the right unique ID
@@ -220,7 +220,7 @@ class TestInputBinarySensor:
             hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
         )
         entity = InputBinarySensor("test_id", 1, config_entry, "1 Tamper Sirena", coordinator, alarm_device)
-        assert entity.entity_id == "econnect_metronet.econnect_metronet_test_user_1_tamper_sirena"
+        assert entity.entity_id == "binary_sensor.econnect_metronet_test_user_1_tamper_sirena"
 
     def test_binary_sensor_entity_id_with_system_name(self, hass, config_entry, alarm_device):
         # Ensure the Entity ID takes into consideration the system name
@@ -229,7 +229,7 @@ class TestInputBinarySensor:
             hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
         )
         entity = InputBinarySensor("test_id", 1, config_entry, "1 Tamper Sirena", coordinator, alarm_device)
-        assert entity.entity_id == "econnect_metronet.econnect_metronet_home_1_tamper_sirena"
+        assert entity.entity_id == "binary_sensor.econnect_metronet_home_1_tamper_sirena"
 
     def test_binary_sensor_unique_id(self, hass, config_entry, alarm_device):
         # Ensure the sensor has the right unique ID
@@ -296,7 +296,7 @@ class TestSectorBinarySensor:
             hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
         )
         entity = SectorBinarySensor("test_id", 1, config_entry, "1 S1 Living Room", coordinator, alarm_device)
-        assert entity.entity_id == "econnect_metronet.econnect_metronet_test_user_1_s1_living_room"
+        assert entity.entity_id == "binary_sensor.econnect_metronet_test_user_1_s1_living_room"
 
     def test_binary_sensor_input_entity_id_with_system_name(self, hass, config_entry, alarm_device):
         # Ensure the Entity ID takes into consideration the system name
@@ -305,7 +305,7 @@ class TestSectorBinarySensor:
             hass, logging.getLogger(__name__), config_entry=config_entry, name="econnect_metronet"
         )
         entity = SectorBinarySensor("test_id", 1, config_entry, "1 S1 Living Room", coordinator, alarm_device)
-        assert entity.entity_id == "econnect_metronet.econnect_metronet_home_1_s1_living_room"
+        assert entity.entity_id == "binary_sensor.econnect_metronet_home_1_s1_living_room"
 
     def test_binary_sensor_input_unique_id(self, hass, config_entry, alarm_device):
         # Ensure the sensor has the right unique ID
