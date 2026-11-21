@@ -245,6 +245,17 @@ async def test_coordinator_first_refresh_connection_reset(mocker, hass, config_e
 
 
 @pytest.mark.asyncio
+async def test_coordinator_first_refresh_invalid_token_then_connection_reset(mocker, hass, config_entry, client):
+    # Ensure setup is not ready when the first update hits an invalid token, so no inventory is loaded
+    # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/200
+    coordinator = AlarmCoordinator(hass, config_entry, AlarmDevice(client), 5)
+    mocker.patch.object(client, "query", side_effect=[InvalidToken()] + [CONNECTION_RESET] * 5)
+    # Test
+    with pytest.raises(ConfigEntryNotReady):
+        await coordinator.async_config_entry_first_refresh()
+
+
+@pytest.mark.asyncio
 async def test_coordinator_update_after_connection_reset_keeps_state(mocker, coordinator, alarm_device):
     # Ensure a connection reset after setup keeps the last known inventory
     # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/148
