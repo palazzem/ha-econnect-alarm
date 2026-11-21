@@ -83,6 +83,17 @@ async def test_a_reply_that_cannot_answer_its_endpoint_fails_the_scenario_before
     assert [row.step for row in scenario.timeline] == ["setup"]
 
 
+async def test_a_row_shows_the_errors_logged_in_its_cycle_only(scenario: Scenario) -> None:
+    await scenario.run(Step("outage", cycles=2, replies={ALL_ENDPOINTS: CONNECTION_ERROR}))
+
+    first, second = [row.logs for row in scenario.timeline if row.step == "outage"]
+    assert (
+        "ERROR custom_components.econnect_metronet.coordinator: "
+        "Error requesting econnect_metronet data: connection refused"
+    ) in first
+    assert second == ()
+
+
 async def test_a_failed_expectation_names_each_entity_and_prints_the_timeline(scenario: Scenario) -> None:
     with pytest.raises(ScenarioFailed) as failure:
         await scenario.run(
@@ -166,8 +177,13 @@ def test_entry_state_fails_for_another_config_entry_state() -> None:
     assert failures == ["config entry is setup_retry, expected loaded"]
 
 
-def test_a_pattern_that_matches_no_entity_fails() -> None:
-    failures = Expect(available=["switch.*"]).check(row({"sensor.a": "on"}), {})
+@pytest.mark.parametrize(
+    "expect",
+    [Expect(available=["switch.*"]), Expect(unavailable=["switch.*"]), Expect(at_baseline=["switch.*"])],
+    ids=["available", "unavailable", "at baseline"],
+)
+def test_a_pattern_that_matches_no_entity_fails(expect: Expect) -> None:
+    failures = expect.check(row({"sensor.a": "on"}), {"sensor.a": "on"})
 
     assert failures == ["switch.* matches no entity"]
 
