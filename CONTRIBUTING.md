@@ -16,17 +16,17 @@ If you're experiencing a problem or have a suggestion, we encourage you to open 
 [new issue](https://github.com/palazzem/ha-econnect-alarm/issues/new/choose).
 Please make sure to select the most appropriate type from the options provided:
 
-- **Bug Report**: If you've identified an issue with an existing feature that isn't performing as documented or expected,
-please select this option. This will help us identify and rectify problems more efficiently.
+- **Bug**: an existing feature doesn't behave as documented, or throws an error.
 
-- **Feature Request**: Opt for this if you have an idea for a new feature or an enhancement to the current ones.
-Additionally, if you feel that a certain feature could be optimized or modified to better suit specific scenarios, this is
-the right category to bring it to our attention.
+- **Feature or future work**: a new capability, or a change that would make an existing one fit your scenario better.
 
-- **Join Discord channel**: If you are unsure, or if you have a general question, please join our [Discord channel](https://discord.gg/NSmAPWw8tE).
+- **Documentation**: a document is wrong, missing, or out of date.
 
-After choosing an issue type, a pre-formatted template will appear. It's essential to provide as much detail as possible
-within this template. Your insights and contributions help in improving the project, and we genuinely appreciate your effort.
+- **Decision needed**: a question maintainers must answer before work can go on.
+
+- **Join Discord channel**: if you are unsure, or have a question about your setup, join our [Discord channel](https://discord.gg/NSmAPWw8tE).
+
+After choosing an issue type, a form will appear. Fill in every required field, with as much detail as you can. Your insights and contributions help in improving the project, and we genuinely appreciate your effort.
 
 ## Pull Requests
 

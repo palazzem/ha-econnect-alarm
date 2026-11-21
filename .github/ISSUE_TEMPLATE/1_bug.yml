@@ -1,0 +1,73 @@
+name: Bug
+description: The integration behaves differently from what the documentation states, or throws an error.
+labels: ["type:bug"]
+body:
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+      description: The behaviour you saw, with the exact error message shown in Home Assistant or in its logs.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: The shortest sequence of steps that shows the bug, one per line, from a known starting state.
+      placeholder: |
+        1. Configure "Arm Home" with sectors 1 and 2
+        2. Arm Home from the alarm panel card
+        3. Open the e-Connect web app
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen
+      description: The expected behaviour, and a link to the documentation that states it if there is one.
+    validations:
+      required: true
+  - type: dropdown
+    id: system
+    attributes:
+      label: Alarm system
+      options:
+        - Elmo e-Connect
+        - IESS Metronet
+    validations:
+      required: true
+  - type: input
+    id: integration-version
+    attributes:
+      label: Integration version
+      description: The release or commit SHA you run.
+      placeholder: "2.5.2"
+    validations:
+      required: true
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant version
+      description: From **Settings > About**, with the installation type.
+      placeholder: "2026.11.2, Home Assistant OS"
+    validations:
+      required: true
+  - type: input
+    id: last-working
+    attributes:
+      label: Last working version
+      description: The last integration or Home Assistant version where it worked, if it ever did.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log lines
+      description: >-
+        Only the lines around the error, captured with debug logging as described in
+        [Troubleshooting](https://github.com/palazzem/ha-econnect-alarm#troubleshooting).
+        This issue is public: never paste the full log file, and remove usernames, passwords, alarm codes, and session tokens.
+      render: text
+  - type: textarea
+    id: solutions
+    attributes:
+      label: Proposed solutions
+      description: Where the cause may lie and how it could be fixed, if you know.

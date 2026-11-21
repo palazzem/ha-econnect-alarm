@@ -1,0 +1,27 @@
+name: Documentation
+description: A document that is wrong, missing, or out of date.
+labels: ["type:docs"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A typo or a one-line fix needs no issue: open a pull request.
+  - type: input
+    id: location
+    attributes:
+      label: Location
+      description: The path or URL of the document, or where a missing one belongs.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is wrong, missing, or stale. Quote the passage.
+    validations:
+      required: true
+  - type: textarea
+    id: solutions
+    attributes:
+      label: Proposed solutions
+      description: What the document should say instead, if you know.

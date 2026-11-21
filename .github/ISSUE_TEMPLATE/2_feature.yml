@@ -1,0 +1,28 @@
+name: Feature or future work
+description: A capability you need, or work to plan for later.
+labels: ["type:feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Who needs what, and why. Keep it true under any solution.
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples
+      description: Concrete situations where the problem shows, such as an automation you cannot build today.
+    validations:
+      required: true
+  - type: textarea
+    id: solutions
+    attributes:
+      label: Proposed solutions
+      description: One or more ways to solve it, if you have them.
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Related issues, documentation, or how the e-Connect or Metronet web app does it.
