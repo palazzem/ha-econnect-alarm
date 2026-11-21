@@ -1,9 +1,9 @@
 import logging
 
 import pytest
-from elmo.api.exceptions import CodeError
 from homeassistant.core import valid_entity_id
 
+from custom_components.econnect_metronet.api.v1.exceptions import CodeError
 from custom_components.econnect_metronet.helpers import generate_entity_id, split_code
 
 

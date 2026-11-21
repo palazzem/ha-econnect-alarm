@@ -1,10 +1,10 @@
 import pytest
-from elmo.api.exceptions import CredentialError
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import InvalidData
 from requests.exceptions import ConnectionError, HTTPError
 from requests.models import Response
 
+from custom_components.econnect_metronet.api.v1.exceptions import CredentialError
 from custom_components.econnect_metronet.const import DOMAIN
 
 from .helpers import _

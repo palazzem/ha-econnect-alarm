@@ -4,13 +4,13 @@ import asyncio
 import logging
 from functools import partial
 
-from elmo.api.client import ElmoClient
-from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
 
 from . import services
+from .api.v1.client import ElmoClient
+from .api.v1.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from .compat import vol
 from .const import (
     CONF_DOMAIN,

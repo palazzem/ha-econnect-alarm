@@ -1,11 +1,11 @@
 import pytest
 import responses
-from elmo import query as q
-from elmo.api.exceptions import CodeError, CredentialError, LockError, ParseError
 from homeassistant.components.alarm_control_panel import AlarmControlPanelState
 from requests.exceptions import HTTPError
 from requests.models import Response
 
+from custom_components.econnect_metronet.api.v1 import query as q
+from custom_components.econnect_metronet.api.v1.exceptions import CodeError, CredentialError, LockError, ParseError
 from custom_components.econnect_metronet.binary_sensor import SectorBinarySensor
 from custom_components.econnect_metronet.const import (
     CONF_AREAS_ARM_AWAY,

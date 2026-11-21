@@ -2,12 +2,12 @@ import logging
 
 import pytest
 import responses
-from elmo.api.client import ElmoClient
 from homeassistant.config_entries import ConfigEntryState
 from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.econnect_metronet import async_setup
 from custom_components.econnect_metronet.alarm_control_panel import EconnectAlarm
+from custom_components.econnect_metronet.api.v1.client import ElmoClient
 from custom_components.econnect_metronet.config_flow import EconnectConfigFlow
 from custom_components.econnect_metronet.const import DOMAIN
 from custom_components.econnect_metronet.coordinator import AlarmCoordinator
@@ -20,7 +20,7 @@ def pytest_configure(config: pytest.Config) -> None:
     """Keeps the default log level to WARNING.
 
     Home Assistant sets the log level to `DEBUG` if the `--verbose` flag is used.
-    Considering all the debug logs of this integration and `econnect-python`, this is very
+    Considering all the debug logs of this integration and its e-Connect client, this is very
     noisy. This is an override for the `pytest-homeassistant` plugin as described in this
     issue: https://github.com/palazzem/ha-econnect-alarm/issues/134
     """

@@ -3,15 +3,15 @@
 import logging
 from typing import Any
 
-from elmo import query as q
-from elmo.api.client import ElmoClient
-from elmo.api.exceptions import CredentialError
-from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from homeassistant import config_entries
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import callback
 from requests.exceptions import ConnectionError, HTTPError
 
+from .api.v1 import query as q
+from .api.v1.client import ElmoClient
+from .api.v1.exceptions import CredentialError
+from .api.v1.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
 from .compat import vol
 from .const import (
     CONF_AREAS_ARM_AWAY,
