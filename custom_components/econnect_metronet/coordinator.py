@@ -17,7 +17,7 @@ from .devices import AlarmDevice
 _LOGGER = logging.getLogger(__name__)
 
 
-class AlarmCoordinator(DataUpdateCoordinator):
+class AlarmCoordinator(DataUpdateCoordinator[dict[int, Any]]):
     """Polls the alarm panel and shares its latest state with every entity of a config entry."""
 
     config_entry: ConfigEntry
@@ -36,7 +36,7 @@ class AlarmCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=scan_interval),
         )
 
-    async def _async_update_data(self) -> dict[str, Any]:
+    async def _async_update_data(self) -> dict[int, Any]:
         """Update device data asynchronously using the long-polling method.
 
         This method uses the e-Connect long-polling API implemented in `device.has_updates` which

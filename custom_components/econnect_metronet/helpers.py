@@ -2,13 +2,14 @@
 
 import logging
 
-import voluptuous as vol
 from elmo.api.exceptions import CodeError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_USERNAME
 from homeassistant.helpers.config_validation import multi_select
 from homeassistant.util import slugify
+from requests.exceptions import HTTPError
 
+from .compat import vol
 from .const import CONF_SYSTEM_NAME, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -29,12 +30,12 @@ class select(multi_select):
         allowed_values (set): A set of valid values (identifiers) that can be selected.
     """
 
-    def __init__(self, options: list[tuple]) -> None:
+    def __init__(self, options: list[tuple[int, str]]) -> None:
         """Create a validator that accepts only the identifiers in `options`."""
         self.options = options
         self.allowed_values = {option[0] for option in options}
 
-    def __call__(self, selected: list) -> list:
+    def __call__(self, selected: list[int]) -> list[int]:
         """Validates the input list against the allowed values for selection.
 
         Args:
@@ -89,7 +90,7 @@ def generate_entity_id(platform: str, config: ConfigEntry, name: str | None = No
     return f"{platform}.{DOMAIN}_{entity_name}"
 
 
-def split_code(code: str) -> tuple[str, str]:
+def split_code(code: str | None) -> tuple[str, str]:
     """Splits the given code into two parts: user ID and code.
 
     The function returns a tuple containing the user ID and the code as separate strings.
@@ -118,3 +119,11 @@ def split_code(code: str) -> tuple[str, str]:
         raise CodeError("Both user ID and code must be numbers.")
 
     return user_id_part, code_part
+
+
+def http_error_body(err: HTTPError) -> str:
+    """Return the body of the response an `HTTPError` was raised for.
+
+    Falls back to the error itself when it carries no response.
+    """
+    return err.response.text if err.response is not None else str(err)

@@ -1,8 +1,11 @@
 """Stateful model of an alarm panel on top of the e-Connect/Metronet client."""
 
 import logging
+from collections.abc import Iterator, Mapping
+from typing import TYPE_CHECKING, Any
 
 from elmo import query as q
+from elmo.api.client import ElmoClient
 from elmo.api.exceptions import (
     CodeError,
     CommandError,
@@ -22,7 +25,10 @@ from .const import (
     CONF_MANAGE_SECTORS,
     NOTIFICATION_MESSAGE,
 )
-from .helpers import split_code
+from .helpers import http_error_body, split_code
+
+if TYPE_CHECKING:
+    from .binary_sensor import SectorBinarySensor
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,7 +49,7 @@ class AlarmDevice:
         print(device.state)
     """
 
-    def __init__(self, connection, config=None):
+    def __init__(self, connection: ElmoClient, config: Mapping[str, Any] | None = None) -> None:
         """Create a disconnected device.
 
         Args:
@@ -53,10 +59,10 @@ class AlarmDevice:
         """
         # Configuration and internals
         self.connected = False
-        self._inventory = {}
-        self._sectors = {}
+        self._inventory: dict[int, Any] = {}
+        self._sectors: dict[str, int] = {}
         self._connection = connection
-        self._last_ids = {
+        self._last_ids: dict[int, int] = {
             q.SECTORS: 0,
             q.INPUTS: 0,
             q.OUTPUTS: 0,
@@ -65,27 +71,28 @@ class AlarmDevice:
 
         # Load user configuration
         config = config or {}
-        self._managed_sectors = config.get(CONF_MANAGE_SECTORS) or []
-        self._sectors_away = config.get(CONF_AREAS_ARM_AWAY) or []
-        self._sectors_home = config.get(CONF_AREAS_ARM_HOME) or []
-        self._sectors_night = config.get(CONF_AREAS_ARM_NIGHT) or []
-        self._sectors_vacation = config.get(CONF_AREAS_ARM_VACATION) or []
+        self._managed_sectors: list[int] = config.get(CONF_MANAGE_SECTORS) or []
+        self._sectors_away: list[int] = config.get(CONF_AREAS_ARM_AWAY) or []
+        self._sectors_home: list[int] = config.get(CONF_AREAS_ARM_HOME) or []
+        self._sectors_night: list[int] = config.get(CONF_AREAS_ARM_NIGHT) or []
+        self._sectors_vacation: list[int] = config.get(CONF_AREAS_ARM_VACATION) or []
 
         # Alarm state
-        self.state = None
+        self.state: AlarmControlPanelState | None = None
 
-    def _register_sector(self, entity):
+    def _register_sector(self, entity: "SectorBinarySensor") -> None:
         """Register a sector entity in the device's internal inventory."""
         entity_id = entity.entity_id.split(".")[1]
         self._sectors[entity_id] = self._inventory[q.SECTORS][entity._sector_id]["element"]
 
     @property
-    def panel(self):
+    def panel(self) -> dict[str, Any]:
         """Return the panel status."""
-        return self._inventory.get(q.PANEL, {})
+        panel: dict[str, Any] = self._inventory.get(q.PANEL, {})
+        return panel
 
     @property
-    def inputs(self):
+    def inputs(self) -> Iterator[tuple[int, str]]:
         """Iterate over the device's inventory of inputs.
 
         This property provides an iterator over the device's inventory, where each item is a tuple
@@ -103,7 +110,7 @@ class AlarmDevice:
             yield input_id, item["name"]
 
     @property
-    def outputs(self):
+    def outputs(self) -> Iterator[tuple[int, str]]:
         """Iterate over the device's inventory of outputs.
 
         This property provides an iterator over the device's inventory, where each item is a tuple
@@ -121,7 +128,7 @@ class AlarmDevice:
             yield input_id, item["name"]
 
     @property
-    def sectors(self):
+    def sectors(self) -> Iterator[tuple[int, str]]:
         """Iterate over the device's inventory of sectors.
 
         This property provides an iterator over the device's inventory, where each item is a tuple
@@ -139,7 +146,7 @@ class AlarmDevice:
             yield sector_id, item["name"]
 
     @property
-    def alerts(self):
+    def alerts(self) -> Iterator[tuple[int, str]]:
         """Iterate over the device's inventory of alerts.
 
         This property provides an iterator over the device's inventory, where each item is a tuple
@@ -156,7 +163,7 @@ class AlarmDevice:
         for alert_id, item in self._inventory.get(q.ALERTS, {}).items():
             yield alert_id, item["name"]
 
-    def items(self, query, status=None):
+    def items(self, query: int, status: bool | int | None = None) -> Iterator[tuple[int, dict[str, Any]]]:
         """Iterate over items from the device's inventory based on a query and optional status filter.
 
         This method provides an iterator over the items in the device's inventory that match the given query.
@@ -180,7 +187,7 @@ class AlarmDevice:
             if status is None or item.get("status") == status:
                 yield item_id, item
 
-    def connect(self, username, password):
+    def connect(self, username: str, password: str) -> None:
         """Log in to the e-Connect backend and retrieve an access token.
 
         This method stores the `session_id` within the `ElmoClient` object
@@ -199,7 +206,7 @@ class AlarmDevice:
             _LOGGER.error(f"Device | Username or password are not correct: {err}")
             raise
 
-    def has_updates(self):
+    def has_updates(self) -> dict[str, Any]:
         """Check if there have been any updates using the established connection.
 
         This method uses the connection to detect possible changes. It's a blocking
@@ -216,11 +223,11 @@ class AlarmDevice:
         """
         try:
             self._connection.query(q.ALERTS)
-            data = self._connection.poll({key: value for key, value in self._last_ids.items()})
+            data: dict[str, Any] = self._connection.poll({key: value for key, value in self._last_ids.items()})
             self.connected = True
             return data
         except HTTPError as err:
-            _LOGGER.error(f"Device | Error while polling for updates: {err.response.text}")
+            _LOGGER.error(f"Device | Error while polling for updates: {http_error_body(err)}")
             raise
         except ParseError as err:
             _LOGGER.error(f"Device | Error parsing the poll response: {err}")
@@ -229,7 +236,7 @@ class AlarmDevice:
             self.connected = False
             raise
 
-    def get_state(self):
+    def get_state(self) -> AlarmControlPanelState:
         """Determine the alarm state based on the armed sectors.
 
         This method evaluates the armed sectors and maps them to predefined
@@ -280,9 +287,10 @@ class AlarmDevice:
             # NOTE: we should turn on the sensor (alert) if the device is not connected, hence the `not`
             return not self.connected
 
-        return self._inventory[query][id]["status"]
+        status: bool | int = self._inventory[query][id]["status"]
+        return status
 
-    def update(self):
+    def update(self) -> dict[int, Any]:
         """Updates the internal state of the device based on the latest data.
 
         This method performs the following actions:
@@ -310,7 +318,7 @@ class AlarmDevice:
             alerts = self._connection.query(q.ALERTS)
             panel = self._connection.query(q.PANEL)
         except HTTPError as err:
-            _LOGGER.error(f"Device | Error during the update: {err.response.text}")
+            _LOGGER.error(f"Device | Error during the update: {http_error_body(err)}")
             raise
         except ParseError as err:
             _LOGGER.error(f"Device | Error during the update: {err}")
@@ -354,7 +362,7 @@ class AlarmDevice:
 
         return self._inventory
 
-    def arm(self, code, sectors=None):
+    def arm(self, code: str | None, sectors: list[int] | None = None) -> None:
         """Arm the given sectors, or every sector when `sectors` is None.
 
         Args:
@@ -369,6 +377,7 @@ class AlarmDevice:
         """
         try:
             # Detect if the user is trying to arm a system that requires a user ID
+            user_id: int | str
             if not self.panel.get("login_without_user_id", True):
                 user_id, code = split_code(code)
             else:
@@ -377,7 +386,7 @@ class AlarmDevice:
             with self._connection.lock(code, user_id=user_id):
                 self._connection.arm(sectors=sectors)
         except HTTPError as err:
-            _LOGGER.error(f"Device | Error while arming the system: {err.response.text}")
+            _LOGGER.error(f"Device | Error while arming the system: {http_error_body(err)}")
             raise
         except LockError as err:
             _LOGGER.error(f"Device | Error while acquiring the system lock: {err}")
@@ -389,7 +398,7 @@ class AlarmDevice:
             _LOGGER.error(f"Device | Error while arming the system: {err}")
             raise
 
-    def disarm(self, code, sectors=None):
+    def disarm(self, code: str | None, sectors: list[int] | None = None) -> None:
         """Disarm the given sectors, or every armed sector when `sectors` is None.
 
         Args:
@@ -404,6 +413,7 @@ class AlarmDevice:
         """
         try:
             # Detect if the user is trying to arm a system that requires a user ID
+            user_id: int | str
             if not self.panel.get("login_without_user_id", True):
                 user_id, code = split_code(code)
             else:
@@ -416,7 +426,7 @@ class AlarmDevice:
             with self._connection.lock(code, user_id=user_id):
                 self._connection.disarm(sectors=sectors)
         except HTTPError as err:
-            _LOGGER.error(f"Device | Error while disarming the system: {err.response.text}")
+            _LOGGER.error(f"Device | Error while disarming the system: {http_error_body(err)}")
             raise
         except LockError as err:
             _LOGGER.error(f"Device | Error while acquiring the system lock: {err}")
@@ -428,7 +438,7 @@ class AlarmDevice:
             _LOGGER.error(f"Device | Error while disarming the system: {err}")
             raise
 
-    def turn_off(self, output):
+    def turn_off(self, output: int) -> bool:
         """Turn off a specified output.
 
         Args:
@@ -472,14 +482,14 @@ class AlarmDevice:
                 self._connection.turn_off(element_id)
                 return True
             except HTTPError as err:
-                _LOGGER.error(f"Device | Error while turning off output: {err.response.text}")
+                _LOGGER.error(f"Device | Error while turning off output: {http_error_body(err)}")
                 raise
             except CommandError as err:
                 _LOGGER.error(f"Device | Error while turning off output: {err}")
                 raise
         return False
 
-    def turn_on(self, output):
+    def turn_on(self, output: int) -> bool:
         """Turn on a specified output.
 
         Args:
@@ -523,7 +533,7 @@ class AlarmDevice:
                 self._connection.turn_on(element_id)
                 return True
             except HTTPError as err:
-                _LOGGER.error(f"Device | Error while turning on outputs: {err.response.text}")
+                _LOGGER.error(f"Device | Error while turning on outputs: {http_error_body(err)}")
                 raise
             except CommandError as err:
                 _LOGGER.error(f"Device | Error while turning on outputs: {err}")

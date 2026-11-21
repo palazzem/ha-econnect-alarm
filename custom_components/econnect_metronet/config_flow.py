@@ -1,8 +1,8 @@
 """Config and options flows that set up an e-Connect/Metronet alarm panel."""
 
 import logging
+from typing import Any
 
-import voluptuous as vol
 from elmo import query as q
 from elmo.api.client import ElmoClient
 from elmo.api.exceptions import CredentialError
@@ -12,6 +12,7 @@ from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import callback
 from requests.exceptions import ConnectionError, HTTPError
 
+from .compat import vol
 from .const import (
     CONF_AREAS_ARM_AWAY,
     CONF_AREAS_ARM_HOME,
@@ -30,7 +31,7 @@ from .helpers import select
 _LOGGER = logging.getLogger(__name__)
 
 
-class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore
+class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for E-connect Alarm."""
 
     VERSION = 3
@@ -38,13 +39,13 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry):
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> config_entries.OptionsFlow:
         """Implement OptionsFlow."""
         return OptionsFlowHandler(config_entry)
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
         """Handle the initial configuration."""
-        errors = {}
+        errors: dict[str, str] = {}
         if user_input is not None:
             try:
                 # Validate credentials
@@ -57,9 +58,10 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
             except CredentialError:
                 errors["base"] = "invalid_auth"
             except HTTPError as err:
-                if 400 <= err.response.status_code <= 499:
+                status = err.response.status_code if err.response is not None else 0
+                if 400 <= status <= 499:
                     errors["base"] = "client_error"
-                elif 500 <= err.response.status_code <= 599:
+                elif 500 <= status <= 599:
                     errors["base"] = "server_error"
                 else:
                     _LOGGER.error("Unexpected exception %s", err)
@@ -118,9 +120,9 @@ class OptionsFlowHandler(config_entries.OptionsFlowWithConfigEntry):
         """Construct."""
         super().__init__(config_entry)
 
-    async def async_step_init(self, user_input=None):
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
         """Manage the options."""
-        errors = {}
+        errors: dict[str, str] = {}
         if user_input is not None:
             return self.async_create_entry(title="e-Connect/Metronet Alarm", data=user_input)
 
