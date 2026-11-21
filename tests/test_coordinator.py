@@ -8,7 +8,7 @@ from custom_components.econnect_metronet.api.v1.exceptions import CredentialErro
 from custom_components.econnect_metronet.coordinator import AlarmCoordinator
 from custom_components.econnect_metronet.devices import AlarmDevice
 
-CONNECTION_RESET = {"last_id": 1, "sectors": {}, "inputs": {}, "outputs": {}, "alerts": {}, "panel": {}}
+CONNECTION_RESET = {"last_id": 1}
 
 
 def test_coordinator_constructor(hass, config_entry, alarm_device):
