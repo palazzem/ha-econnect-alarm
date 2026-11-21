@@ -62,8 +62,8 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ign
                 else:
                     _LOGGER.error("Unexpected exception %s", err)
                     errors["base"] = "unknown"
-            except Exception as err:  # pylint: disable=broad-except
-                _LOGGER.error("Unexpected exception %s", err)
+            except Exception:
+                _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
             else:
                 return self.async_create_entry(title="e-Connect/Metronet Alarm", data=user_input)
