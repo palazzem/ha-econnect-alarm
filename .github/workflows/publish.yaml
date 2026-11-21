@@ -5,27 +5,31 @@ on:
     types:
       - published
 
+permissions:
+  contents: read
+
 concurrency:
-  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
-  cancel-in-progress: true
+  group: '${{ github.workflow }} @ ${{ github.ref }}'
+  cancel-in-progress: false
 
 jobs:
   release:
     name: HACS release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
-      contents: write
+      contents: write # Upload the HACS package to the release.
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v4
+      - name: Check out repository code
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Build release package (HACS)
-        run: |
-          cd ${{ github.workspace }}/custom_components/econnect_metronet
-          zip hacs_econnect_metronet.zip -r ./
+        working-directory: custom_components/econnect_metronet
+        run: zip hacs_econnect_metronet.zip -r ./
 
       - name: Upload release packages
-        uses: softprops/action-gh-release@v0.1.15
-        with:
-          files: |
-            ${{ github.workspace }}/custom_components/econnect_metronet/hacs_econnect_metronet.zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" custom_components/econnect_metronet/hacs_econnect_metronet.zip
