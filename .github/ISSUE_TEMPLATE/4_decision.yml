@@ -1,0 +1,29 @@
+name: Decision needed
+description: A question maintainers must answer before work can go on.
+labels: ["type:question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For help with your setup, ask on [Discord](https://discord.gg/NSmAPWw8tE) instead.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: The decision to make, as one question.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and examples
+      description: What depends on the answer, with concrete cases.
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options
+      description: Each option with what it changes and its outcome, including the green-field option. End with the recommended one and why.
+    validations:
+      required: true
