@@ -1,4 +1,4 @@
-"""Module for e-connect sensors (alert) """
+"""Module for e-connect sensors (alert)"""
 
 from elmo import query as q
 from homeassistant.components.sensor import SensorEntity

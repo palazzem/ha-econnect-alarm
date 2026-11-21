@@ -1,5 +1,4 @@
 import logging
-from typing import List, Tuple, Union
 
 import voluptuous as vol
 from elmo.api.exceptions import CodeError
@@ -28,7 +27,7 @@ class select(multi_select):
         allowed_values (set): A set of valid values (identifiers) that can be selected.
     """
 
-    def __init__(self, options: List[Tuple]) -> None:
+    def __init__(self, options: list[tuple]) -> None:
         self.options = options
         self.allowed_values = {option[0] for option in options}
 
@@ -56,7 +55,7 @@ class select(multi_select):
         return selected
 
 
-def generate_entity_id(platform: str, config: ConfigEntry, name: Union[str, None] = None) -> str:
+def generate_entity_id(platform: str, config: ConfigEntry, name: str | None = None) -> str:
     """Generate an entity ID based on system configuration or username.
 
     Args:
@@ -87,7 +86,7 @@ def generate_entity_id(platform: str, config: ConfigEntry, name: Union[str, None
     return f"{platform}.{DOMAIN}_{entity_name}"
 
 
-def split_code(code: str) -> Tuple[str, str]:
+def split_code(code: str) -> tuple[str, str]:
     """Splits the given code into two parts: user ID and code.
 
     The function returns a tuple containing the user ID and the code as separate strings.

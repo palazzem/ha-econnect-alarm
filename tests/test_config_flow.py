@@ -16,9 +16,9 @@ async def test_form_fields(hass):
     assert form["type"] == "form"
     assert form["step_id"] == "user"
     assert form["errors"] == {}
-    assert form["data_schema"].schema["username"] == str
-    assert form["data_schema"].schema["password"] == str
-    assert form["data_schema"].schema["domain"] == str
+    assert form["data_schema"].schema["username"] is str
+    assert form["data_schema"].schema["password"] is str
+    assert form["data_schema"].schema["domain"] is str
 
 
 async def test_form_submit_successful_with_input(hass, mocker):
@@ -110,10 +110,11 @@ async def test_form_submit_required_fields(hass, mocker):
     with pytest.raises(InvalidData) as excinfo:
         await hass.config_entries.flow.async_configure(form["flow_id"], {})
     await hass.async_block_till_done()
+    missing = "required key not provided"
     assert len(excinfo.value.schema_errors) == 3
-    assert excinfo.value.schema_errors["username"] == "required key not provided"
-    assert excinfo.value.schema_errors["password"] == "required key not provided"
-    assert excinfo.value.schema_errors["domain"] == "required key not provided"
+    assert excinfo.value.schema_errors["username"] == missing
+    assert excinfo.value.schema_errors["password"] == missing
+    assert excinfo.value.schema_errors["domain"] == missing
 
 
 async def test_form_submit_wrong_credential(hass, mocker):
