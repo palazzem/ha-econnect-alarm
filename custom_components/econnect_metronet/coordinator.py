@@ -6,6 +6,7 @@ from typing import Any
 
 import async_timeout
 from elmo.api.exceptions import DeviceDisconnectedError, InvalidToken
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -19,8 +20,10 @@ _LOGGER = logging.getLogger(__name__)
 class AlarmCoordinator(DataUpdateCoordinator):
     """Polls the alarm panel and shares its latest state with every entity of a config entry."""
 
-    def __init__(self, hass: HomeAssistant, device: AlarmDevice, scan_interval: int) -> None:
-        """Create a coordinator that refreshes `device` every `scan_interval` seconds."""
+    config_entry: ConfigEntry
+
+    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry, device: AlarmDevice, scan_interval: int) -> None:
+        """Create a coordinator that refreshes `device` of `config_entry` every `scan_interval` seconds."""
         # Store the device to update the state
         self._device = device
 
@@ -28,11 +31,12 @@ class AlarmCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass,
             _LOGGER,
+            config_entry=config_entry,
             name=DOMAIN,
             update_interval=timedelta(seconds=scan_interval),
         )
 
-    async def _async_update_data(self) -> dict[str, Any] | None:
+    async def _async_update_data(self) -> dict[str, Any]:
         """Update device data asynchronously using the long-polling method.
 
         This method uses the e-Connect long-polling API implemented in `device.has_updates` which

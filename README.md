@@ -203,6 +203,7 @@ Consistency is crucial as it helps readability, reduces errors, and facilitates 
 
 To ensure that every commit adheres to our coding standards, we've integrated [pre-commit hooks][3].
 These hooks run before each commit, ensuring that all code changes are automatically checked and formatted.
+mypy needs Home Assistant installed, so it runs in tox instead: `tox -e typing`.
 
 For details on how to set up your development environment to make use of these hooks, please refer to the
 [Development][4] section of our documentation.

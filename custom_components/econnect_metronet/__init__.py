@@ -110,7 +110,7 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry) -> bool:
     scan_interval = config.options.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL_DEFAULT)
     client = ElmoClient(config.data[CONF_SYSTEM_URL], config.data[CONF_DOMAIN])
     device = AlarmDevice(client, {**config.options, **experimental})
-    coordinator = AlarmCoordinator(hass, device, scan_interval)
+    coordinator = AlarmCoordinator(hass, config, device, scan_interval)
     await coordinator.async_config_entry_first_refresh()
 
     # Store an AlarmDevice instance to access the cloud service.

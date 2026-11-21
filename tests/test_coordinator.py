@@ -8,9 +8,9 @@ from requests.exceptions import HTTPError
 from custom_components.econnect_metronet.coordinator import AlarmCoordinator
 
 
-def test_coordinator_constructor(hass, alarm_device):
+def test_coordinator_constructor(hass, config_entry, alarm_device):
     # Ensure that the coordinator is initialized correctly
-    coordinator = AlarmCoordinator(hass, alarm_device, 42)
+    coordinator = AlarmCoordinator(hass, config_entry, alarm_device, 42)
     assert coordinator.name == "econnect_metronet"
     assert coordinator.update_interval == timedelta(seconds=42)
     assert coordinator._device is alarm_device
