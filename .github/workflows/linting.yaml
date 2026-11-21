@@ -35,5 +35,5 @@ jobs:
       - name: Install required tools
         run: pip install pip==26.3 tox==4.67.15
 
-      - name: Lint codebase
-        run: tox -e lint
+      - name: Lint and type-check
+        run: tox -e lint,typing

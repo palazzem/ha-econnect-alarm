@@ -16,10 +16,8 @@ concurrency:
 
 jobs:
   econnect:
-    name: Type-check and test
+    name: Test
     runs-on: ubuntu-24.04
-    env:
-      TOX_SKIP_ENV: lint
 
     steps:
       - name: Check out repository code
@@ -37,8 +35,8 @@ jobs:
       - name: Install required tools
         run: pip install pip==26.3 tox==4.67.15
 
-      - name: Test with tox environments
-        run: tox
+      - name: Test with tox
+        run: tox -e py
 
       - name: Update Coveralls report
         # coverallsapp/github-action v2.3.8
