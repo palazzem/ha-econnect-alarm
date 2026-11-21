@@ -1,4 +1,6 @@
+import gc
 import logging
+import weakref
 
 import pytest
 import responses
@@ -1850,6 +1852,19 @@ def test_client_get_descriptions_cached(server):
     client._get_descriptions()
     client._get_descriptions()
     assert len(server.calls) == 1
+
+
+def test_client_get_descriptions_cache_releases_client(server):
+    """Should not keep a discarded client alive through the descriptions cache."""
+    server.add(responses.POST, "https://example.com/api/strings", body=r.STRINGS, status=200)
+    client = ElmoClient(base_url="https://example.com", domain="domain")
+    client._session_id = "test"
+    client._get_descriptions()
+    ref = weakref.ref(client)
+    # Test
+    del client
+    gc.collect()
+    assert ref() is None
 
 
 def test_client_get_descriptions_unauthorized(server):

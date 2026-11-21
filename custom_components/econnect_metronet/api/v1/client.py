@@ -4,7 +4,6 @@ import copy
 import logging
 from collections.abc import Iterable, Iterator, Mapping
 from contextlib import contextmanager
-from functools import lru_cache
 from threading import Lock
 from typing import Any, Self
 
@@ -73,6 +72,7 @@ class ElmoClient:
         self._session = Session()
         self._session_id = session_id
         self._panel: dict[str, Any] | None = None
+        self._descriptions: dict[int, dict[int, str]] | None = None
         self._lock = Lock()
 
         # Web login is required for E-Connect and Metronet because, at the moment, the
@@ -614,7 +614,6 @@ class ElmoClient:
         _LOGGER.debug(f"Client | Turning on successful with response: {body}")
         return True
 
-    @lru_cache(maxsize=1)
     @require_session
     def _get_descriptions(self) -> dict[int, dict[int, str]]:
         """Retrieve Sectors and Inputs names to map `Class` and `Index` into a human readable description.
@@ -629,6 +628,9 @@ class ElmoClient:
             A dictionary having `Class` as key, and a dictionary of strings (`Index`)
             as a value, to map sectors and inputs names.
         """
+        if self._descriptions is not None:
+            return self._descriptions
+
         payload = {"sessionId": self._session_id}
         response = self._session.post(self._router.descriptions, data=payload)
         response.raise_for_status()
@@ -643,6 +645,7 @@ class ElmoClient:
             descriptions[item["Class"]] = classes
 
         _LOGGER.debug(f"Client | Descriptions retrieved (in-cache): {descriptions}")
+        self._descriptions = descriptions
         return descriptions
 
     @require_session
