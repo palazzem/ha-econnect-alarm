@@ -231,3 +231,10 @@ tox
 
 **Note**: To use `tox` effectively, ensure you have all the necessary Python versions installed. If any
 versions are missing, `tox` will provide relevant warnings.
+
+To reproduce a field bug, write a scenario in `tests/scenarios`: a sequence of steps stating what the e-Connect cloud
+answers, cycle by cycle, run against the integration inside a real Home Assistant. A failing scenario prints the
+timeline of every cycle. Run one while writing it with:
+```bash
+venv/bin/pytest tests/scenarios -k <name>
+```
