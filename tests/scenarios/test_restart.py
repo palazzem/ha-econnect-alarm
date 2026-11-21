@@ -36,6 +36,7 @@ async def test_entities_recover_after_a_restart_while_the_panel_is_offline(scena
             cycles=2,
             reload=True,
             replies=PANEL_OFFLINE,
+            expect=Expect(unavailable=["*"], entry_state=ConfigEntryState.SETUP_RETRY),
         ),
         Step("panel back", cycles=5, expect=Expect(at_baseline=["*"], entry_state=ConfigEntryState.LOADED)),
     )
@@ -48,6 +49,7 @@ async def test_entities_recover_after_a_restart_while_the_cloud_reports_reset_id
             cycles=2,
             reload=True,
             replies={Endpoint.AREAS: IDS_RESET, Endpoint.INPUTS: IDS_RESET, Endpoint.OUTPUTS: IDS_RESET},
+            expect=Expect(unavailable=["*"], entry_state=ConfigEntryState.SETUP_RETRY),
         ),
         Step("ids grow again", cycles=5, expect=Expect(at_baseline=["*"], entry_state=ConfigEntryState.LOADED)),
     )
