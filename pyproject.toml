@@ -98,3 +98,8 @@ omit = [
 [tool.mypy]
 files = ["custom_components", "tests/scenarios/runner"]
 strict = true
+
+[[tool.mypy.overrides]]
+# Home Assistant's test fixtures ship no `py.typed`; mypy reads their source instead.
+module = ["pytest_homeassistant", "pytest_homeassistant.*"]
+follow_untyped_imports = true
