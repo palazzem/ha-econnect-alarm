@@ -39,16 +39,19 @@ The title should adhere to the structure below:
 <type>[optional scope]: <description>
 ```
 
-The common types are:
-- `feat` (enhancements)
-- `fix` (bug fixes)
-- `docs` (documentation changes)
-- `perf` (performance improvements)
-- `refactor` (major code refactorings)
-- `tests` (changes to tests)
-- `tools` (changes to package spec or tools in general)
-- `ci` (changes to our CI)
-- `deps` (changes to dependencies)
+The types are:
+- `feat` (a new capability for users)
+- `fix` (a bug fix)
+- `docs` (documentation only)
+- `style` (formatting, docstrings, or comments, with no code change)
+- `refactor` (a code change that neither fixes a bug nor adds a feature)
+- `perf` (a performance improvement)
+- `test` (adding or changing tests only)
+- `build` (packaging, dependencies, and development tools such as pre-commit and tox)
+- `ci` (the GitHub workflows and their configuration)
+- `chore` (maintenance that fits no other type)
+- `revert` (reverts an earlier commit)
+- `release` (bumps the version for a release)
 
 If your change breaks backwards compatibility, indicate so by adding `!` after the type.
 
