@@ -39,10 +39,10 @@ jobs:
         run: hatch -v build -t sdist
 
       - name: Log package content
-        run: tar -tvf dist/econnect_metronet-$PKG_VERSION.tar.gz
+        run: tar -tvf "dist/econnect_metronet-$PKG_VERSION.tar.gz"
 
       - name: Install the package
-        run: pip install dist/econnect_metronet-$PKG_VERSION.tar.gz
+        run: pip install "dist/econnect_metronet-$PKG_VERSION.tar.gz"
 
       - name: Test if the package is built correctly
         run: python -c "import custom_components.econnect_metronet"
