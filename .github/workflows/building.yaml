@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build the HACS package
+    name: Build the Python package
     runs-on: ubuntu-24.04
 
     steps:
