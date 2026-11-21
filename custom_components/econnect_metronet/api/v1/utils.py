@@ -7,7 +7,7 @@ from .exceptions import ParseError
 _LOGGER = logging.getLogger(__name__)
 
 
-def _sanitize_session_id(session_id):
+def _sanitize_session_id(session_id: str) -> str:
     """Obfuscates a session ID, preserving the first 8 characters and dashes.
 
     This function retains the first 8 characters of the given session ID, and replaces
@@ -24,7 +24,7 @@ def _sanitize_session_id(session_id):
 
 
 @lru_cache(maxsize=42)
-def _camel_to_snake_case(name):
+def _camel_to_snake_case(name: str) -> str:
     """Convert a CamelCase string to snake_case.
 
     This function implements an LRU cache to avoid doing the operation multiple times. As

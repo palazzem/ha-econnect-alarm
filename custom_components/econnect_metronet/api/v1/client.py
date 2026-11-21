@@ -1,8 +1,10 @@
 import copy
 import logging
+from collections.abc import Iterable, Iterator, Mapping
 from contextlib import contextmanager
 from functools import lru_cache
 from threading import Lock
+from typing import Any, Self
 
 from requests import Session
 from requests.exceptions import HTTPError
@@ -52,21 +54,20 @@ class ElmoClient:
             c.disarm()  # Disarm all alarms
     """
 
-    def __init__(self, base_url=None, domain=None, session_id=None):
+    def __init__(self, base_url: str | None = None, domain: str | None = None, session_id: str | None = None) -> None:
         self._router = Router(base_url)
         self._domain = domain
         self._session = Session()
         self._session_id = session_id
-        self._panel = None
+        self._panel: dict[str, Any] | None = None
         self._lock = Lock()
 
         # Web login is required for E-Connect and Metronet because, at the moment, the
         # Cloud API login does not register the client session in their backend, causing
         # updates to be not received by the client during the long-polling `has_updates`.
         domain_url = "" if self._domain == "default" else self._domain
-        self._web_login = base_url in [ELMO_E_CONNECT, IESS_METRONET]
         if base_url == ELMO_E_CONNECT:
-            self._web_login_url = f"{ELMO_E_CONNECT_WEB_LOGIN}/{domain_url}"
+            self._web_login_url: str | None = f"{ELMO_E_CONNECT_WEB_LOGIN}/{domain_url}"
         elif base_url == IESS_METRONET:
             self._web_login_url = f"{IESS_METRONET_WEB_LOGIN}/{domain_url}"
         else:
@@ -77,7 +78,7 @@ class ElmoClient:
         _LOGGER.debug(f"Client | Domain: {self._domain}")
         _LOGGER.debug(f"Client | Web login URL: {self._web_login_url}")
 
-    def auth(self, username, password):
+    def auth(self, username: str, password: str) -> str:
         """Authenticate the client and retrieves the access token.
 
         This method uses the Authentication API, or the web login form if the base_url is Elmo E-Connect.
@@ -103,7 +104,7 @@ class ElmoClient:
             response.raise_for_status()
         except HTTPError as err:
             # 403: Incorrect username or password
-            if err.response.status_code == 403:
+            if err.response is not None and err.response.status_code == 403:
                 raise CredentialError from err
             raise
 
@@ -122,7 +123,7 @@ class ElmoClient:
             self._session_id = data["SessionId"]
 
         # Retrieve the session_id using the web login form
-        if self._web_login:
+        if self._web_login_url is not None:
             payload = {
                 "IsDisableAccountCreation": "True",
                 "IsAllowThemeChange": "True",
@@ -138,7 +139,7 @@ class ElmoClient:
         return self._session_id
 
     @require_session
-    def poll(self, ids):
+    def poll(self, ids: Mapping[int, int]) -> dict[str, Any]:
         """Use a long-polling API to identify when something changes in the system.
 
         Calling this method blocks the thread for 15 seconds, waiting
@@ -196,7 +197,7 @@ class ElmoClient:
 
     @contextmanager
     @require_session
-    def lock(self, code, user_id=1):
+    def lock(self, code: str | None, user_id: int | str = 1) -> Iterator[Self]:
         """Context manager to obtain a system lock.
 
         The alerting system allows only one user at a time and obtaining the lock is mandatory. When the
@@ -226,10 +227,10 @@ class ElmoClient:
             response.raise_for_status()
         except HTTPError as err:
             # 403: Unable obtain the lock (race condition with another application)
-            if err.response.status_code == 403:
+            if err.response is not None and err.response.status_code == 403:
                 raise LockError from err
             # 401: The token has expired
-            if err.response.status_code == 401:
+            if err.response is not None and err.response.status_code == 401:
                 raise InvalidToken from err
             raise
 
@@ -247,7 +248,7 @@ class ElmoClient:
 
     @require_session
     @require_lock
-    def unlock(self):
+    def unlock(self) -> bool:
         """Release the system lock so that other threads (or this instance) can acquire the lock again.
 
         This method requires a valid session ID and if called
@@ -277,7 +278,7 @@ class ElmoClient:
 
     @require_session
     @require_lock
-    def arm(self, sectors=None):
+    def arm(self, sectors: list[int] | None = None) -> bool:
         """Arm system alarms without any activation delay.
 
         This API works only if a system lock has been obtained, otherwise the action ends with a failure.
@@ -333,7 +334,7 @@ class ElmoClient:
 
     @require_session
     @require_lock
-    def disarm(self, sectors=None):
+    def disarm(self, sectors: list[int] | None = None) -> bool:
         """Disarm system alarms.
 
         This API works only if a system lock has been obtained, otherwise the action ends with a failure.
@@ -390,7 +391,7 @@ class ElmoClient:
 
     @require_session
     @require_lock
-    def exclude(self, inputs):
+    def exclude(self, inputs: Iterable[int]) -> bool:
         """Exclude passed inputs: they are not alarmed when you arm the area they belongs to.
 
         This API provides the same effects as turning them
@@ -413,7 +414,7 @@ class ElmoClient:
         Returns:
             A boolean if the input has been excluded correctly.
         """
-        payloads = []
+        payloads: list[dict[str, Any]] = []
 
         # Exclude only selected inputs
         _LOGGER.debug(f"Client | Excluding inputs: {inputs}")
@@ -428,7 +429,7 @@ class ElmoClient:
             )
 
         # Excluding multiple inputs requires multiple requests
-        errors = []
+        errors: list[int] = []
         for payload in payloads:
             response = self._session.post(self._router.send_command, data=payload)
             response.raise_for_status()
@@ -449,7 +450,7 @@ class ElmoClient:
 
     @require_session
     @require_lock
-    def include(self, inputs):
+    def include(self, inputs: Iterable[int]) -> bool:
         """Include system inputs: they are alarmed when you arm the area they belongs to.
 
         This API provides the same effects as turning them
@@ -472,7 +473,7 @@ class ElmoClient:
         Returns:
             A boolean if the input has been included correctly.
         """
-        payloads = []
+        payloads: list[dict[str, Any]] = []
 
         # Include only selected inputs
         _LOGGER.debug(f"Client | Including inputs: {inputs}")
@@ -487,7 +488,7 @@ class ElmoClient:
             )
 
         # Including multiple inputs requires multiple requests
-        errors = []
+        errors: list[int] = []
         for payload in payloads:
             response = self._session.post(self._router.send_command, data=payload)
             response.raise_for_status()
@@ -507,7 +508,7 @@ class ElmoClient:
         return True
 
     @require_session
-    def turn_on(self, outputs):
+    def turn_on(self, outputs: int | list[int]) -> bool:
         """Turn on passed outputs.
 
         This API provides the same effects as turning them
@@ -554,7 +555,7 @@ class ElmoClient:
         return True
 
     @require_session
-    def turn_off(self, outputs):
+    def turn_off(self, outputs: int | list[int]) -> bool:
         """Turn off passed outputs.
 
         This API provides the same effects as turning them
@@ -602,7 +603,7 @@ class ElmoClient:
 
     @lru_cache(maxsize=1)
     @require_session
-    def _get_descriptions(self):
+    def _get_descriptions(self) -> dict[int, dict[int, str]]:
         """Retrieve Sectors and Inputs names to map `Class` and `Index` into a human readable description.
 
         This method calls the E-Connect API, but the
@@ -620,7 +621,7 @@ class ElmoClient:
         response.raise_for_status()
 
         # Transform the list of items in a dict -> dict of strings
-        descriptions = {}
+        descriptions: dict[int, dict[int, str]] = {}
         items = response.json()
         _LOGGER.debug(f"Client | Descriptions response: {items}")
         for item in items:
@@ -632,7 +633,7 @@ class ElmoClient:
         return descriptions
 
     @require_session
-    def query(self, query):
+    def query(self, query: int) -> dict[str, Any]:
         """Query an Elmo System to retrieve registered entries.
 
         It's possible to query different part of the system using the
@@ -688,7 +689,11 @@ class ElmoClient:
             response.raise_for_status()
         except HTTPError as err:
             # Handle the case when the device is disconnected
-            if err.response.status_code == 403 and "Centrale non connessa" in err.response.text:
+            if (
+                err.response is not None
+                and err.response.status_code == 403
+                and "Centrale non connessa" in err.response.text
+            ):
                 raise DeviceDisconnectedError from err
             raise
 
@@ -702,7 +707,7 @@ class ElmoClient:
             # are never excluded.
             entries = response.json()
             _LOGGER.debug(f"Client | Query response: {entries}")
-            items = {}
+            items: dict[int, dict[str, Any]] = {}
 
             try:
                 # Determine the last_id by finding the maximum Id in the list

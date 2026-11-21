@@ -51,7 +51,7 @@ class EconnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 # Validate credentials
                 client = ElmoClient(user_input.get(CONF_SYSTEM_URL), domain=user_input.get(CONF_DOMAIN))
                 await self.hass.async_add_executor_job(
-                    client.auth, user_input.get(CONF_USERNAME), user_input.get(CONF_PASSWORD)
+                    client.auth, user_input[CONF_USERNAME], user_input[CONF_PASSWORD]
                 )
             except ConnectionError:
                 errors["base"] = "cannot_connect"

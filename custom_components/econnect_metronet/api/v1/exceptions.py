@@ -3,10 +3,10 @@ class BaseException(Exception):
 
     default_message = "BaseException."
 
-    def __init__(self, message=None):
+    def __init__(self, message: str | None = None) -> None:
         self.message = message or self.default_message
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.message)
 
 

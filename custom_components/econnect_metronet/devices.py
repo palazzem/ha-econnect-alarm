@@ -478,7 +478,7 @@ class AlarmDevice:
                 break
 
             try:
-                element_id = item.get("element")
+                element_id = item["element"]
                 self._connection.turn_off(element_id)
                 return True
             except HTTPError as err:
@@ -529,7 +529,7 @@ class AlarmDevice:
                 break
 
             try:
-                element_id = item.get("element")
+                element_id = item["element"]
                 self._connection.turn_on(element_id)
                 return True
             except HTTPError as err:
