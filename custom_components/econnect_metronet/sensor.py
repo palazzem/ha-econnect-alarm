@@ -1,4 +1,4 @@
-"""Module for e-connect sensors (alert)"""
+"""Module for e-connect sensors (alert)."""
 
 from elmo import query as q
 from homeassistant.components.sensor import SensorEntity
@@ -45,7 +45,7 @@ async def async_setup_entry(
 
 
 class AlertSensor(CoordinatorEntity, SensorEntity):
-    """Representation of a e-Connect alert sensor"""
+    """Representation of a e-Connect alert sensor."""
 
     _attr_has_entity_name = True
 
@@ -87,4 +87,5 @@ class AlertSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self) -> int | None:
+        """Return the alert status the panel last reported."""
         return self._device.get_status(q.ALERTS, self._alert_id)

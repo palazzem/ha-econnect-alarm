@@ -1,3 +1,5 @@
+"""Switch entities for the outputs of the alarm panel."""
+
 from elmo import query as q
 from homeassistant.components import persistent_notification
 from homeassistant.components.switch import SwitchEntity
@@ -29,6 +31,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    """Add one switch for each output of the panel of `entry`."""
     device = hass.data[DOMAIN][entry.entry_id][KEY_DEVICE]
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
     outputs = []
@@ -95,7 +98,7 @@ class OutputSwitch(CoordinatorEntity, SwitchEntity):
             )
 
     async def async_turn_on(self):
-        """Turn the entity off."""
+        """Turn the entity on."""
         if not await self.hass.async_add_executor_job(self._device.turn_on, self._output_id):  # pragma: no cover
             persistent_notification.async_create(
                 self.hass, NOTIFICATION_MESSAGE, NOTIFICATION_TITLE, NOTIFICATION_IDENTIFIER

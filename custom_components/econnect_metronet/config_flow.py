@@ -1,3 +1,5 @@
+"""Config and options flows that set up an e-Connect/Metronet alarm panel."""
+
 import logging
 
 import voluptuous as vol

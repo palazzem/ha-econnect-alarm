@@ -1,3 +1,5 @@
+"""Coordinator that keeps the alarm panel state in sync with the cloud."""
+
 import logging
 from datetime import timedelta
 from typing import Any
@@ -15,7 +17,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class AlarmCoordinator(DataUpdateCoordinator):
+    """Polls the alarm panel and shares its latest state with every entity of a config entry."""
+
     def __init__(self, hass: HomeAssistant, device: AlarmDevice, scan_interval: int) -> None:
+        """Create a coordinator that refreshes `device` every `scan_interval` seconds."""
         # Store the device to update the state
         self._device = device
 
