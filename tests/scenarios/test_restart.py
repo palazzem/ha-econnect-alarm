@@ -12,6 +12,8 @@ from tests.scenarios.runner import (
     Step,
 )
 
+PANEL_OFFLINE = {ALL_ENDPOINTS: PANEL_DISCONNECTED, Endpoint.LOGIN: NORMAL}
+
 
 async def test_entities_recover_after_a_restart_while_the_network_is_down(scenario: Scenario) -> None:
     await scenario.run(
@@ -28,12 +30,12 @@ async def test_entities_recover_after_a_restart_while_the_network_is_down(scenar
 
 async def test_entities_recover_after_a_restart_while_the_panel_is_offline(scenario: Scenario) -> None:
     await scenario.run(
-        Step("panel offline", cycles=2, replies={ALL_ENDPOINTS: PANEL_DISCONNECTED, Endpoint.LOGIN: NORMAL}),
+        Step("panel offline", cycles=2, replies=PANEL_OFFLINE),
         Step(
             "restart while the panel is offline",
             cycles=2,
             reload=True,
-            replies={ALL_ENDPOINTS: PANEL_DISCONNECTED, Endpoint.LOGIN: NORMAL},
+            replies=PANEL_OFFLINE,
         ),
         Step("panel back", cycles=5, expect=Expect(at_baseline=["*"], entry_state=ConfigEntryState.LOADED)),
     )
