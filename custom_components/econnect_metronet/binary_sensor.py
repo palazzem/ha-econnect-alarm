@@ -63,7 +63,7 @@ async def async_setup_entry(
 
 
 class AlertBinarySensor(CoordinatorEntity, BinarySensorEntity):
-    """Representation of a e-Connect alert binary sensor"""
+    """Representation of a e-Connect alert binary sensor."""
 
     _attr_has_entity_name = True
 

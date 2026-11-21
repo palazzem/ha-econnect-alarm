@@ -1,3 +1,5 @@
+"""Stateful model of an alarm panel on top of the e-Connect/Metronet client."""
+
 import logging
 
 from elmo import query as q
@@ -26,8 +28,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class AlarmDevice:
-    """AlarmDevice class represents an e-connect alarm system. This method wraps around
-    a connector object (e.g. `ElmoClient`) so that the client can be stateless and just
+    """An e-Connect alarm system and the last status known for it.
+
+    It wraps a connector object (e.g. `ElmoClient`) so that the client can be stateless and just
     return data, while this class persists the status of the alarm.
 
     Usage:
@@ -41,6 +44,13 @@ class AlarmDevice:
     """
 
     def __init__(self, connection, config=None):
+        """Create a disconnected device.
+
+        Args:
+            connection: The client that talks to the e-Connect/Metronet cloud.
+            config: The options of the config entry: managed sectors and the sectors each
+                arming mode arms. Defaults to no options.
+        """
         # Configuration and internals
         self.connected = False
         self._inventory = {}
@@ -77,10 +87,13 @@ class AlarmDevice:
     @property
     def inputs(self):
         """Iterate over the device's inventory of inputs.
+
         This property provides an iterator over the device's inventory, where each item is a tuple
         containing the input's ID and its name.
+
         Yields:
             tuple: A tuple where the first item is the input ID and the second item is the input name.
+
         Example:
             >>> device = AlarmDevice()
             >>> list(device.inputs)
@@ -92,10 +105,13 @@ class AlarmDevice:
     @property
     def outputs(self):
         """Iterate over the device's inventory of outputs.
+
         This property provides an iterator over the device's inventory, where each item is a tuple
         containing the output's ID and its name.
+
         Yields:
             tuple: A tuple where the first item is the output ID and the second item is the output name.
+
         Example:
             >>> device = AlarmDevice()
             >>> list(device.outputs)
@@ -107,10 +123,13 @@ class AlarmDevice:
     @property
     def sectors(self):
         """Iterate over the device's inventory of sectors.
+
         This property provides an iterator over the device's inventory, where each item is a tuple
         containing the sectors's ID and its name.
+
         Yields:
             tuple: A tuple where the first item is the sector ID and the second item is the sector name.
+
         Example:
             >>> device = AlarmDevice()
             >>> list(device.sectors)
@@ -122,10 +141,13 @@ class AlarmDevice:
     @property
     def alerts(self):
         """Iterate over the device's inventory of alerts.
+
         This property provides an iterator over the device's inventory, where each item is a tuple
         containing the alerts's ID and its name.
+
         Yields:
             tuple: A tuple where the first item is the alert ID and the second item is the alert name.
+
         Example:
             >>> device = AlarmDevice()
             >>> list(device.alerts)
@@ -136,15 +158,19 @@ class AlarmDevice:
 
     def items(self, query, status=None):
         """Iterate over items from the device's inventory based on a query and optional status filter.
+
         This method provides an iterator over the items in the device's inventory that match the given query.
         If a status is provided, only items with that status will be yielded.
+
         Args:
             query (str): The query string to match against items in the inventory.
             status (Optional[Any]): An optional status filter. If provided, only items with this status
                                     will be yielded. Defaults to None, which means all items matching the query
                                     will be yielded regardless of their status.
+
         Yields:
             tuple: A tuple where the first item is the item ID and the second item is the item dictionary.
+
         Example:
             >>> device = AlarmDevice()
             >>> list(device.items('door', status=True))
@@ -155,8 +181,9 @@ class AlarmDevice:
                 yield item_id, item
 
     def connect(self, username, password):
-        """Establish a connection with the E-connect backend, to retrieve an access
-        token. This method stores the `session_id` within the `ElmoClient` object
+        """Log in to the e-Connect backend and retrieve an access token.
+
+        This method stores the `session_id` within the `ElmoClient` object
         and is used automatically when other methods are called.
 
         When a connection is successfully established, the device automatically
@@ -328,6 +355,18 @@ class AlarmDevice:
         return self._inventory
 
     def arm(self, code, sectors=None):
+        """Arm the given sectors, or every sector when `sectors` is None.
+
+        Args:
+            code: The alarm code. Panels that need a user ID take it as `<user_id><code>`.
+            sectors: The sector numbers to arm.
+
+        Raises:
+            HTTPError: The cloud rejected the request.
+            LockError: The panel lock could not be acquired.
+            CodeError: The alarm code is wrong.
+            CommandError: The panel refused the command.
+        """
         try:
             # Detect if the user is trying to arm a system that requires a user ID
             if not self.panel.get("login_without_user_id", True):
@@ -351,6 +390,18 @@ class AlarmDevice:
             raise
 
     def disarm(self, code, sectors=None):
+        """Disarm the given sectors, or every armed sector when `sectors` is None.
+
+        Args:
+            code: The alarm code. Panels that need a user ID take it as `<user_id><code>`.
+            sectors: The sector numbers to disarm.
+
+        Raises:
+            HTTPError: The cloud rejected the request.
+            LockError: The panel lock could not be acquired.
+            CodeError: The alarm code is wrong.
+            CommandError: The panel refused the command.
+        """
         try:
             # Detect if the user is trying to arm a system that requires a user ID
             if not self.panel.get("login_without_user_id", True):
@@ -378,8 +429,7 @@ class AlarmDevice:
             raise
 
     def turn_off(self, output):
-        """
-        Turn off a specified output.
+        """Turn off a specified output.
 
         Args:
             output: The ID of the output to be turned off.
@@ -430,8 +480,7 @@ class AlarmDevice:
         return False
 
     def turn_on(self, output):
-        """
-        Turn on a specified output.
+        """Turn on a specified output.
 
         Args:
             output: The ID of the output to be turned on.

@@ -50,6 +50,13 @@ def set_device_state(new_state, loader_state):
 
 
 def retry_refresh_token(func):
+    """Retry an entity coroutine once with a fresh access token.
+
+    When the wrapped coroutine raises `InvalidToken`, the device logs in again with the
+    credentials of the entity's config entry and the coroutine runs a second time. A second
+    `InvalidToken` is logged and the wrapper returns `None`.
+    """
+
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         attempts = 0
@@ -69,6 +76,12 @@ def retry_refresh_token(func):
 
 
 def retry_refresh_token_service(func):
+    """Retry a service handler once with a fresh access token.
+
+    Like `retry_refresh_token`, for handlers called as `(hass, config_id, call)`: the device
+    of `config_id` logs in again with the credentials of the integration's first config entry.
+    """
+
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
         attempts = 0

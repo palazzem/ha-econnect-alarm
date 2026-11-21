@@ -67,11 +67,14 @@ allow-direct-references = true
 line-length = 120
 
 [tool.ruff.lint]
-extend-select = ["B", "E", "I", "S", "UP", "W"]
+extend-select = ["B", "D", "E", "I", "S", "UP", "W"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-# pytest asserts with `assert`.
-"tests/**" = ["S101"]
+# pytest asserts with `assert`, and a test's name states what it checks.
+"tests/**" = ["D", "S101"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

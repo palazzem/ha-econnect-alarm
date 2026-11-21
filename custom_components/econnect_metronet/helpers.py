@@ -1,3 +1,5 @@
+"""Helpers shared by the config flow, the device and the entities."""
+
 import logging
 
 import voluptuous as vol
@@ -28,6 +30,7 @@ class select(multi_select):
     """
 
     def __init__(self, options: list[tuple]) -> None:
+        """Create a validator that accepts only the identifiers in `options`."""
         self.options = options
         self.allowed_values = {option[0] for option in options}
 
