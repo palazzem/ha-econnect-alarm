@@ -3,6 +3,7 @@
 The cloud sits behind `responses`, so no request leaves the process and no socket is opened.
 """
 
+import contextlib
 import re
 import threading
 from dataclasses import dataclass
@@ -14,9 +15,13 @@ import responses
 from requests import PreparedRequest
 
 from .endpoints import ALL_ENDPOINTS, Endpoint
-from .replies import NORMAL, Replies
+from .replies import NORMAL, Replies, Reply
 
 _ANY_URL: Final = re.compile(r".*")
+
+
+def _reply_in_force(replies: Replies, endpoint: Endpoint) -> Reply:
+    return replies.get(endpoint, replies.get(ALL_ENDPOINTS, NORMAL))
 
 
 @dataclass(frozen=True)
@@ -68,7 +73,19 @@ class ScriptedCloud:
             mock.add_callback(method, _ANY_URL, callback=self._receive)
 
     def script(self, replies: Replies) -> None:
-        """Answer the requests that arrive from now on with `replies`."""
+        """Answer the requests that arrive from now on with `replies`.
+
+        Each endpoint's reply in force answers its canned body once here, in the caller's thread, so a reply that
+        cannot answer its endpoint fails the test that scripts it instead of an executor job the integration
+        swallows.
+
+        Raises:
+            Exception: whatever a reply raises other than `requests.RequestException`, such as a `TypeError` for a
+                predicate on an object body or a `KeyError` from a predicate reading a missing field.
+        """
+        for endpoint in Endpoint:
+            with contextlib.suppress(requests.RequestException):
+                _reply_in_force(replies, endpoint).answer(endpoint.body)
         with self._lock:
             self._replies = replies
 
@@ -90,7 +107,7 @@ class ScriptedCloud:
             self._record(None, url, "unknown")
             raise requests.ConnectionError(f"Scripted cloud: no endpoint for {request.method} {url}")
         with self._lock:
-            reply = self._replies.get(endpoint, self._replies.get(ALL_ENDPOINTS, NORMAL))
+            reply = _reply_in_force(self._replies, endpoint)
         try:
             status, body = reply.answer(endpoint.body)
         except requests.RequestException as exc:

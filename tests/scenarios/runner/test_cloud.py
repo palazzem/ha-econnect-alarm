@@ -11,7 +11,9 @@ from tests.scenarios.runner import (
     NORMAL,
     PANEL_DISCONNECTED,
     SERVER_ERROR,
+    Edited,
     Endpoint,
+    Reply,
 )
 from tests.scenarios.runner.cloud import ScriptedCloud
 
@@ -68,3 +70,25 @@ def test_a_request_to_an_unknown_url_fails_and_is_recorded_as_unknown(cloud: Scr
     [request] = cloud.take_requests()
     assert request.unknown
     assert str(request) == f"{BASE_URL}/api/unknown:unknown"
+
+
+@pytest.mark.parametrize(
+    ("endpoint", "reply", "error"),
+    [
+        (Endpoint.UPDATES, Edited({"Areas": False}, where=lambda entry: True), TypeError),
+        (Endpoint.INPUTS, Edited({"InUse": False}, where=lambda entry: entry["Missing"] == 1), KeyError),
+    ],
+    ids=["predicate on an object body", "predicate reading a missing field"],
+)
+def test_scripting_a_reply_that_cannot_answer_its_endpoint_raises(
+    cloud: ScriptedCloud, endpoint: Endpoint, reply: Reply, error: type[Exception]
+) -> None:
+    with pytest.raises(error):
+        cloud.script({endpoint: reply})
+
+
+def test_scripting_a_transport_error_for_every_endpoint_is_accepted(cloud: ScriptedCloud) -> None:
+    cloud.script({ALL_ENDPOINTS: CONNECTION_ERROR})
+
+    with pytest.raises(requests.ConnectionError):
+        call(Endpoint.LOGIN)
