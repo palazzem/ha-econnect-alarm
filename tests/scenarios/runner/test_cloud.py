@@ -92,3 +92,12 @@ def test_scripting_a_transport_error_for_every_endpoint_is_accepted(cloud: Scrip
 
     with pytest.raises(requests.ConnectionError):
         call(Endpoint.LOGIN)
+
+
+def test_a_known_url_called_with_another_method_is_recorded_as_unknown(cloud: ScriptedCloud) -> None:
+    with pytest.raises(requests.ConnectionError):
+        requests.get(Endpoint.AREAS.url, timeout=5)
+
+    [request] = cloud.take_requests()
+    assert request.unknown
+    assert str(request) == f"{Endpoint.AREAS.url}:unknown"
