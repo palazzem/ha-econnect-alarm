@@ -16,21 +16,24 @@ concurrency:
 
 jobs:
   econnect:
-    runs-on: ubuntu-latest
+    name: Lint
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        # actions/setup-python v7.1.0
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
-          python-version: '3.13'
+          python-version-file: .python-version
 
-      - name: Upgrade pip and install required tools
-        run: |
-          pip install --upgrade pip
-          pip install tox
+      - name: Install required tools
+        run: pip install pip==26.3 tox==4.67.15
 
       - name: Lint codebase
         run: tox -e lint

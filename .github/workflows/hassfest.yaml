@@ -16,11 +16,16 @@ concurrency:
 
 jobs:
   hassfest:
-    runs-on: ubuntu-latest
+    name: Validate with hassfest
+    runs-on: ubuntu-24.04
 
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v4
+      - name: Check out repository code
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Test hassfest
-        uses: home-assistant/actions/hassfest@master
+        # home-assistant/actions 2026.11.0
+        uses: home-assistant/actions/hassfest@07f46fd2e19967768b5fd3000f91f857452b767c
