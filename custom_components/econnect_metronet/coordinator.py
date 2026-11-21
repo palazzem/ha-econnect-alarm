@@ -8,7 +8,7 @@ import async_timeout
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api.v1.exceptions import DeviceDisconnectedError, InvalidToken
 from .const import DOMAIN, POLLING_TIMEOUT
@@ -46,6 +46,8 @@ class AlarmCoordinator(DataUpdateCoordinator[dict[int, Any]]):
         In case of invalid token, the method attempts to re-authenticate and get an update.
         If the update fails, the connection is reset to ensure proper data alignment in subsequent runs.
 
+        The first refresh loads the inventory instead, see `_async_load_inventory`.
+
         Returns:
             A dictionary containing the updated data.
 
@@ -55,11 +57,7 @@ class AlarmCoordinator(DataUpdateCoordinator[dict[int, Any]]):
         """
         try:
             if self.data is None:
-                # First update, no need to wait for changes
-                username = self.config_entry.data[CONF_USERNAME]
-                password = self.config_entry.data[CONF_PASSWORD]
-                await self.hass.async_add_executor_job(self._device.connect, username, password)
-                return await self.hass.async_add_executor_job(self._device.update)
+                return await self._async_load_inventory()
 
             async with async_timeout.timeout(POLLING_TIMEOUT):
                 if not self.last_update_success or not self._device.connected:
@@ -99,3 +97,24 @@ class AlarmCoordinator(DataUpdateCoordinator[dict[int, Any]]):
             # See: https://github.com/palazzem/ha-econnect-alarm/issues/148
             _LOGGER.error(f"Coordinator | {err}. Keeping the last known state.")
             return {}
+
+    async def _async_load_inventory(self) -> dict[int, Any]:
+        """Log in and load the panel's inventory, the first refresh of a config entry.
+
+        Entities are created from this inventory during setup, so setup must not complete without one.
+        Raising `UpdateFailed` here makes `async_config_entry_first_refresh` raise `ConfigEntryNotReady`,
+        and Home Assistant retries setup until the panel answers.
+
+        Raises:
+            UpdateFailed: When the panel is disconnected, or the cloud reports reset ids and so returns no inventory.
+        """
+        username = self.config_entry.data[CONF_USERNAME]
+        password = self.config_entry.data[CONF_PASSWORD]
+        await self.hass.async_add_executor_job(self._device.connect, username, password)
+        try:
+            inventory = await self.hass.async_add_executor_job(self._device.update)
+        except DeviceDisconnectedError as err:
+            raise UpdateFailed(f"{err}, waiting for the panel to load its inventory") from err
+        if not inventory:
+            raise UpdateFailed("The cloud reports reset ids, waiting for the panel to load its inventory")
+        return inventory
