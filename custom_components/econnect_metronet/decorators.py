@@ -37,9 +37,9 @@ def set_device_state(new_state, loader_state):
                 )
             except CodeError:
                 _LOGGER.warning("Inserted code is not correct. Retry.")
-            except Exception as err:
+            except Exception:
                 # All other exceptions are unexpected errors that must revert the state
-                _LOGGER.error(f"Device | Error during operation '{func.__name__}': {err}")
+                _LOGGER.exception(f"Device | Error during operation '{func.__name__}'")
             # Reverting the state in case of any error
             self._device.state = previous_state
             self.async_write_ha_state()
