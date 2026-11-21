@@ -198,18 +198,17 @@ you update the integration.
 
 ### Coding Guidelines
 
-To maintain a consistent codebase, we utilize [flake8][1] and [black][2]. Consistency is crucial as it
-helps readability, reduces errors, and facilitates collaboration among developers.
+To maintain a consistent codebase, we use [ruff][1] to lint and format the code, and [mypy][2] to check its types.
+Consistency is crucial as it helps readability, reduces errors, and facilitates collaboration among developers.
 
 To ensure that every commit adheres to our coding standards, we've integrated [pre-commit hooks][3].
-These hooks automatically run `flake8` and `black` before each commit, ensuring that all code changes
-are automatically checked and formatted.
+These hooks run before each commit, ensuring that all code changes are automatically checked and formatted.
 
 For details on how to set up your development environment to make use of these hooks, please refer to the
 [Development][4] section of our documentation.
 
-[1]: https://pypi.org/project/flake8/
-[2]: https://github.com/ambv/black
+[1]: https://docs.astral.sh/ruff/
+[2]: https://mypy.readthedocs.io/
 [3]: https://pre-commit.com/
 [4]: https://github.com/palazzem/ha-econnect-alarm#development
 

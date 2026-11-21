@@ -1,6 +1,6 @@
 import logging
 from datetime import timedelta
-from typing import Any, Dict, Optional
+from typing import Any
 
 import async_timeout
 from elmo.api.exceptions import DeviceDisconnectedError, InvalidToken
@@ -27,7 +27,7 @@ class AlarmCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=scan_interval),
         )
 
-    async def _async_update_data(self) -> Optional[Dict[str, Any]]:
+    async def _async_update_data(self) -> dict[str, Any] | None:
         """Update device data asynchronously using the long-polling method.
 
         This method uses the e-Connect long-polling API implemented in `device.has_updates` which

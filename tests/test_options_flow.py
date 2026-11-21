@@ -35,7 +35,7 @@ class TestOptionsFlow:
         assert isinstance(form["data_schema"].schema["areas_arm_home"], select)
         assert isinstance(form["data_schema"].schema["areas_arm_night"], select)
         assert isinstance(form["data_schema"].schema["areas_arm_vacation"], select)
-        assert form["data_schema"].schema["scan_interval"] == int
+        assert form["data_schema"].schema["scan_interval"] is int
 
     async def test_form_submit_successful_empty(self, hass, config_entry):
         # Ensure an empty form can be submitted successfully

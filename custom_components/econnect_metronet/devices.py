@@ -1,5 +1,4 @@
 import logging
-from typing import Union
 
 from elmo import query as q
 from elmo.api.exceptions import (
@@ -168,10 +167,10 @@ class AlarmDevice:
             self.connected = True
         except HTTPError as err:
             _LOGGER.error(f"Device | Error while authenticating with e-Connect: {err}")
-            raise err
+            raise
         except CredentialError as err:
             _LOGGER.error(f"Device | Username or password are not correct: {err}")
-            raise err
+            raise
 
     def has_updates(self):
         """Check if there have been any updates using the established connection.
@@ -195,13 +194,13 @@ class AlarmDevice:
             return data
         except HTTPError as err:
             _LOGGER.error(f"Device | Error while polling for updates: {err.response.text}")
-            raise err
+            raise
         except ParseError as err:
             _LOGGER.error(f"Device | Error parsing the poll response: {err}")
-            raise err
-        except DeviceDisconnectedError as err:
+            raise
+        except DeviceDisconnectedError:
             self.connected = False
-            raise err
+            raise
 
     def get_state(self):
         """Determine the alarm state based on the armed sectors.
@@ -239,7 +238,7 @@ class AlarmDevice:
 
         return AlarmControlPanelState.ARMED_AWAY
 
-    def get_status(self, query: int, id: int) -> Union[bool, int]:
+    def get_status(self, query: int, id: int) -> bool | int:
         """Get the status of an item in the device inventory specified by query and id.
 
         Parameters:
@@ -285,13 +284,13 @@ class AlarmDevice:
             panel = self._connection.query(q.PANEL)
         except HTTPError as err:
             _LOGGER.error(f"Device | Error during the update: {err.response.text}")
-            raise err
+            raise
         except ParseError as err:
             _LOGGER.error(f"Device | Error during the update: {err}")
-            raise err
-        except DeviceDisconnectedError as err:
+            raise
+        except DeviceDisconnectedError:
             self.connected = False
-            raise err
+            raise
 
         # `last_id` equal to 1 means the connection has been reset and the update
         # is an empty state. See: https://github.com/palazzem/ha-econnect-alarm/issues/148
@@ -340,16 +339,16 @@ class AlarmDevice:
                 self._connection.arm(sectors=sectors)
         except HTTPError as err:
             _LOGGER.error(f"Device | Error while arming the system: {err.response.text}")
-            raise err
+            raise
         except LockError as err:
             _LOGGER.error(f"Device | Error while acquiring the system lock: {err}")
-            raise err
+            raise
         except CodeError as err:
             _LOGGER.error(f"Device | Credentials (alarm code) is incorrect: {err}")
-            raise err
+            raise
         except CommandError as err:
             _LOGGER.error(f"Device | Error while arming the system: {err}")
-            raise err
+            raise
 
     def disarm(self, code, sectors=None):
         try:
@@ -367,16 +366,16 @@ class AlarmDevice:
                 self._connection.disarm(sectors=sectors)
         except HTTPError as err:
             _LOGGER.error(f"Device | Error while disarming the system: {err.response.text}")
-            raise err
+            raise
         except LockError as err:
             _LOGGER.error(f"Device | Error while acquiring the system lock: {err}")
-            raise err
+            raise
         except CodeError as err:
             _LOGGER.error(f"Device | Credentials (alarm code) is incorrect: {err}")
-            raise err
+            raise
         except CommandError as err:
             _LOGGER.error(f"Device | Error while disarming the system: {err}")
-            raise err
+            raise
 
     def turn_off(self, output):
         """
@@ -424,10 +423,10 @@ class AlarmDevice:
                 return True
             except HTTPError as err:
                 _LOGGER.error(f"Device | Error while turning off output: {err.response.text}")
-                raise err
+                raise
             except CommandError as err:
                 _LOGGER.error(f"Device | Error while turning off output: {err}")
-                raise err
+                raise
         return False
 
     def turn_on(self, output):
@@ -476,8 +475,8 @@ class AlarmDevice:
                 return True
             except HTTPError as err:
                 _LOGGER.error(f"Device | Error while turning on outputs: {err.response.text}")
-                raise err
+                raise
             except CommandError as err:
                 _LOGGER.error(f"Device | Error while turning on outputs: {err}")
-                raise err
+                raise
         return False

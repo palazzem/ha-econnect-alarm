@@ -16,13 +16,12 @@ if [ -d "venv" ]; then
     exit 1
 fi
 
-# Create and activate a new virtual environment
+# Create a new virtual environment
 python3 -m venv venv
-source venv/bin/activate
 
 # Upgrade pip and install all projects and their dependencies
-pip install --upgrade pip
-pip install -e '.[all]'
+venv/bin/pip install --upgrade pip
+venv/bin/pip install -e '.[dev]'
 
 # Override Home Assistant version
-pip install homeassistant==$VERSION pytest-homeassistant==$VERSION
+venv/bin/pip install "homeassistant==$VERSION" "pytest-homeassistant==$VERSION"
