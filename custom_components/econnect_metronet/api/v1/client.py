@@ -8,17 +8,6 @@ from requests import Session
 from requests.exceptions import HTTPError
 
 from . import query as q
-from .systems import (
-    ELMO_E_CONNECT,
-    ELMO_E_CONNECT_WEB_LOGIN,
-    IESS_METRONET,
-    IESS_METRONET_WEB_LOGIN,
-)
-from .utils import (
-    _camel_to_snake_case,
-    _sanitize_session_id,
-    extract_session_id_from_html,
-)
 from .decorators import require_lock, require_session
 from .exceptions import (
     CodeError,
@@ -31,13 +20,25 @@ from .exceptions import (
     QueryNotValid,
 )
 from .router import Router
+from .systems import (
+    ELMO_E_CONNECT,
+    ELMO_E_CONNECT_WEB_LOGIN,
+    IESS_METRONET,
+    IESS_METRONET_WEB_LOGIN,
+)
+from .utils import (
+    _camel_to_snake_case,
+    _sanitize_session_id,
+    extract_session_id_from_html,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class ElmoClient:
-    """ElmoClient class provides all the functionalities to connect
-    to an Elmo system. During the authentication a short-lived token is stored
+    """ElmoClient class provides all the functionalities to connect to an Elmo system.
+
+    During the authentication a short-lived token is stored
     in the instance and is used to arm/disarm the system.
 
     Usage:
@@ -77,12 +78,14 @@ class ElmoClient:
         _LOGGER.debug(f"Client | Web login URL: {self._web_login_url}")
 
     def auth(self, username, password):
-        """Authenticate the client and retrieves the access token. This method uses
-        the Authentication API, or the web login form if the base_url is Elmo E-Connect.
+        """Authenticate the client and retrieves the access token.
+
+        This method uses the Authentication API, or the web login form if the base_url is Elmo E-Connect.
 
         Args:
             username: the Username used for the authentication.
             password: the Password used for the authentication.
+
         Raises:
             HTTPError: if there is an error raised by the API (not 2xx response).
             CredentialError: if credentials are not correct
@@ -101,8 +104,8 @@ class ElmoClient:
         except HTTPError as err:
             # 403: Incorrect username or password
             if err.response.status_code == 403:
-                raise CredentialError
-            raise err
+                raise CredentialError from err
+            raise
 
         # Store the session_id and the panel details (if available)
         data = response.json()
@@ -136,8 +139,9 @@ class ElmoClient:
 
     @require_session
     def poll(self, ids):
-        """Use a long-polling API to identify when something changes in the
-        system. Calling this method blocks the thread for 15 seconds, waiting
+        """Use a long-polling API to identify when something changes in the system.
+
+        Calling this method blocks the thread for 15 seconds, waiting
         for a backend response that happens only when the alarm system status
         changes. Don't call this method from your main thread otherwise the
         application hangs.
@@ -150,6 +154,7 @@ class ElmoClient:
         Raises:
             HTTPError: if there is an error raised by the API (not 2xx response).
             ParseError: if the response cannot be parsed because the format is unexpected.
+
         Returns:
             A dictionary that includes what items have been changed. The following
             structure means that `areas` are not changed, while inputs are:
@@ -192,20 +197,23 @@ class ElmoClient:
     @contextmanager
     @require_session
     def lock(self, code, user_id=1):
-        """Context manager to obtain a system lock. The alerting system allows
-        only one user at a time and obtaining the lock is mandatory. When the
+        """Context manager to obtain a system lock.
+
+        The alerting system allows only one user at a time and obtaining the lock is mandatory. When the
         context manager is closed, the lock is automatically released.
 
         Args:
             code: the alarm code used to obtain the lock.
             user_id: the `userId` used by some main units. This value is optional and
                 should be used only if the main unit requires it. The default value is 1.
+
         Raises:
             CodeError: if used `code` is not valid.
             LockError: if the server is refusing to assign the lock. It could mean
             that an unexpected issue happened, or that another application is
             holding the lock. It's possible to retry the operation.
             HTTPError: if there is an error raised by the API (not 2xx response).
+
         Returns:
             A client instance with an acquired lock.
         """
@@ -219,11 +227,11 @@ class ElmoClient:
         except HTTPError as err:
             # 403: Unable obtain the lock (race condition with another application)
             if err.response.status_code == 403:
-                raise LockError
+                raise LockError from err
             # 401: The token has expired
             if err.response.status_code == 401:
-                raise InvalidToken
-            raise err
+                raise InvalidToken from err
+            raise
 
         # A wrong code returns 200 with a fail state
         body = response.json()
@@ -240,8 +248,9 @@ class ElmoClient:
     @require_session
     @require_lock
     def unlock(self):
-        """Release the system lock so that other threads (or this instance) can
-        acquire the lock again. This method requires a valid session ID and if called
+        """Release the system lock so that other threads (or this instance) can acquire the lock again.
+
+        This method requires a valid session ID and if called
         when a Lock() is not acquired it bails out.
 
         If there is a server error or if the call fails, the lock is not released
@@ -250,6 +259,7 @@ class ElmoClient:
 
         Raises:
             HTTPError: if there is an error raised by the API (not 2xx response).
+
         Returns:
             A boolean if the lock has been released correctly.
         """
@@ -268,8 +278,9 @@ class ElmoClient:
     @require_session
     @require_lock
     def arm(self, sectors=None):
-        """Arm system alarms without any activation delay. This API works only
-        if a system lock has been obtained, otherwise the action ends with a failure.
+        """Arm system alarms without any activation delay.
+
+        This API works only if a system lock has been obtained, otherwise the action ends with a failure.
         It is possible to enable ALL sectors, or provide a list of sectors such as:
 
             client.arm()        # Arms all sectors
@@ -279,8 +290,10 @@ class ElmoClient:
             sector: (optional) list of sectors that must be armed. If the variable is
             empty, ALL is assumed and the entire system is armed. If multiple items
             are in the list, one request are sent to arm given sectors.
+
         Raises:
             HTTPError: if there is an error raised by the API (not 2xx response).
+
         Returns:
             A boolean if the system has been armed correctly.
         """
@@ -321,8 +334,9 @@ class ElmoClient:
     @require_session
     @require_lock
     def disarm(self, sectors=None):
-        """Disarm system alarms. This API works only if a system lock has been
-        obtained, otherwise the action ends with a failure.
+        """Disarm system alarms.
+
+        This API works only if a system lock has been obtained, otherwise the action ends with a failure.
         It is possible to disable ALL sectors, or provide a list of sectors such as:
 
             client.disarm()     # Disarms all sectors
@@ -332,8 +346,10 @@ class ElmoClient:
             sector: (optional) list of sectors that must be disarmed. If the variable is
             empty, ALL is assumed and the entire system is disarmed. If multiple items
             are in the list, multiple requests are sent to disarm given sectors.
+
         Raises:
             HTTPError: if there is an error raised by the API (not 2xx response).
+
         Returns:
             A boolean if the system has been disarmed correctly.
         """
@@ -375,8 +391,7 @@ class ElmoClient:
     @require_session
     @require_lock
     def exclude(self, inputs):
-        """Exclude passed inputs: they are not alarmed
-        when you arm the area they belongs to.
+        """Exclude passed inputs: they are not alarmed when you arm the area they belongs to.
 
         This API provides the same effects as turning them
         from "idle" to "bypassed" on the E-Connect web UI.
@@ -391,8 +406,10 @@ class ElmoClient:
         Args:
             inputs: list of inputs that must be excluded. If multiple items
             are in the list, multiple requests are sent to exclude given inputs.
+
         Raises:
             HTTPError: if there is an error raised by the API (not 2xx response).
+
         Returns:
             A boolean if the input has been excluded correctly.
         """
@@ -425,7 +442,7 @@ class ElmoClient:
         # Raise an exception if errors are detected
         if errors:
             invalid_inputs = ",".join(str(x) for x in errors)
-            raise CommandError("Selected inputs don't exist: {}".format(invalid_inputs))
+            raise CommandError(f"Selected inputs don't exist: {invalid_inputs}")
 
         _LOGGER.debug("Client | Excluding successful")
         return True
@@ -433,8 +450,7 @@ class ElmoClient:
     @require_session
     @require_lock
     def include(self, inputs):
-        """Include system inputs: they are alarmed
-        when you arm the area they belongs to.
+        """Include system inputs: they are alarmed when you arm the area they belongs to.
 
         This API provides the same effects as turning them
         from "bypassed" to "idle" on the E-Connect web UI.
@@ -449,8 +465,10 @@ class ElmoClient:
         Args:
             inputs: list of inputs that must be included. If multiple items
             are in the list, multiple requests are sent to include given inputs.
+
         Raises:
             HTTPError: if there is an error raised by the API (not 2xx response).
+
         Returns:
             A boolean if the input has been included correctly.
         """
@@ -483,14 +501,14 @@ class ElmoClient:
         # Raise an exception if errors are detected
         if errors:
             invalid_inputs = ",".join(str(x) for x in errors)
-            raise CommandError("Selected inputs don't exist: {}".format(invalid_inputs))
+            raise CommandError(f"Selected inputs don't exist: {invalid_inputs}")
 
         _LOGGER.debug("Client | Including successful")
         return True
 
     @require_session
     def turn_on(self, outputs):
-        """Turn on passed outputs
+        """Turn on passed outputs.
 
         This API provides the same effects as turning them
         from "not active" to "active" on the E-Connect web UI.
@@ -506,12 +524,13 @@ class ElmoClient:
         Args:
             outputs: list of outputs that must be turned on. If multiple items
             are in the list, one requests is sent to turn on given outputs.
+
         Raises:
             HTTPError: if there is an error raised by the API (not 2xx response).
+
         Returns:
             A boolean if the output has been turned on correctly.
         """
-
         # Exclude only selected inputs
         _LOGGER.debug(f"Client | Turning on outputs: {outputs}")
         payload = {
@@ -536,7 +555,7 @@ class ElmoClient:
 
     @require_session
     def turn_off(self, outputs):
-        """Turn off passed outputs
+        """Turn off passed outputs.
 
         This API provides the same effects as turning them
         from "active" to "not active" on the E-Connect web UI.
@@ -552,12 +571,13 @@ class ElmoClient:
         Args:
             outputs: list of outputs that must be turned off. If multiple items
             are in the list, one requests is sent to turn off given outputs.
+
         Raises:
             HTTPError: if there is an error raised by the API (not 2xx response).
+
         Returns:
             A boolean if the output has been turned off correctly.
         """
-
         # Turn off only selected outputs
         _LOGGER.debug(f"Client | Turning off outputs: {outputs}")
         payload = {
@@ -583,12 +603,14 @@ class ElmoClient:
     @lru_cache(maxsize=1)
     @require_session
     def _get_descriptions(self):
-        """Retrieve Sectors and Inputs names to map `Class` and `Index` into a
-        human readable description. This method calls the E-Connect API, but the
+        """Retrieve Sectors and Inputs names to map `Class` and `Index` into a human readable description.
+
+        This method calls the E-Connect API, but the
         result is cached for the entire `ElmoClient` life-cycle.
 
         Raises:
             HTTPError: if there is an error raised by the API (not 2xx response).
+
         Returns:
             A dictionary having `Class` as key, and a dictionary of strings (`Index`)
             as a value, to map sectors and inputs names.
@@ -611,8 +633,10 @@ class ElmoClient:
 
     @require_session
     def query(self, query):
-        """Query an Elmo System to retrieve registered entries. It's possible to query
-        different part of the system using the `custom_components.econnect_metronet.api.v1.query` module:
+        """Query an Elmo System to retrieve registered entries.
+
+        It's possible to query different part of the system using the
+        `custom_components.econnect_metronet.api.v1.query` module:
 
             from custom_components.econnect_metronet.api.v1 import query
 
@@ -624,6 +648,7 @@ class ElmoClient:
             QueryNotValid: if the query is not recognized.
             HTTPError: if there is an error raised by the API (not 2xx response).
             ParseError: if the response cannot be parsed because the format is unexpected.
+
         Returns:
             A dict representing the raw query retrieved by the backend call.
 
@@ -664,8 +689,8 @@ class ElmoClient:
         except HTTPError as err:
             # Handle the case when the device is disconnected
             if err.response.status_code == 403 and "Centrale non connessa" in err.response.text:
-                raise DeviceDisconnectedError
-            raise err
+                raise DeviceDisconnectedError from err
+            raise
 
         if query in [q.SECTORS, q.INPUTS, q.OUTPUTS]:
             # Retrieve description or use the cache
@@ -748,8 +773,8 @@ class ElmoClient:
                 last_id = msg["StatusUid"]
                 status = msg["PanelLeds"]
                 anomalies = msg["PanelAnomalies"]
-            except (KeyError, ValueError):
-                raise ParseError("Unexpected response format from the server.")
+            except (KeyError, ValueError) as err:
+                raise ParseError("Unexpected response format from the server.") from err
 
             # Merge the 'status' and 'anomalies' dictionaries
             merged_dict = {**status, **anomalies}

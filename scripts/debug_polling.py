@@ -1,5 +1,4 @@
-"""
-Debug script for polling e-Connect/IESS alarm systems.
+"""Debug script for polling e-Connect/IESS alarm systems.
 
 This script connects to an e-Connect/IESS alarm system via the E-Connect or Metronet
 cloud platform, authenticates using provided credentials, and continuously polls

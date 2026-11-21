@@ -1,13 +1,11 @@
 from urllib.parse import urlparse
 
-from .systems import ELMO_E_CONNECT
 from .exceptions import ValidationError
+from .systems import ELMO_E_CONNECT
 
 
 class Router:
-    """API router class that holds a list of endpoints
-    grouped by action type.
-    """
+    """API router class that holds a list of endpoints grouped by action type."""
 
     def __init__(self, base_url):
         # Enforce the value is a valid URL behind HTTPS
@@ -21,40 +19,40 @@ class Router:
 
     @property
     def auth(self):
-        return "{}/api/login".format(self._base_url)
+        return f"{self._base_url}/api/login"
 
     @property
     def descriptions(self):
-        return "{}/api/strings".format(self._base_url)
+        return f"{self._base_url}/api/strings"
 
     @property
     def update(self):
-        return "{}/api/updates".format(self._base_url)
+        return f"{self._base_url}/api/updates"
 
     @property
     def status(self):
-        return "{}/api/statusadv".format(self._base_url)
+        return f"{self._base_url}/api/statusadv"
 
     @property
     def lock(self):
-        return "{}/api/panel/syncLogin".format(self._base_url)
+        return f"{self._base_url}/api/panel/syncLogin"
 
     @property
     def unlock(self):
-        return "{}/api/panel/syncLogout".format(self._base_url)
+        return f"{self._base_url}/api/panel/syncLogout"
 
     @property
     def send_command(self):
-        return "{}/api/panel/syncSendCommand".format(self._base_url)
+        return f"{self._base_url}/api/panel/syncSendCommand"
 
     @property
     def sectors(self):
-        return "{}/api/areas".format(self._base_url)
+        return f"{self._base_url}/api/areas"
 
     @property
     def inputs(self):
-        return "{}/api/inputs".format(self._base_url)
+        return f"{self._base_url}/api/inputs"
 
     @property
     def outputs(self):
-        return "{}/api/outputs".format(self._base_url)
+        return f"{self._base_url}/api/outputs"

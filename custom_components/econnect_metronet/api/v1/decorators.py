@@ -5,6 +5,7 @@ from .exceptions import InvalidToken, LockNotAcquired, MissingToken
 
 def require_session(func):
     """Decorator applied to functions that require a valid Session.
+
     The session ID is verified in the instance for the attribute
     `_session_id`.
 
@@ -24,14 +25,15 @@ def require_session(func):
                 # Translate 401 into InvalidToken exception
                 # Bubble up any other exception
                 if e.response.status_code == 401:
-                    raise InvalidToken
-                raise e
+                    raise InvalidToken from e
+                raise
 
     return func_wrapper
 
 
 def require_lock(func):
     """Decorator applied to functions that require to obtain a system lock.
+
     The lock is verified in the instance for the attribute `_lock` that must
     be a `threading.Lock` class.
 
@@ -54,7 +56,7 @@ def require_lock(func):
                 # 403: Method has been called without obtaining the server lock
                 if err.response.status_code == 403:
                     self._lock.release()
-                    raise LockNotAcquired("A lock must be acquired via `lock()` method.")
-                raise err
+                    raise LockNotAcquired("A lock must be acquired via `lock()` method.") from err
+                raise
 
     return func_wrapper

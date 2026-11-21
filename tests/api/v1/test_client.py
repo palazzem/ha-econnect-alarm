@@ -820,9 +820,8 @@ def test_client_lock_wrong_code(server, mocker):
     client._session_id = "test"
     mocker.patch.object(client, "unlock")
     # Test
-    with pytest.raises(CodeError):
-        with client.lock("test"):
-            pass
+    with pytest.raises(CodeError), client.lock("test"):
+        pass
     assert len(server.calls) == 1
 
 
@@ -833,9 +832,8 @@ def test_client_lock_called_twice(server, mocker):
     client._session_id = "test"
     mocker.patch.object(client, "unlock")
     # Test
-    with pytest.raises(LockError):
-        with client.lock("test"):
-            pass
+    with pytest.raises(LockError), client.lock("test"):
+        pass
     assert len(server.calls) == 1
 
 
@@ -846,9 +844,8 @@ def test_client_lock_invalid_token(server, mocker):
     client._session_id = "test"
     mocker.patch.object(client, "unlock")
     # Test
-    with pytest.raises(InvalidToken):
-        with client.lock("test"):
-            pass
+    with pytest.raises(InvalidToken), client.lock("test"):
+        pass
     assert len(server.calls) == 1
 
 
@@ -864,9 +861,8 @@ def test_client_lock_unknown_error(server, mocker):
     client._session_id = "test"
     mocker.patch.object(client, "unlock")
     # Test
-    with pytest.raises(HTTPError):
-        with client.lock(None):
-            pass
+    with pytest.raises(HTTPError), client.lock(None):
+        pass
     assert len(server.calls) == 1
 
 
@@ -904,9 +900,8 @@ def test_client_lock_and_unlock_with_exception(server, mocker):
     client._session_id = "test"
     mocker.patch.object(client, "unlock")
     # Test
-    with pytest.raises(Exception):
-        with client.lock("test"):
-            raise Exception
+    with pytest.raises(Exception), client.lock("test"):
+        raise Exception
     assert client.unlock.called is True
     assert len(server.calls) == 1
 

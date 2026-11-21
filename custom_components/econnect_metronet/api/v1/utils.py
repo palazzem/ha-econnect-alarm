@@ -25,8 +25,7 @@ def _sanitize_session_id(session_id):
 
 @lru_cache(maxsize=42)
 def _camel_to_snake_case(name):
-    """
-    Convert a CamelCase string to snake_case.
+    """Convert a CamelCase string to snake_case.
 
     This function implements an LRU cache to avoid doing the operation multiple times. As
     it is used with a very limited set of inputs, the cache size is set to 42 as the usual
