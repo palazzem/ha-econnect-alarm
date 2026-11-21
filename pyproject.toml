@@ -10,7 +10,7 @@ dynamic = ["version"]
 description = "Home Assistant integration that provides a full-fledged Alarm Panel to control your Elmo/IESS alarm systems."
 readme = "README.md"
 requires-python = ">=3.11"
-license = "Apache-2.0"
+license = "BSD-3-Clause"
 keywords = [
   "python",
   "home-automation",
