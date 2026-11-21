@@ -95,7 +95,7 @@ def coordinator(hass, config_entry, alarm_device):
     Yields:
         AlarmCoordinator: Initialized test instance of the AlarmCoordinator.
     """
-    coordinator = AlarmCoordinator(hass, alarm_device, 5)
+    coordinator = AlarmCoordinator(hass, config_entry, alarm_device, 5)
     # Override Configuration and Device with mocked versions
     coordinator.config_entry = config_entry
     coordinator._device._connection._session_id = "test_token"

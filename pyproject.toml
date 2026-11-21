@@ -88,3 +88,11 @@ only-include = ["custom_components/econnect_metronet"]
 omit = [
   "tests/*",
 ]
+
+[tool.mypy]
+files = ["custom_components"]
+
+[[tool.mypy.overrides]]
+# econnect-python ships no type information.
+module = ["elmo", "elmo.*"]
+ignore_missing_imports = true

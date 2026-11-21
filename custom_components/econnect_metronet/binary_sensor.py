@@ -36,7 +36,7 @@ async def async_setup_entry(
     coordinator = hass.data[DOMAIN][entry.entry_id][KEY_COORDINATOR]
     # Load all entities and register sectors and inputs
 
-    sensors = []
+    sensors: list[BinarySensorEntity] = []
 
     # Iterate through the sectors of the provided device and create InputBinarySensor objects
     for sector_id, name in device.sectors:
@@ -104,7 +104,7 @@ class AlertBinarySensor(CoordinatorEntity, BinarySensorEntity):
         return "hass:alarm-light"
 
     @property
-    def device_class(self) -> str:
+    def device_class(self) -> BinarySensorDeviceClass:
         """Return the device class."""
         return BinarySensorDeviceClass.PROBLEM
 
@@ -200,7 +200,9 @@ class SectorBinarySensor(CoordinatorEntity, BinarySensorEntity):
         return self._unique_id
 
     @property
-    def device_class(self) -> str:
+    # The sector services pick their targets by this device class, which is not one Home Assistant
+    # defines. Owner: @palazzem. Expires when sectors are armed through alarm panels (#95).
+    def device_class(self) -> str:  # type: ignore[override]
         """Return the device class."""
         return DEVICE_CLASS_SECTORS
 
