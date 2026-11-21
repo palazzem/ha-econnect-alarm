@@ -91,13 +91,13 @@ class LogCapture(logging.Handler):
         self._lines.append(line)
 
     def take(self) -> tuple[str, ...]:
-        """Return the lines collected since the last call, each once, in the order first logged."""
+        """Return the lines collected since the last call, in the order logged."""
         self.acquire()
         try:
             lines, self._lines = self._lines, []
         finally:
             self.release()
-        return tuple(dict.fromkeys(lines))
+        return tuple(lines)
 
 
 def render(rows: Sequence[Row]) -> str:
