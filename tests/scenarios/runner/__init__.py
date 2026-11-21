@@ -22,6 +22,8 @@ from .replies import (
     Status,
     TransportError,
 )
+from .scenario import Expect, Scenario, ScenarioFailed, Step
+from .timeline import Moment, Row
 
 __all__ = [
     "ALL_ENDPOINTS",
@@ -37,9 +39,15 @@ __all__ = [
     "AllEndpoints",
     "Edited",
     "Endpoint",
+    "Expect",
+    "Moment",
     "Normal",
     "Replies",
     "Reply",
+    "Row",
+    "Scenario",
+    "ScenarioFailed",
     "Status",
+    "Step",
     "TransportError",
 ]
