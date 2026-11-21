@@ -160,7 +160,7 @@ class Scenario:
         """Set up the config entry against a healthy cloud, then play `steps` in order.
 
         After each reload and each cycle the runner waits, with `async_block_till_done`, until Home Assistant has no
-        pending work, then records a row. The config entry is unloaded before this returns or raises.
+        pending work, then records a row.
 
         Raises:
             ScenarioFailed: if setup does not load the entry, a step's expectation fails on the step's last row, or a
@@ -175,8 +175,6 @@ class Scenario:
                     await self._play(step)
             finally:
                 self._logs.detach()
-                if self._entry.state in (ConfigEntryState.LOADED, ConfigEntryState.SETUP_RETRY):
-                    await self._hass.config_entries.async_unload(self._entry.entry_id)
                 await self._settle()
 
     async def _setup(self) -> None:
