@@ -10,7 +10,6 @@ import fnmatch
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import timedelta
-from typing import Final
 
 import responses
 from freezegun.api import FrozenDateTimeFactory
@@ -33,9 +32,6 @@ from .cloud import ScriptedCloud
 from .endpoints import BASE_URL
 from .replies import Replies
 from .timeline import LogCapture, Moment, Row, render
-
-ABSENT: Final = "<absent>"
-"""State shown for an entity the registry holds but the state machine does not."""
 
 
 class ScenarioFailed(AssertionError):
@@ -91,9 +87,9 @@ class Expect:
             if states[entity_id] != STATE_UNAVAILABLE
         ]
         failures += [
-            f"{entity_id} is {states[entity_id]}, expected its baseline {baseline.get(entity_id, ABSENT)}"
+            f"{entity_id} is {states[entity_id]}, expected its baseline {baseline.get(entity_id)}"
             for entity_id in _matching(states, self.at_baseline)
-            if states[entity_id] != baseline.get(entity_id, ABSENT)
+            if states[entity_id] != baseline.get(entity_id)
         ]
         if self.entry_state is not None and row.entry_state is not self.entry_state:
             failures.append(f"config entry is {row.entry_state.value}, expected {self.entry_state.value}")
@@ -215,11 +211,9 @@ class Scenario:
 
     def _states(self) -> dict[str, str]:
         entries = er.async_entries_for_config_entry(er.async_get(self._hass), self._entry.entry_id)
-        states = {}
-        for entity_id in sorted(entry.entity_id for entry in entries if entry.disabled_by is None):
-            state = self._hass.states.get(entity_id)
-            states[entity_id] = state.state if state is not None else ABSENT
-        return states
+        entity_ids = {entry.entity_id for entry in entries}
+        states = self._hass.states.async_all()
+        return dict(sorted((state.entity_id, state.state) for state in states if state.entity_id in entity_ids))
 
     def _record(self, step: str, cycle: int, moment: Moment) -> Row:
         requests = tuple(self._cloud.take_requests())

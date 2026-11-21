@@ -43,7 +43,7 @@ class Row:
         entry_state: State of the config entry.
         requests: Requests the cloud received since the previous row, with their results, in order.
         logs: Warnings and errors logged since the previous row, one line each.
-        states: State of every entity of the config entry, by entity id.
+        states: State of every entity of the config entry that the state machine holds, by entity id.
     """
 
     step: str
