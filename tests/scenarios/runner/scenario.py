@@ -24,7 +24,6 @@ from pytest_homeassistant.common import MockConfigEntry, async_fire_time_changed
 from custom_components.econnect_metronet.config_flow import EconnectConfigFlow
 from custom_components.econnect_metronet.const import (
     CONF_DOMAIN,
-    CONF_SCAN_INTERVAL,
     CONF_SYSTEM_URL,
     DOMAIN,
     SCAN_INTERVAL_DEFAULT,
@@ -112,7 +111,8 @@ class Step:
     Attributes:
         name: Name shown in the timeline and in failures.
         cycles: Coordinator cycles to play.
-        cycle_seconds: Seconds the clock moves per cycle; None for the config entry's scan interval.
+        cycle_seconds: Seconds the clock moves per cycle; None for the scan interval of the scenario's config entry,
+            which sets no options and so polls at the integration's default.
         replies: What the cloud answers during the step; an endpoint the step does not name answers normally.
         reload: Whether to reload the config entry, as a Home Assistant restart does, before the first cycle.
         expect: What must hold on the step's last row; None checks nothing.
@@ -199,7 +199,7 @@ class Scenario:
             await self._hass.config_entries.async_reload(self._entry.entry_id)
             await self._settle()
             last = self._record(step.name, 0, Moment.RELOAD)
-        cycle = timedelta(seconds=step.cycle_seconds or self._scan_interval())
+        cycle = timedelta(seconds=step.cycle_seconds or SCAN_INTERVAL_DEFAULT)
         for number in range(1, step.cycles + 1):
             self._freezer.tick(cycle)
             async_fire_time_changed(self._hass, dt_util.utcnow())
@@ -212,10 +212,6 @@ class Scenario:
 
     async def _settle(self) -> None:
         await self._hass.async_block_till_done(wait_background_tasks=True)
-
-    def _scan_interval(self) -> int:
-        interval: int = self._entry.options.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL_DEFAULT)
-        return interval
 
     def _states(self) -> dict[str, str]:
         entries = er.async_entries_for_config_entry(er.async_get(self._hass), self._entry.entry_id)
