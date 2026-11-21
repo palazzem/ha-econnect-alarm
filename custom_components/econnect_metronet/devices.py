@@ -300,7 +300,9 @@ class AlarmDevice:
         4. Updates internal state for sectors' and inputs' statuses.
 
         Returns:
-            dict: A dictionary containing the latest retrieved inventory.
+            dict: A dictionary containing the latest retrieved inventory. While the cloud reports reset ids
+            (`last_id` equal to 1), the inventory is not updated and the last loaded one is returned: an empty
+            dictionary if none has been loaded yet.
 
         Raises:
             HTTPError: If there's an error while making the HTTP request.
