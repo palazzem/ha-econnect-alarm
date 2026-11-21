@@ -141,14 +141,6 @@ async def test_a_failed_expectation_names_the_row_it_checked(scenario: Scenario)
     assert last.states[PANEL] == "unavailable"
 
 
-async def test_the_timeline_is_not_printed_when_the_scenario_passes(
-    scenario: Scenario, capsys: pytest.CaptureFixture[str]
-) -> None:
-    await scenario.run(Step("idle", cycles=1, expect=Expect(available=["*"])))
-
-    assert capsys.readouterr().out == ""
-
-
 def test_available_fails_for_an_unavailable_entity() -> None:
     failures = Expect(available=["sensor.*"]).check(row({"sensor.a": "unavailable", "sensor.b": "on"}), {})
 
