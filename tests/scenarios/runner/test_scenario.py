@@ -72,6 +72,17 @@ async def test_a_request_to_an_unknown_url_fails_the_scenario_in_the_row_that_sh
     assert any(request.unknown for request in last.requests)
 
 
+async def test_a_reply_that_cannot_answer_its_endpoint_fails_the_scenario_before_its_step_plays(
+    scenario: Scenario,
+) -> None:
+    broken = Edited({"InUse": False}, where=lambda entry: entry["Missing"] == 1)
+
+    with pytest.raises(KeyError):
+        await scenario.run(Step("broken script", cycles=1, replies={Endpoint.INPUTS: broken}))
+
+    assert [row.step for row in scenario.timeline] == ["setup"]
+
+
 async def test_a_failed_expectation_names_each_entity_and_prints_the_timeline(scenario: Scenario) -> None:
     with pytest.raises(ScenarioFailed) as failure:
         await scenario.run(
