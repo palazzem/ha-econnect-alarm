@@ -72,8 +72,15 @@ extend-select = ["B", "D", "E", "I", "S", "UP", "W"]
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-# pytest asserts with `assert`, and a test's name states what it checks.
-"tests/**" = ["D", "S101"]
+# pytest asserts with `assert`.
+"tests/**" = ["S101"]
+# A test's name states what it checks. The scenario runner's modules are a public API and keep their docstrings.
+"tests/**/test_*.py" = ["D"]
+"tests/__init__.py" = ["D"]
+"tests/conftest.py" = ["D"]
+"tests/helpers.py" = ["D"]
+"tests/api/**" = ["D"]
+"tests/fixtures/**" = ["D"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -89,5 +96,5 @@ omit = [
 ]
 
 [tool.mypy]
-files = ["custom_components"]
+files = ["custom_components", "tests/scenarios/runner"]
 strict = true
