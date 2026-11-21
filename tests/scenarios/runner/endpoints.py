@@ -5,7 +5,7 @@ the canned body a healthy cloud answers with. A route change in the client moves
 """
 
 from enum import Enum
-from typing import Final
+from typing import Final, NamedTuple
 
 from custom_components.econnect_metronet.api.v1.router import Router
 from tests.fixtures import responses as canned
@@ -35,18 +35,18 @@ class Endpoint(Enum):
 
     @property
     def method(self) -> str:
-        """HTTP method the client sends: `GET` for login, `POST` for every other route."""
-        return "GET" if self is Endpoint.LOGIN else "POST"
+        """HTTP method the client sends to the route."""
+        return _ROUTES[self].method
 
     @property
     def url(self) -> str:
         """Absolute URL of the route under `BASE_URL`, without a query string."""
-        return _ROUTES[self][0]
+        return _ROUTES[self].url
 
     @property
     def body(self) -> str:
         """Canned body a healthy cloud answers this route with."""
-        return _ROUTES[self][1]
+        return _ROUTES[self].body
 
 
 class AllEndpoints(Enum):
@@ -58,15 +58,22 @@ class AllEndpoints(Enum):
 ALL_ENDPOINTS: Final = AllEndpoints.ALL_ENDPOINTS
 """The reply under this key answers every endpoint a step does not name explicitly."""
 
+
+class _Route(NamedTuple):
+    method: str
+    url: str
+    body: str
+
+
 _ROUTES: Final = {
-    Endpoint.LOGIN: (_ROUTER.auth, canned.LOGIN),
-    Endpoint.STRINGS: (_ROUTER.descriptions, canned.STRINGS),
-    Endpoint.UPDATES: (_ROUTER.update, canned.UPDATES),
-    Endpoint.STATUSADV: (_ROUTER.status, canned.STATUS),
-    Endpoint.AREAS: (_ROUTER.sectors, canned.AREAS),
-    Endpoint.INPUTS: (_ROUTER.inputs, canned.INPUTS),
-    Endpoint.OUTPUTS: (_ROUTER.outputs, canned.OUTPUTS),
-    Endpoint.SYNC_LOGIN: (_ROUTER.lock, canned.SYNC_LOGIN),
-    Endpoint.SYNC_LOGOUT: (_ROUTER.unlock, canned.SYNC_LOGOUT),
-    Endpoint.SYNC_SEND_COMMAND: (_ROUTER.send_command, canned.SYNC_SEND_COMMAND),
+    Endpoint.LOGIN: _Route("GET", _ROUTER.auth, canned.LOGIN),
+    Endpoint.STRINGS: _Route("POST", _ROUTER.descriptions, canned.STRINGS),
+    Endpoint.UPDATES: _Route("POST", _ROUTER.update, canned.UPDATES),
+    Endpoint.STATUSADV: _Route("POST", _ROUTER.status, canned.STATUS),
+    Endpoint.AREAS: _Route("POST", _ROUTER.sectors, canned.AREAS),
+    Endpoint.INPUTS: _Route("POST", _ROUTER.inputs, canned.INPUTS),
+    Endpoint.OUTPUTS: _Route("POST", _ROUTER.outputs, canned.OUTPUTS),
+    Endpoint.SYNC_LOGIN: _Route("POST", _ROUTER.lock, canned.SYNC_LOGIN),
+    Endpoint.SYNC_LOGOUT: _Route("POST", _ROUTER.unlock, canned.SYNC_LOGOUT),
+    Endpoint.SYNC_SEND_COMMAND: _Route("POST", _ROUTER.send_command, canned.SYNC_SEND_COMMAND),
 }
