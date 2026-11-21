@@ -4,9 +4,12 @@ import logging
 from collections.abc import Iterator, Mapping
 from typing import TYPE_CHECKING, Any
 
-from elmo import query as q
-from elmo.api.client import ElmoClient
-from elmo.api.exceptions import (
+from homeassistant.components.alarm_control_panel import AlarmControlPanelState
+from requests.exceptions import HTTPError
+
+from .api.v1 import query as q
+from .api.v1.client import ElmoClient
+from .api.v1.exceptions import (
     CodeError,
     CommandError,
     CredentialError,
@@ -14,9 +17,6 @@ from elmo.api.exceptions import (
     LockError,
     ParseError,
 )
-from homeassistant.components.alarm_control_panel import AlarmControlPanelState
-from requests.exceptions import HTTPError
-
 from .const import (
     CONF_AREAS_ARM_AWAY,
     CONF_AREAS_ARM_HOME,
@@ -478,7 +478,7 @@ class AlarmDevice:
                 break
 
             try:
-                element_id = item.get("element")
+                element_id = item["element"]
                 self._connection.turn_off(element_id)
                 return True
             except HTTPError as err:
@@ -529,7 +529,7 @@ class AlarmDevice:
                 break
 
             try:
-                element_id = item.get("element")
+                element_id = item["element"]
                 self._connection.turn_on(element_id)
                 return True
             except HTTPError as err:

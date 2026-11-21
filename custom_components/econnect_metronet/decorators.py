@@ -5,12 +5,12 @@ import logging
 from collections.abc import Awaitable, Callable, Coroutine
 from typing import Any, Concatenate, ParamSpec, Protocol, TypeVar
 
-from elmo.api.exceptions import CodeError, InvalidToken, LockError
 from homeassistant.components.alarm_control_panel import AlarmControlPanelState
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant, ServiceCall
 
+from .api.v1.exceptions import CodeError, InvalidToken, LockError
 from .const import DOMAIN, KEY_DEVICE
 from .devices import AlarmDevice
 

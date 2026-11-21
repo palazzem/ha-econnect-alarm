@@ -2,13 +2,13 @@
 
 import logging
 
-from elmo.api.exceptions import CodeError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_USERNAME
 from homeassistant.helpers.config_validation import multi_select
 from homeassistant.util import slugify
 from requests.exceptions import HTTPError
 
+from .api.v1.exceptions import CodeError
 from .compat import vol
 from .const import CONF_SYSTEM_NAME, DOMAIN
 

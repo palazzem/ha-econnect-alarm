@@ -2,7 +2,6 @@
 
 from typing import Any
 
-from elmo import query as q
 from homeassistant.components import persistent_notification
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
@@ -11,6 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .api.v1 import query as q
 from .const import (
     CONF_EXPERIMENTAL,
     CONF_FORCE_UPDATE,

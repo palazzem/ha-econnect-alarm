@@ -5,12 +5,12 @@ from datetime import timedelta
 from typing import Any
 
 import async_timeout
-from elmo.api.exceptions import DeviceDisconnectedError, InvalidToken
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
+from .api.v1.exceptions import DeviceDisconnectedError, InvalidToken
 from .const import DOMAIN, POLLING_TIMEOUT
 from .devices import AlarmDevice
 

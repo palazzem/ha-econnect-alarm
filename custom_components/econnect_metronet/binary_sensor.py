@@ -1,6 +1,5 @@
 """Module for e-connect binary sensors (sectors, inputs and alert)."""
 
-from elmo import query as q
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
@@ -11,6 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .api.v1 import query as q
 from .const import (
     CONF_EXPERIMENTAL,
     CONF_FORCE_UPDATE,

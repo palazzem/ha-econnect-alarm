@@ -1,6 +1,6 @@
 import pytest
-from elmo.api.exceptions import CodeError, LockError
 
+from custom_components.econnect_metronet.api.v1.exceptions import CodeError, LockError
 from custom_components.econnect_metronet.decorators import set_device_state
 
 

@@ -1,10 +1,10 @@
 from datetime import timedelta
 
 import pytest
-from elmo.api.exceptions import CredentialError, DeviceDisconnectedError, InvalidToken
 from homeassistant.exceptions import ConfigEntryNotReady
 from requests.exceptions import HTTPError
 
+from custom_components.econnect_metronet.api.v1.exceptions import CredentialError, DeviceDisconnectedError, InvalidToken
 from custom_components.econnect_metronet.coordinator import AlarmCoordinator
 
 
