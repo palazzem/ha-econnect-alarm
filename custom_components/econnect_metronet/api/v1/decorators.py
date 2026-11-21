@@ -1,3 +1,5 @@
+"""Guards for client methods that need an authenticated session or the panel lock."""
+
 from collections.abc import Callable
 from threading import Lock
 from typing import Concatenate, ParamSpec, Protocol, TypeVar

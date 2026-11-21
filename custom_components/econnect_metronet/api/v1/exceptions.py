@@ -1,12 +1,21 @@
+"""Errors the client raises.
+
+`APIException` and its subclasses report a refusal from the cloud. The other errors report a
+client used out of order, an invalid configuration or query, or a response the client cannot parse.
+"""
+
+
 class BaseException(Exception):
     """BaseException used for extension."""
 
     default_message = "BaseException."
 
     def __init__(self, message: str | None = None) -> None:
+        """Hold `message`, or the class's `default_message` when `message` is empty."""
         self.message = message or self.default_message
 
     def __str__(self) -> str:
+        """Return the message the error holds."""
         return str(self.message)
 
 

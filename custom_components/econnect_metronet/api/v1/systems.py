@@ -1,3 +1,5 @@
+"""Base URLs of the supported clouds, and the host each one serves its web login from."""
+
 ELMO_E_CONNECT = "https://connect.elmospa.com"
 ELMO_E_CONNECT_WEB_LOGIN = "https://webservice.elmospa.com"
 IESS_METRONET = "https://metronet.iessonline.com"

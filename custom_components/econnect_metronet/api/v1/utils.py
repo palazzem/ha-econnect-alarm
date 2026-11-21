@@ -1,3 +1,5 @@
+"""Helpers the client uses to parse cloud responses and to keep session IDs out of logs."""
+
 import logging
 import re
 from functools import lru_cache

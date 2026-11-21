@@ -1,3 +1,5 @@
+"""The client that holds one session with the cloud and reads and commands one alarm panel."""
+
 import copy
 import logging
 from collections.abc import Iterable, Iterator, Mapping
@@ -55,6 +57,17 @@ class ElmoClient:
     """
 
     def __init__(self, base_url: str | None = None, domain: str | None = None, session_id: str | None = None) -> None:
+        """Prepare a client for one cloud, without sending any request.
+
+        Args:
+            base_url: HTTPS root URL of the cloud API. Elmo e-Connect when None.
+            domain: the installer domain sent with the login. `"default"` maps to the root
+                path of the web login.
+            session_id: a session ID from an earlier `auth()`, used without logging in again.
+
+        Raises:
+            ValidationError: if `base_url` is not an HTTPS URL.
+        """
         self._router = Router(base_url)
         self._domain = domain
         self._session = Session()
@@ -288,7 +301,7 @@ class ElmoClient:
             client.arm([3, 4])  # Arms only sectors 3 and 4
 
         Args:
-            sector: (optional) list of sectors that must be armed. If the variable is
+            sectors: (optional) list of sectors that must be armed. If the variable is
             empty, ALL is assumed and the entire system is armed. If multiple items
             are in the list, one request are sent to arm given sectors.
 
@@ -344,7 +357,7 @@ class ElmoClient:
             client.disarm([3])  # Disarms only sector 3
 
         Args:
-            sector: (optional) list of sectors that must be disarmed. If the variable is
+            sectors: (optional) list of sectors that must be disarmed. If the variable is
             empty, ALL is assumed and the entire system is disarmed. If multiple items
             are in the list, multiple requests are sent to disarm given sectors.
 
