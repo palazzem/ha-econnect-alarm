@@ -1858,6 +1858,18 @@ def test_client_get_descriptions_cached(server):
     assert len(server.calls) == 1
 
 
+def test_client_get_descriptions_cached_without_session(server):
+    """Should return cached descriptions without a request once the session ID is cleared."""
+    server.add(responses.POST, "https://example.com/api/strings", body=r.STRINGS, status=200)
+    client = ElmoClient(base_url="https://example.com", domain="domain")
+    client._session_id = "test"
+    descriptions = client._get_descriptions()
+    client._session_id = None
+    # Test
+    assert client._get_descriptions() == descriptions
+    assert len(server.calls) == 1
+
+
 def test_client_get_descriptions_cache_releases_client(server):
     """Should not keep a discarded client alive through the descriptions cache."""
     server.add(responses.POST, "https://example.com/api/strings", body=r.STRINGS, status=200)

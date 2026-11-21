@@ -614,7 +614,6 @@ class ElmoClient:
         _LOGGER.debug(f"Client | Turning on successful with response: {body}")
         return True
 
-    @require_session
     def _get_descriptions(self) -> dict[int, dict[int, str]]:
         """Retrieve Sectors and Inputs names to map `Class` and `Index` into a human readable description.
 
@@ -628,9 +627,13 @@ class ElmoClient:
             A dictionary having `Class` as key, and a dictionary of strings (`Index`)
             as a value, to map sectors and inputs names.
         """
-        if self._descriptions is not None:
-            return self._descriptions
+        if self._descriptions is None:
+            self._descriptions = self._fetch_descriptions()
+        return self._descriptions
 
+    @require_session
+    def _fetch_descriptions(self) -> dict[int, dict[int, str]]:
+        """Request the descriptions from the cloud, without reading or filling the cache."""
         payload = {"sessionId": self._session_id}
         response = self._session.post(self._router.descriptions, data=payload)
         response.raise_for_status()
@@ -645,7 +648,6 @@ class ElmoClient:
             descriptions[item["Class"]] = classes
 
         _LOGGER.debug(f"Client | Descriptions retrieved (in-cache): {descriptions}")
-        self._descriptions = descriptions
         return descriptions
 
     @require_session
