@@ -2,8 +2,7 @@ import pytest
 import responses
 
 from custom_components.econnect_metronet.api.v1.client import ElmoClient
-
-from .fixtures import responses as r
+from tests.fixtures import responses as r
 
 
 @pytest.fixture(scope="function")

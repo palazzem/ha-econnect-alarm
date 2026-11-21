@@ -6,8 +6,7 @@ from custom_components.econnect_metronet.api.v1.utils import (
     _sanitize_session_id,
     extract_session_id_from_html,
 )
-
-from .fixtures.responses import STATUS_PAGE
+from tests.fixtures.responses import STATUS_PAGE
 
 
 def test_sanitize_identifier():
