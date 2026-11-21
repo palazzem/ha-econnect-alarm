@@ -1,19 +1,17 @@
 """
-Centralizes predefined responses intended for integration testing, especially when used with the `server` fixture.
-For standard tests, responses should be encapsulated within the test itself. This module should be referenced
-primarily when updating the responses for the integration test client, ensuring a consistent test environment.
+Canned e-Connect cloud responses shared by the client tests and the integration tests.
 
-Key Benefits:
-    - Central repository of standardized test responses.
-    - Promotes consistent and maintainable testing practices.
+Each constant is the body one cloud endpoint returns for the same invented panel, so every suite reads one
+consistent inventory. A test that needs a different body builds it inside the test instead of editing a
+constant here.
 
 Usage:
-    1. Import the required response constant from this module:
-       from tests.fixtures.responses import SECTORS
+    1. Import the module or the response constant:
+       from tests.fixtures import responses as r
 
-    2. Incorporate the imported response in your test logic:
-       def test_client_get_sectors_status(server):
-           server.add(responses.POST, "https://example.com/api/areas", body=SECTORS, status=200)
+    2. Register it on the mocked HTTP layer:
+       def test_client_get_areas(server):
+           server.add(responses.POST, "https://example.com/api/areas", body=r.AREAS, status=200)
            # Continue with the test...
 """
 
