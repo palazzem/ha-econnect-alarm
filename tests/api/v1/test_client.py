@@ -901,9 +901,13 @@ def test_client_lock_and_unlock_with_exception(server, mocker):
     client = ElmoClient(base_url="https://example.com", domain="domain")
     client._session_id = "test"
     mocker.patch.object(client, "unlock")
+
+    class _BodyError(Exception):
+        pass
+
     # Test
-    with pytest.raises(Exception), client.lock("test"):
-        raise Exception
+    with pytest.raises(_BodyError), client.lock("test"):
+        raise _BodyError
     assert client.unlock.called is True
     assert len(server.calls) == 1
 
