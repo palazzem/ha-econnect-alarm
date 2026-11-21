@@ -9,10 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
-)
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     CONF_EXPERIMENTAL,
@@ -22,6 +19,7 @@ from .const import (
     KEY_COORDINATOR,
     KEY_DEVICE,
 )
+from .coordinator import AlarmCoordinator
 from .devices import AlarmDevice
 from .helpers import generate_entity_id
 
@@ -62,7 +60,7 @@ async def async_setup_entry(
     async_add_entities(sensors)
 
 
-class AlertBinarySensor(CoordinatorEntity, BinarySensorEntity):
+class AlertBinarySensor(CoordinatorEntity[AlarmCoordinator], BinarySensorEntity):
     """Representation of a e-Connect alert binary sensor."""
 
     _attr_has_entity_name = True
@@ -73,7 +71,7 @@ class AlertBinarySensor(CoordinatorEntity, BinarySensorEntity):
         alert_id: int,
         config: ConfigEntry,
         name: str,
-        coordinator: DataUpdateCoordinator,
+        coordinator: AlarmCoordinator,
         device: AlarmDevice,
     ) -> None:
         """Construct."""
@@ -118,7 +116,7 @@ class AlertBinarySensor(CoordinatorEntity, BinarySensorEntity):
             return bool(status)
 
 
-class InputBinarySensor(CoordinatorEntity, BinarySensorEntity):
+class InputBinarySensor(CoordinatorEntity[AlarmCoordinator], BinarySensorEntity):
     """Representation of a e-connect input binary sensor."""
 
     _attr_has_entity_name = True
@@ -129,7 +127,7 @@ class InputBinarySensor(CoordinatorEntity, BinarySensorEntity):
         input_id: int,
         config: ConfigEntry,
         name: str,
-        coordinator: DataUpdateCoordinator,
+        coordinator: AlarmCoordinator,
         device: AlarmDevice,
     ) -> None:
         """Construct."""
@@ -165,7 +163,7 @@ class InputBinarySensor(CoordinatorEntity, BinarySensorEntity):
         return bool(self._device.get_status(q.INPUTS, self._input_id))
 
 
-class SectorBinarySensor(CoordinatorEntity, BinarySensorEntity):
+class SectorBinarySensor(CoordinatorEntity[AlarmCoordinator], BinarySensorEntity):
     """Representation of a e-connect sector binary sensor."""
 
     _attr_has_entity_name = True
@@ -176,7 +174,7 @@ class SectorBinarySensor(CoordinatorEntity, BinarySensorEntity):
         sector_id: int,
         config: ConfigEntry,
         name: str,
-        coordinator: DataUpdateCoordinator,
+        coordinator: AlarmCoordinator,
         device: AlarmDevice,
     ) -> None:
         """Construct."""

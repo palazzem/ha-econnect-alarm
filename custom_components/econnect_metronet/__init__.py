@@ -4,13 +4,14 @@ import asyncio
 import logging
 from functools import partial
 
-import voluptuous as vol
 from elmo.api.client import ElmoClient
 from elmo.systems import ELMO_E_CONNECT as E_CONNECT_DEFAULT
-from homeassistant.config_entries import ConfigEntry, ConfigType
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.typing import ConfigType
 
 from . import services
+from .compat import vol
 from .const import (
     CONF_DOMAIN,
     CONF_EXPERIMENTAL,
@@ -45,7 +46,7 @@ CONFIG_SCHEMA = vol.Schema(
 PLATFORMS = ["alarm_control_panel", "binary_sensor", "sensor", "switch"]
 
 
-async def async_migrate_entry(hass, config: ConfigEntry):
+async def async_migrate_entry(hass: HomeAssistant, config: ConfigEntry) -> bool:
     """Config flow migrations."""
     _LOGGER.info(f"Migrating from version {config.version}")
 
@@ -73,7 +74,7 @@ async def async_migrate_entry(hass, config: ConfigEntry):
     return True
 
 
-async def async_setup(hass: HomeAssistant, config: ConfigType):
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Initialize the E-connect Alarm integration.
 
     This method exposes eventual YAML configuration options under the DOMAIN key.
@@ -137,7 +138,7 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry) -> bool:
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, config: ConfigEntry):
+async def async_unload_entry(hass: HomeAssistant, config: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = all(
         await asyncio.gather(
@@ -152,6 +153,6 @@ async def async_unload_entry(hass: HomeAssistant, config: ConfigEntry):
     return unload_ok
 
 
-async def options_update_listener(hass: HomeAssistant, config: ConfigEntry):
+async def options_update_listener(hass: HomeAssistant, config: ConfigEntry) -> None:
     """Handle options update."""
     await hass.config_entries.async_reload(config.entry_id)

@@ -1,5 +1,7 @@
 """Switch entities for the outputs of the alarm panel."""
 
+from typing import Any
+
 from elmo import query as q
 from homeassistant.components import persistent_notification
 from homeassistant.components.switch import SwitchEntity
@@ -7,10 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
-)
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     CONF_EXPERIMENTAL,
@@ -22,6 +21,7 @@ from .const import (
     NOTIFICATION_MESSAGE,
     NOTIFICATION_TITLE,
 )
+from .coordinator import AlarmCoordinator
 from .devices import AlarmDevice
 from .helpers import generate_entity_id
 
@@ -44,7 +44,7 @@ async def async_setup_entry(
     async_add_entities(outputs)
 
 
-class OutputSwitch(CoordinatorEntity, SwitchEntity):
+class OutputSwitch(CoordinatorEntity[AlarmCoordinator], SwitchEntity):
     """Representation of a e-connect output switch."""
 
     _attr_has_entity_name = True
@@ -55,7 +55,7 @@ class OutputSwitch(CoordinatorEntity, SwitchEntity):
         output_id: int,
         config: ConfigEntry,
         name: str,
-        coordinator: DataUpdateCoordinator,
+        coordinator: AlarmCoordinator,
         device: AlarmDevice,
     ) -> None:
         """Construct."""
@@ -90,14 +90,14 @@ class OutputSwitch(CoordinatorEntity, SwitchEntity):
         """Return the switch status (on/off)."""
         return bool(self._device.get_status(q.OUTPUTS, self._output_id))
 
-    async def async_turn_off(self):
+    async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the entity off."""
         if not await self.hass.async_add_executor_job(self._device.turn_off, self._output_id):  # pragma: no cover
             persistent_notification.async_create(
                 self.hass, NOTIFICATION_MESSAGE, NOTIFICATION_TITLE, NOTIFICATION_IDENTIFIER
             )
 
-    async def async_turn_on(self):
+    async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""
         if not await self.hass.async_add_executor_job(self._device.turn_on, self._output_id):  # pragma: no cover
             persistent_notification.async_create(

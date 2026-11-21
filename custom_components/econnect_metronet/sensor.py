@@ -6,10 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
-)
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     CONF_EXPERIMENTAL,
@@ -18,6 +15,7 @@ from .const import (
     KEY_COORDINATOR,
     KEY_DEVICE,
 )
+from .coordinator import AlarmCoordinator
 from .devices import AlarmDevice
 from .helpers import generate_entity_id
 
@@ -44,7 +42,7 @@ async def async_setup_entry(
     async_add_entities(sensors)
 
 
-class AlertSensor(CoordinatorEntity, SensorEntity):
+class AlertSensor(CoordinatorEntity[AlarmCoordinator], SensorEntity):
     """Representation of a e-Connect alert sensor."""
 
     _attr_has_entity_name = True
@@ -55,7 +53,7 @@ class AlertSensor(CoordinatorEntity, SensorEntity):
         alert_id: int,
         config: ConfigEntry,
         name: str,
-        coordinator: DataUpdateCoordinator,
+        coordinator: AlarmCoordinator,
         device: AlarmDevice,
     ) -> None:
         """Construct."""

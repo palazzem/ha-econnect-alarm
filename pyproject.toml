@@ -91,6 +91,7 @@ omit = [
 
 [tool.mypy]
 files = ["custom_components"]
+strict = true
 
 [[tool.mypy.overrides]]
 # econnect-python ships no type information.
