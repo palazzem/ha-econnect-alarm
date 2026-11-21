@@ -55,10 +55,10 @@ class AlarmCoordinator(DataUpdateCoordinator[dict[int, Any]]):
             InvalidToken: When the token used for the connection is invalid.
             UpdateFailed: When there's an error in updating the data.
         """
-        try:
-            if self.data is None:
-                return await self._async_load_inventory()
+        if self.data is None:
+            return await self._async_load_inventory()
 
+        try:
             async with async_timeout.timeout(POLLING_TIMEOUT):
                 if not self.last_update_success or not self._device.connected:
                     # Force an update if at least one failed. This is required to prevent
@@ -106,14 +106,15 @@ class AlarmCoordinator(DataUpdateCoordinator[dict[int, Any]]):
         and Home Assistant retries setup until the panel answers.
 
         Raises:
-            UpdateFailed: When the panel is disconnected, or the cloud reports reset ids and so returns no inventory.
+            UpdateFailed: When the panel is disconnected, the token is rejected, or the cloud reports reset ids and
+                so returns no inventory. Home Assistant's setup retry logs in again.
         """
         username = self.config_entry.data[CONF_USERNAME]
         password = self.config_entry.data[CONF_PASSWORD]
         await self.hass.async_add_executor_job(self._device.connect, username, password)
         try:
             inventory = await self.hass.async_add_executor_job(self._device.update)
-        except DeviceDisconnectedError as err:
+        except (DeviceDisconnectedError, InvalidToken) as err:
             raise UpdateFailed(f"{err}, waiting for the panel to load its inventory") from err
         if not inventory:
             raise UpdateFailed("The cloud reports reset ids, waiting for the panel to load its inventory")
