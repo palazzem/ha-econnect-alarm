@@ -6,6 +6,9 @@ from requests.exceptions import HTTPError
 
 from custom_components.econnect_metronet.api.v1.exceptions import CredentialError, DeviceDisconnectedError, InvalidToken
 from custom_components.econnect_metronet.coordinator import AlarmCoordinator
+from custom_components.econnect_metronet.devices import AlarmDevice
+
+CONNECTION_RESET = {"last_id": 1}
 
 
 def test_coordinator_constructor(hass, config_entry, alarm_device):
@@ -216,6 +219,53 @@ async def test_coordinator_first_refresh_update_failed(mocker, coordinator):
     # Test
     with pytest.raises(ConfigEntryNotReady):
         await coordinator.async_config_entry_first_refresh()
+
+
+@pytest.mark.asyncio
+async def test_coordinator_first_refresh_disconnected_device(mocker, coordinator):
+    # Ensure setup is not ready while the panel is disconnected, so entities are created only with an inventory
+    # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/200
+    coordinator.data = None
+    mocker.patch.object(coordinator._device._connection, "query")
+    coordinator._device._connection.query.side_effect = DeviceDisconnectedError()
+    # Test
+    with pytest.raises(ConfigEntryNotReady):
+        await coordinator.async_config_entry_first_refresh()
+
+
+@pytest.mark.asyncio
+async def test_coordinator_first_refresh_connection_reset(mocker, hass, config_entry, client):
+    # Ensure setup is not ready while the cloud reports reset ids, as no inventory is loaded
+    # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/200
+    coordinator = AlarmCoordinator(hass, config_entry, AlarmDevice(client), 5)
+    mocker.patch.object(client, "query", return_value=CONNECTION_RESET)
+    # Test
+    with pytest.raises(ConfigEntryNotReady):
+        await coordinator.async_config_entry_first_refresh()
+
+
+@pytest.mark.asyncio
+async def test_coordinator_first_refresh_invalid_token_then_connection_reset(mocker, hass, config_entry, client):
+    # Ensure setup is not ready when the first update hits an invalid token, so no inventory is loaded
+    # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/200
+    coordinator = AlarmCoordinator(hass, config_entry, AlarmDevice(client), 5)
+    mocker.patch.object(client, "query", side_effect=[InvalidToken()] + [CONNECTION_RESET] * 5)
+    # Test
+    with pytest.raises(ConfigEntryNotReady):
+        await coordinator.async_config_entry_first_refresh()
+
+
+@pytest.mark.asyncio
+async def test_coordinator_update_after_connection_reset_keeps_state(mocker, coordinator, alarm_device):
+    # Ensure a connection reset after setup keeps the last known inventory
+    # Regression test for: https://github.com/palazzem/ha-econnect-alarm/issues/148
+    inventory = alarm_device.update()
+    coordinator._device.connected = False
+    mocker.patch.object(coordinator._device._connection, "query", return_value=CONNECTION_RESET)
+    # Test
+    await coordinator.async_refresh()
+    assert coordinator.last_update_success is True
+    assert coordinator.data == inventory
 
 
 @pytest.mark.asyncio
