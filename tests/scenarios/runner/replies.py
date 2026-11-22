@@ -1,6 +1,6 @@
 """What the scripted cloud answers to a request, as immutable values.
 
-Each reply turns an endpoint's canned body into the HTTP status and body the client receives, or raises the
+Each reply turns an endpoint's fixture body into the HTTP status and body the client receives, or raises the
 exception `requests` would raise. Named replies are named for what the cloud does, never for the test that uses them.
 """
 
@@ -19,7 +19,7 @@ Entry = Mapping[str, Any]
 
 @dataclass(frozen=True)
 class Normal:
-    """A healthy cloud: 200 with the endpoint's canned body."""
+    """A healthy cloud: 200 with the endpoint's fixture body."""
 
     def answer(self, body: str) -> tuple[int, str]:
         """Return status 200 and `body` unchanged."""
@@ -28,7 +28,7 @@ class Normal:
 
 @dataclass(frozen=True)
 class Edited:
-    """200 with the canned body after a change.
+    """200 with the fixture body after a change.
 
     On a list body, every entry gets `changes`, or only the entries `where` selects. On an object body, the keys in
     `changes` are set and every other key is kept.
@@ -66,7 +66,7 @@ class Status:
     text: str = ""
 
     def answer(self, body: str) -> tuple[int, str]:
-        """Return `code` and `text`; the canned body is ignored."""
+        """Return `code` and `text`; the fixture body is ignored."""
         return self.code, self.text
 
 

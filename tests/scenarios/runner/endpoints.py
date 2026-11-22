@@ -1,14 +1,14 @@
 """The e-Connect cloud endpoints a scenario scripts, one per route of the client's router.
 
 Each endpoint knows the HTTP method the client uses, the URL the client's `Router` builds from `BASE_URL`, and
-the canned body a healthy cloud answers with. A route change in the client moves the endpoint with it.
+the fixture body a healthy cloud answers with. A route change in the client moves the endpoint with it.
 """
 
 from enum import Enum
 from typing import Final, NamedTuple
 
 from custom_components.econnect_metronet.api.v1.router import Router
-from tests.fixtures import responses as canned
+from tests.fixtures import responses as fixtures
 
 BASE_URL: Final = "https://example.com"
 """Root URL of the scripted cloud; the scenario's config entry points the integration at it."""
@@ -45,7 +45,7 @@ class Endpoint(Enum):
 
     @property
     def body(self) -> str:
-        """Canned body a healthy cloud answers this route with."""
+        """Fixture body a healthy cloud answers this route with."""
         return _ROUTES[self].body
 
 
@@ -66,14 +66,14 @@ class _Route(NamedTuple):
 
 
 _ROUTES: Final = {
-    Endpoint.LOGIN: _Route("GET", _ROUTER.auth, canned.LOGIN),
-    Endpoint.STRINGS: _Route("POST", _ROUTER.descriptions, canned.STRINGS),
-    Endpoint.UPDATES: _Route("POST", _ROUTER.update, canned.UPDATES),
-    Endpoint.STATUSADV: _Route("POST", _ROUTER.status, canned.STATUS),
-    Endpoint.AREAS: _Route("POST", _ROUTER.sectors, canned.AREAS),
-    Endpoint.INPUTS: _Route("POST", _ROUTER.inputs, canned.INPUTS),
-    Endpoint.OUTPUTS: _Route("POST", _ROUTER.outputs, canned.OUTPUTS),
-    Endpoint.SYNC_LOGIN: _Route("POST", _ROUTER.lock, canned.SYNC_LOGIN),
-    Endpoint.SYNC_LOGOUT: _Route("POST", _ROUTER.unlock, canned.SYNC_LOGOUT),
-    Endpoint.SYNC_SEND_COMMAND: _Route("POST", _ROUTER.send_command, canned.SYNC_SEND_COMMAND),
+    Endpoint.LOGIN: _Route("GET", _ROUTER.auth, fixtures.LOGIN),
+    Endpoint.STRINGS: _Route("POST", _ROUTER.descriptions, fixtures.STRINGS),
+    Endpoint.UPDATES: _Route("POST", _ROUTER.update, fixtures.UPDATES),
+    Endpoint.STATUSADV: _Route("POST", _ROUTER.status, fixtures.STATUS),
+    Endpoint.AREAS: _Route("POST", _ROUTER.sectors, fixtures.AREAS),
+    Endpoint.INPUTS: _Route("POST", _ROUTER.inputs, fixtures.INPUTS),
+    Endpoint.OUTPUTS: _Route("POST", _ROUTER.outputs, fixtures.OUTPUTS),
+    Endpoint.SYNC_LOGIN: _Route("POST", _ROUTER.lock, fixtures.SYNC_LOGIN),
+    Endpoint.SYNC_LOGOUT: _Route("POST", _ROUTER.unlock, fixtures.SYNC_LOGOUT),
+    Endpoint.SYNC_SEND_COMMAND: _Route("POST", _ROUTER.send_command, fixtures.SYNC_SEND_COMMAND),
 }

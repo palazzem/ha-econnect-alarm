@@ -75,7 +75,7 @@ class ScriptedCloud:
     def script(self, replies: Replies) -> None:
         """Answer the requests that arrive from now on with `replies`.
 
-        Each endpoint's reply in force answers its canned body once here, in the caller's thread, so a reply that
+        Each endpoint's reply in force answers its fixture body once here, in the caller's thread, so a reply that
         cannot answer its endpoint fails the test that scripts it instead of an executor job the integration
         swallows.
 
