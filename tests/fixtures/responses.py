@@ -1,5 +1,5 @@
 """
-Canned e-Connect cloud responses shared by the client tests and the integration tests.
+e-Connect cloud response fixtures shared by the client tests and the integration tests.
 
 Each constant is the body one cloud endpoint returns for the same invented panel, so every suite reads one
 consistent inventory. A test that needs a different body builds it inside the test instead of editing a
