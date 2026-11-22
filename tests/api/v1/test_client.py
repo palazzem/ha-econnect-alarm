@@ -20,8 +20,7 @@ from custom_components.econnect_metronet.api.v1.exceptions import (
     QueryNotValid,
 )
 from custom_components.econnect_metronet.api.v1.systems import ELMO_E_CONNECT, IESS_METRONET
-
-from .fixtures import responses as r
+from tests.fixtures import responses as r
 
 
 def test_client_constructor_default():
